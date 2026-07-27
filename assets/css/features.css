@@ -67,6 +67,23 @@ html.loaded #app { opacity: 1; transition: opacity .5s ease; }
 .pager-empty { flex: 1; }
 .prereq { margin-top: 10px; font-size: .86rem; color: var(--dim); background: rgba(124,92,255,.07); border-left: 3px solid var(--acc); padding: 8px 14px; border-radius: 0 8px 8px 0; }
 .nav-tool { display: block; padding: 8px 10px; margin: 2px 8px 8px; border-radius: 8px; color: var(--dim); font-size: .9rem; }
+.nav-section-label { padding: 12px 14px 4px; font-size: .72rem; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); font-weight: 700; }
+
+/* ---------- Interactive Labs (home section + circuit/mark grids) ---------- */
+.labs-section { margin: 30px 0 8px; }
+.labs-heading { margin: 0 0 4px; font-size: 1.3rem; }
+.labs-sub { color: var(--dim); margin: 0 0 14px; font-size: .92rem; }
+.circuit-grid { margin: 14px 0; overflow-x: auto; }
+.circuit-row { display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+.circuit-qlabel { width: 92px; flex: none; color: var(--dim); font-size: .8rem; font-family: monospace; }
+.circuit-cell {
+  width: 46px; height: 40px; flex: none; background: var(--panel2); border: 1px solid var(--boxS);
+  border-radius: 8px; color: var(--text); font-weight: 700; font-family: monospace; cursor: pointer; font-size: .9rem;
+}
+.circuit-cell:hover { border-color: var(--acc); }
+.circuit-cell.has-gate { background: rgba(124,92,255,.2); border-color: var(--acc); }
+.circuit-cell.has-cnot { background: rgba(34,211,238,.16); border-color: var(--cyan, #22d3ee); }
+.mark-grid { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
 .nav-tool:hover { background: var(--panel2); color: var(--text); text-decoration: none; }
 
 /* ---------- runnable code ---------- */

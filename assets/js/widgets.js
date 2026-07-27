@@ -11,8 +11,33 @@
   var WIDGETS = {
     bloch: "bloch", evolution: "interference", "single-gates": "bloch",
     entanglement: "entangle", "two-qubit-gates": "twoqubit",
-    grover: "grover", qft: "qft", noise: "decoherence"
+    grover: "grover", qft: "qft", noise: "decoherence",
+    trig: "trig", vectors2d: "vectors2d", complex: "complex", euler: "euler", eigen: "eigen",
+    probability: "probability", sampling: "sampling", qubit: "qubit", tensor: "tensor",
+    protocols: "teleport", "deutsch-jozsa": "dj", qpe: "qpe", shor: "shor", vqe: "vqe", qec: "qec"
   };
+
+  /* ---------- shared bar-chart helper ---------- */
+  function drawBars(ctx, x0, y0, w, h, values, opts) {
+    opts = opts || {};
+    var n = values.length, gap = opts.gap == null ? 6 : opts.gap, bw = (w - gap * (n - 1)) / n;
+    var maxAbs = opts.max || Math.max.apply(null, values.map(function (v) { return Math.abs(v); })) || 1;
+    for (var i = 0; i < n; i++) {
+      var v = values[i], x = x0 + i * (bw + gap);
+      var hh = Math.abs(v) / maxAbs * h;
+      ctx.fillStyle = (typeof opts.color === "function") ? opts.color(i, v) : (opts.color || "#22d3ee");
+      if (opts.negative) {
+        var mid = y0 + h / 2;
+        ctx.fillRect(x, v >= 0 ? mid - hh : mid, bw, hh);
+      } else {
+        ctx.fillRect(x, y0 + h - hh, bw, hh);
+      }
+      if (opts.labels) {
+        ctx.fillStyle = "#6b7688"; ctx.font = "10px Segoe UI, sans-serif"; ctx.textAlign = "center";
+        ctx.fillText(String(opts.labels[i]), x + bw / 2, y0 + h + 14);
+      }
+    }
+  }
 
   /* ---------- Bloch sphere ---------- */
   function blochWidget(host) {
@@ -376,9 +401,540 @@
     t1s.addEventListener("input", draw); t2s.addEventListener("input", draw); draw();
   }
 
+  /* ---------- unit circle (trig) ---------- */
+  function trigWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">The unit circle — drag the angle and watch sine &amp; cosine</div>' +
+      '<canvas class="widget-canvas" width="440" height="280" aria-label="Unit circle with a point at the given angle and its sine and cosine projections"></canvas>' +
+      '<div class="widget-controls"><label for="trig-slide">angle θ</label>' +
+      '<input id="trig-slide" type="range" min="0" max="360" value="30" style="flex:1"></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read"), slide = host.querySelector("#trig-slide");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    function draw() {
+      var deg = +slide.value, rad = deg * Math.PI / 180;
+      var cx = 140, cy = 140, R = 100;
+      ctx.clearRect(0, 0, 440, 280);
+      ctx.strokeStyle = "#2b3448"; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(cx - R - 20, cy); ctx.lineTo(cx + R + 20, cy); ctx.moveTo(cx, cy - R - 20); ctx.lineTo(cx, cy + R + 20); ctx.stroke();
+      var px = cx + R * Math.cos(rad), py = cy - R * Math.sin(rad);
+      ctx.strokeStyle = "#fbbf24"; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(px, cy); ctx.stroke();
+      ctx.strokeStyle = "#34d399"; ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(cx, py); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.strokeStyle = "#22d3ee"; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
+      ctx.fillStyle = "#22d3ee"; ctx.beginPath(); ctx.arc(px, py, 5, 0, 7); ctx.fill();
+      ctx.fillStyle = "#e6eaf2"; ctx.font = "12px Segoe UI, sans-serif"; ctx.textAlign = "left";
+      ctx.fillText("cos θ = " + Math.cos(rad).toFixed(2), 20, 272);
+      ctx.fillText("sin θ = " + Math.sin(rad).toFixed(2), 170, 272);
+      ctx.fillText("tan θ = " + (Math.abs(Math.cos(rad)) < 0.001 ? "undefined" : Math.tan(rad).toFixed(2)), 320, 272);
+      read.innerHTML = "θ = <b>" + deg + "°</b> (" + rad.toFixed(2) + " rad) — point on the unit circle: (<b>" + Math.cos(rad).toFixed(2) + "</b>, <b>" + Math.sin(rad).toFixed(2) + "</b>).";
+    }
+    slide.addEventListener("input", draw); draw();
+  }
+
+  /* ---------- 2D vectors ---------- */
+  function vectors2dWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">2D vectors — add them and take the dot product</div>' +
+      '<canvas class="widget-canvas" width="440" height="280" aria-label="Two 2D vectors, their sum, and their dot product on a grid"></canvas>' +
+      '<div class="widget-controls"><label>u = (</label><input id="ux" type="range" min="-4" max="4" value="3" style="width:70px">' +
+      '<input id="uy" type="range" min="-4" max="4" value="1" style="width:70px"><label>)</label>' +
+      '<label>v = (</label><input id="vx" type="range" min="-4" max="4" value="-1" style="width:70px">' +
+      '<input id="vy" type="range" min="-4" max="4" value="2" style="width:70px"><label>)</label></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var ux = host.querySelector("#ux"), uy = host.querySelector("#uy"), vx = host.querySelector("#vx"), vy = host.querySelector("#vy");
+    function draw() {
+      var u = [+ux.value, +uy.value], v = [+vx.value, +vy.value], s = [u[0] + v[0], u[1] + v[1]];
+      ctx.clearRect(0, 0, 440, 280);
+      var cx = 220, cy = 140, scale = 24;
+      ctx.strokeStyle = "#1c2233"; ctx.lineWidth = 1;
+      for (var g = -8; g <= 8; g++) {
+        ctx.beginPath(); ctx.moveTo(cx + g * scale, 10); ctx.lineTo(cx + g * scale, 270); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(10, cy - g * scale); ctx.lineTo(430, cy - g * scale); ctx.stroke();
+      }
+      ctx.strokeStyle = "#3a4358"; ctx.lineWidth = 1.6;
+      ctx.beginPath(); ctx.moveTo(10, cy); ctx.lineTo(430, cy); ctx.moveTo(cx, 10); ctx.lineTo(cx, 270); ctx.stroke();
+      function arrow(vec, col) {
+        var ex = cx + vec[0] * scale, ey = cy - vec[1] * scale;
+        ctx.strokeStyle = col; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(ex, ey); ctx.stroke();
+        ctx.fillStyle = col; ctx.beginPath(); ctx.arc(ex, ey, 4, 0, 7); ctx.fill();
+      }
+      arrow(u, "#22d3ee"); arrow(v, "#fbbf24"); arrow(s, "#34d399");
+      var dot = u[0] * v[0] + u[1] * v[1];
+      read.innerHTML = "u = (" + u[0] + ", " + u[1] + "), v = (" + v[0] + ", " + v[1] + ") — u+v = (<b>" + s[0] + ", " + s[1] + "</b>) · u·v = <b>" + dot + "</b>" + (dot === 0 ? " (perpendicular!)" : "");
+    }
+    [ux, uy, vx, vy].forEach(function (el) { el.addEventListener("input", draw); });
+    draw();
+  }
+
+  /* ---------- complex plane ---------- */
+  function complexWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">The complex plane — drag a &amp; b and watch z = a + bi</div>' +
+      '<canvas class="widget-canvas" width="440" height="280" aria-label="A point on the complex plane with its modulus and argument"></canvas>' +
+      '<div class="widget-controls"><label for="cx-a">a (real)</label>' +
+      '<input id="cx-a" type="range" min="-4" max="4" step="0.1" value="3" style="flex:1">' +
+      '<label for="cx-b">b (imag)</label>' +
+      '<input id="cx-b" type="range" min="-4" max="4" step="0.1" value="2" style="flex:1"></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var A = host.querySelector("#cx-a"), B = host.querySelector("#cx-b");
+    function draw() {
+      var a = +A.value, b = +B.value;
+      ctx.clearRect(0, 0, 440, 280);
+      var cx = 220, cy = 140, scale = 26;
+      ctx.strokeStyle = "#1c2233";
+      for (var g = -4; g <= 4; g++) {
+        ctx.beginPath(); ctx.moveTo(cx + g * scale, 20); ctx.lineTo(cx + g * scale, 260); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(20, cy - g * scale); ctx.lineTo(420, cy - g * scale); ctx.stroke();
+      }
+      ctx.strokeStyle = "#3a4358"; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(20, cy); ctx.lineTo(420, cy); ctx.moveTo(cx, 20); ctx.lineTo(cx, 260); ctx.stroke();
+      ctx.fillStyle = "#9aa4bb"; ctx.font = "11px Segoe UI, sans-serif"; ctx.fillText("Re", 405, cy - 6); ctx.fillText("Im", cx + 6, 30);
+      var px = cx + a * scale, py = cy - b * scale;
+      ctx.strokeStyle = "#22d3ee"; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
+      ctx.fillStyle = "#22d3ee"; ctx.beginPath(); ctx.arc(px, py, 5, 0, 7); ctx.fill();
+      var r = Math.hypot(a, b), theta = Math.atan2(b, a);
+      read.innerHTML = "z = <b>" + a.toFixed(1) + " + " + b.toFixed(1) + "i</b> — |z| = <b>" + r.toFixed(2) + "</b>, arg(z) = <b>" + theta.toFixed(2) + "</b> rad";
+    }
+    A.addEventListener("input", draw); B.addEventListener("input", draw); draw();
+  }
+
+  /* ---------- Euler's formula phasor ---------- */
+  function eulerWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Euler’s formula — e<sup>iθ</sup> = cos θ + i sin θ</div>' +
+      '<canvas class="widget-canvas" width="440" height="260" aria-label="A rotating phasor on the unit circle illustrating Euler’s formula"></canvas>' +
+      '<div class="widget-controls"><label for="euler-slide">θ (radians)</label>' +
+      '<input id="euler-slide" type="range" min="0" max="628" value="0" style="flex:1"></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read"), slide = host.querySelector("#euler-slide");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    function draw() {
+      var theta = slide.value / 100;
+      ctx.clearRect(0, 0, 440, 260);
+      var cx = 130, cy = 130, R = 95;
+      ctx.strokeStyle = "#2b3448"; ctx.beginPath(); ctx.arc(cx, cy, R, 0, 7); ctx.stroke();
+      var px = cx + R * Math.cos(theta), py = cy - R * Math.sin(theta);
+      ctx.strokeStyle = "#22d3ee"; ctx.lineWidth = 2.4; ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(px, py); ctx.stroke();
+      ctx.fillStyle = "#22d3ee"; ctx.beginPath(); ctx.arc(px, py, 5, 0, 7); ctx.fill();
+      drawBars(ctx, 280, 30, 130, 170, [Math.cos(theta), Math.sin(theta)], { max: 1, negative: true, labels: ["cos θ", "sin θ"], color: function (i) { return i === 0 ? "#fbbf24" : "#34d399"; } });
+      read.innerHTML = "e<sup>i" + theta.toFixed(2) + "</sup> = <b>" + Math.cos(theta).toFixed(2) + "</b> + <b>" + Math.sin(theta).toFixed(2) + "i</b> — always on the unit circle, since cos²θ + sin²θ = 1.";
+    }
+    slide.addEventListener("input", draw); draw();
+  }
+
+  /* ---------- eigenvectors ---------- */
+  function eigenWidget(host) {
+    var MATS = {
+      "Scale": { m: [[2, 0], [0, 0.5]], note: "eigenvectors along the axes; eigenvalues 2 and 0.5" },
+      "Shear": { m: [[1, 1], [0, 1]], note: "one real eigen-direction (the x-axis); this is a shear" },
+      "Rotate 90°": { m: [[0, -1], [1, 0]], note: "no real eigenvectors — every vector rotates, none stay on their own line" }
+    };
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Eigenvectors — which arrows don’t change direction?</div>' +
+      '<canvas class="widget-canvas" width="440" height="260" aria-label="A ring of sample vectors before and after a matrix transformation, with eigenvector directions highlighted if real"></canvas>' +
+      '<div class="widget-controls">' + Object.keys(MATS).map(function (k) { return '<button class="wbtn msel" data-k="' + k + '" type="button">' + k + "</button>"; }).join("") + '</div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var key = "Scale";
+    function setActive() { host.querySelectorAll(".msel").forEach(function (b) { b.classList.toggle("active", b.dataset.k === key); }); }
+    function eigen2x2(m) {
+      var a = m[0][0], b = m[0][1], c = m[1][0], d = m[1][1];
+      var tr = a + d, det = a * d - b * c, disc = tr * tr - 4 * det;
+      if (disc < 0) return [];
+      var s = Math.sqrt(disc), l1 = (tr + s) / 2, l2 = (tr - s) / 2, out = [];
+      [l1, l2].forEach(function (lam) {
+        var vx, vy;
+        if (Math.abs(b) > 1e-9) { vx = b; vy = lam - a; }
+        else if (Math.abs(c) > 1e-9) { vx = lam - d; vy = c; }
+        else { vx = 1; vy = 0; }
+        var n = Math.hypot(vx, vy) || 1;
+        out.push({ lam: lam, v: [vx / n, vy / n] });
+      });
+      return out;
+    }
+    function draw() {
+      var m = MATS[key].m, R0 = 45;
+      ctx.clearRect(0, 0, 440, 260);
+      var cx = 220, cy = 130;
+      ctx.strokeStyle = "#3a4358"; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(10, cy); ctx.lineTo(430, cy); ctx.moveTo(cx, 10); ctx.lineTo(cx, 250); ctx.stroke();
+      for (var ang = 0; ang < 360; ang += 30) {
+        var v = [Math.cos(ang * Math.PI / 180), Math.sin(ang * Math.PI / 180)];
+        var tv = [m[0][0] * v[0] + m[0][1] * v[1], m[1][0] * v[0] + m[1][1] * v[1]];
+        ctx.strokeStyle = "#3a435899"; ctx.lineWidth = 1.2;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + v[0] * R0, cy - v[1] * R0); ctx.stroke();
+        ctx.strokeStyle = "#22d3ee"; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + tv[0] * R0, cy - tv[1] * R0); ctx.stroke();
+      }
+      var eigs = eigen2x2(m);
+      eigs.forEach(function (e) {
+        ctx.strokeStyle = "#fbbf24"; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(cx - e.v[0] * 90, cy + e.v[1] * 90); ctx.lineTo(cx + e.v[0] * 90, cy - e.v[1] * 90); ctx.stroke();
+      });
+      read.innerHTML = "Matrix: [[" + m[0][0] + ", " + m[0][1] + "], [" + m[1][0] + ", " + m[1][1] + "]] — " + MATS[key].note + (eigs.length ? " (eigenvector directions shown in gold)" : "");
+    }
+    host.querySelectorAll(".msel").forEach(function (b) { b.onclick = function () { key = b.dataset.k; setActive(); draw(); }; });
+    setActive(); draw();
+  }
+
+  /* ---------- probability: dice histogram ---------- */
+  function probabilityWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Rolling dice — empirical frequency vs. theoretical probability</div>' +
+      '<canvas class="widget-canvas" width="440" height="260" aria-label="Histogram of die roll outcomes compared to the theoretical uniform distribution"></canvas>' +
+      '<div class="widget-controls"><button class="wbtn" data-n="1" type="button">Roll ×1</button>' +
+      '<button class="wbtn" data-n="50" type="button">Roll ×50</button>' +
+      '<button class="wbtn reset" data-n="reset" type="button">Reset</button></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var counts = [0, 0, 0, 0, 0, 0], total = 0;
+    function roll(n) {
+      if (n === "reset") { counts = [0, 0, 0, 0, 0, 0]; total = 0; draw(); return; }
+      for (var i = 0; i < n; i++) { counts[Math.floor(Math.random() * 6)]++; total++; }
+      draw();
+    }
+    function draw() {
+      ctx.clearRect(0, 0, 440, 260);
+      var freqs = counts.map(function (c) { return total ? c / total : 0; });
+      var mx = Math.max(0.3, Math.max.apply(null, freqs));
+      drawBars(ctx, 30, 20, 380, 180, freqs, { max: mx, labels: [1, 2, 3, 4, 5, 6], color: "#22d3ee" });
+      var theoY = 20 + 180 * (1 - (1 / 6) / mx);
+      ctx.strokeStyle = "#fbbf24"; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(30, theoY); ctx.lineTo(410, theoY); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = "#fbbf24"; ctx.font = "11px Segoe UI, sans-serif"; ctx.textAlign = "left"; ctx.fillText("theoretical 1/6 ≈ 0.167", 34, theoY - 6);
+      read.innerHTML = total ? ("After <b>" + total + "</b> rolls: " + counts.map(function (c, i) { return (i + 1) + "→" + c; }).join(", ") + ". More rolls pull the bars toward the theoretical line.") : "Roll the die to build up a frequency histogram.";
+    }
+    host.querySelectorAll(".wbtn").forEach(function (b) { b.onclick = function () { roll(b.dataset.n === "reset" ? "reset" : +b.dataset.n); }; });
+    draw();
+  }
+
+  /* ---------- sampling convergence ---------- */
+  function samplingWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Sampling &amp; shots — why more measurements narrow the estimate</div>' +
+      '<canvas class="widget-canvas" width="440" height="240" aria-label="Running average of a biased coin converging to its true probability as shots increase"></canvas>' +
+      '<div class="widget-controls"><label for="p-slide">true P(heads)</label>' +
+      '<input id="p-slide" type="range" min="0" max="100" value="70" style="flex:1">' +
+      '<button class="wbtn" data-act="run" type="button">Flip 200 more</button>' +
+      '<button class="wbtn reset" data-act="reset" type="button">Reset</button></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read"), slide = host.querySelector("#p-slide");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var history = [], heads = 0, n = 0;
+    function flip(count) {
+      var p = +slide.value / 100;
+      for (var i = 0; i < count; i++) { n++; if (Math.random() < p) heads++; history.push(heads / n); }
+      draw();
+    }
+    function reset() { history = []; heads = 0; n = 0; draw(); }
+    function draw() {
+      ctx.clearRect(0, 0, 440, 240);
+      var x0 = 40, x1 = 420, y0 = 20, y1 = 190, p = +slide.value / 100;
+      ctx.strokeStyle = "#2b3448"; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
+      ctx.fillStyle = "#6b7688"; ctx.font = "10px Segoe UI, sans-serif"; ctx.textAlign = "right";
+      ctx.fillText("1.0", x0 - 6, y0 + 4); ctx.fillText("0.0", x0 - 6, y1 + 4);
+      var trueY = y1 - p * (y1 - y0);
+      ctx.strokeStyle = "#fbbf24"; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(x0, trueY); ctx.lineTo(x1, trueY); ctx.stroke(); ctx.setLineDash([]);
+      if (history.length > 1) {
+        ctx.strokeStyle = "#22d3ee"; ctx.lineWidth = 2; ctx.beginPath();
+        history.forEach(function (v, i) {
+          var px = x0 + (i / (history.length - 1)) * (x1 - x0), py = y1 - v * (y1 - y0);
+          if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        });
+        ctx.stroke();
+      }
+      read.innerHTML = n ? ("After <b>" + n + "</b> shots: running average = <b>" + (heads / n).toFixed(3) + "</b> (true value " + p.toFixed(2) + "). More shots → the estimate settles down.") : "Flip to see how the running average converges to the true probability.";
+    }
+    slide.addEventListener("input", draw);
+    host.querySelector('[data-act="run"]').onclick = function () { flip(200); };
+    host.querySelector('[data-act="reset"]').onclick = reset;
+    draw();
+  }
+
+  /* ---------- qubit amplitude / Born rule ---------- */
+  function qubitWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">The qubit state vector — amplitude vs. probability (Born rule)</div>' +
+      '<canvas class="widget-canvas" width="440" height="220" aria-label="Bar chart of amplitude alpha and beta and the resulting probabilities via the Born rule"></canvas>' +
+      '<div class="widget-controls"><label for="alpha-slide">amplitude α (of |0⟩)</label>' +
+      '<input id="alpha-slide" type="range" min="0" max="100" value="70" style="flex:1"></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read"), slide = host.querySelector("#alpha-slide");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    function draw() {
+      var alpha = +slide.value / 100, beta = Math.sqrt(Math.max(0, 1 - alpha * alpha));
+      ctx.clearRect(0, 0, 440, 220);
+      ctx.fillStyle = "#9aa4bb"; ctx.font = "11px Segoe UI, sans-serif"; ctx.textAlign = "left";
+      ctx.fillText("amplitudes", 30, 14);
+      drawBars(ctx, 30, 24, 170, 90, [alpha, beta], { max: 1, labels: ["α", "β"], color: "#7c5cff" });
+      ctx.fillText("probabilities  P = |amplitude|²", 250, 14);
+      drawBars(ctx, 250, 24, 160, 90, [alpha * alpha, beta * beta], { max: 1, labels: ["P(0)", "P(1)"], color: "#34d399" });
+      read.innerHTML = "|ψ⟩ = <b>" + alpha.toFixed(2) + "</b>|0⟩ + <b>" + beta.toFixed(2) + "</b>|1⟩ — P(0) = <b>" + (alpha * alpha).toFixed(2) + "</b>, P(1) = <b>" + (beta * beta).toFixed(2) + "</b> (they sum to 1, since α² + β² = 1).";
+    }
+    slide.addEventListener("input", draw); draw();
+  }
+
+  /* ---------- tensor product builder ---------- */
+  function tensorWidget(host) {
+    var STATES = { "|0⟩": [1, 0], "|1⟩": [0, 1], "|+⟩": [1 / Math.SQRT2, 1 / Math.SQRT2] };
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Tensor products — combine two qubits into one joint state</div>' +
+      '<canvas class="widget-canvas" width="440" height="220" aria-label="Bar chart of the four amplitudes of the combined two-qubit state"></canvas>' +
+      '<div class="widget-controls"><label>qubit A</label>' + Object.keys(STATES).map(function (k) { return '<button class="wbtn asel" data-k="' + k + '" type="button">' + k + "</button>"; }).join("") +
+      '<label>qubit B</label>' + Object.keys(STATES).map(function (k) { return '<button class="wbtn bsel" data-k="' + k + '" type="button">' + k + "</button>"; }).join("") +
+      '</div><div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var aKey = "|0⟩", bKey = "|+⟩";
+    function setActive() {
+      host.querySelectorAll(".asel").forEach(function (b) { b.classList.toggle("active", b.dataset.k === aKey); });
+      host.querySelectorAll(".bsel").forEach(function (b) { b.classList.toggle("active", b.dataset.k === bKey); });
+    }
+    function draw() {
+      var a = STATES[aKey], b = STATES[bKey];
+      var joint = [a[0] * b[0], a[0] * b[1], a[1] * b[0], a[1] * b[1]];
+      ctx.clearRect(0, 0, 440, 220);
+      drawBars(ctx, 30, 20, 380, 140, joint, { max: 1, negative: true, labels: ["00", "01", "10", "11"], color: "#7c5cff" });
+      read.innerHTML = aKey + " ⊗ " + bKey + " = <b>" + joint.map(function (x) { return x.toFixed(2); }).join(", ") + "</b> over |00⟩,|01⟩,|10⟩,|11⟩.";
+    }
+    host.querySelectorAll(".asel").forEach(function (b) { b.onclick = function () { aKey = b.dataset.k; setActive(); draw(); }; });
+    host.querySelectorAll(".bsel").forEach(function (b) { b.onclick = function () { bKey = b.dataset.k; setActive(); draw(); }; });
+    setActive(); draw();
+  }
+
+  /* ---------- teleportation step-through ---------- */
+  function teleportWidget(host) {
+    var STEPS = [
+      "Alice and Bob share an entangled pair (qubits 2 &amp; 3) prepared in a Bell state.",
+      "Alice has the unknown state to send on qubit 1. She entangles qubit 1 with her half of the pair (qubit 2).",
+      "Alice measures qubits 1 &amp; 2, getting one of four random classical outcomes (00, 01, 10, 11).",
+      "Alice sends those 2 classical bits to Bob over an ordinary channel — the only thing that travels.",
+      "Bob applies a correction gate (chosen by the 2 bits) to qubit 3 — it now holds the original state exactly."
+    ];
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Quantum teleportation — step through the protocol</div>' +
+      '<canvas class="widget-canvas" width="440" height="200" aria-label="Three qubit wires showing the teleportation protocol at the current step"></canvas>' +
+      '<div class="widget-controls"><button class="wbtn" data-act="prev" type="button">← Back</button>' +
+      '<button class="wbtn" data-act="next" type="button">Next step →</button>' +
+      '<button class="wbtn reset" data-act="reset" type="button">Restart</button></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var step = 0;
+    function draw() {
+      ctx.clearRect(0, 0, 440, 200);
+      var wires = [50, 100, 150], labels = ["q1 (Alice)", "q2 (Alice)", "q3 (Bob)"];
+      wires.forEach(function (y, i) {
+        ctx.strokeStyle = "#3a4358"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(100, y); ctx.lineTo(400, y); ctx.stroke();
+        ctx.fillStyle = "#9aa4bb"; ctx.font = "10px Segoe UI, sans-serif"; ctx.textAlign = "right";
+        ctx.fillText(labels[i], 96, y + 3);
+      });
+      if (step >= 1) { ctx.strokeStyle = "#22d3ee"; ctx.beginPath(); ctx.moveTo(150, 100); ctx.lineTo(150, 150); ctx.stroke(); ctx.fillStyle = "#22d3ee"; ctx.beginPath(); ctx.arc(150, 100, 5, 0, 7); ctx.fill(); ctx.beginPath(); ctx.arc(150, 150, 5, 0, 7); ctx.fill(); }
+      if (step >= 2) { ctx.strokeStyle = "#fbbf24"; ctx.beginPath(); ctx.moveTo(220, 50); ctx.lineTo(220, 100); ctx.stroke(); ctx.fillStyle = "#fbbf24"; ctx.beginPath(); ctx.arc(220, 50, 5, 0, 7); ctx.fill(); ctx.beginPath(); ctx.arc(220, 100, 5, 0, 7); ctx.fill(); }
+      if (step >= 3) { ctx.fillStyle = "#e6eaf2"; ctx.font = "bold 13px Segoe UI, sans-serif"; ctx.textAlign = "center"; ctx.fillText("00/01/10/11 →", 300, 40); }
+      if (step >= 4) { ctx.strokeStyle = "#34d399"; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(350, 150, 12, 0, 7); ctx.stroke(); ctx.fillStyle = "#34d399"; ctx.font = "10px Segoe UI, sans-serif"; ctx.textAlign = "center"; ctx.fillText("ψ", 350, 154); }
+      read.innerHTML = "<b>Step " + (step + 1) + " / " + STEPS.length + ":</b> " + STEPS[step];
+    }
+    host.querySelector('[data-act="next"]').onclick = function () { step = Math.min(STEPS.length - 1, step + 1); draw(); };
+    host.querySelector('[data-act="prev"]').onclick = function () { step = Math.max(0, step - 1); draw(); };
+    host.querySelector('[data-act="reset"]').onclick = function () { step = 0; draw(); };
+    draw();
+  }
+
+  /* ---------- Deutsch-Jozsa oracle ---------- */
+  function djWidget(host) {
+    var TYPES = { "Constant-0": true, "Constant-1": true, "Balanced": false };
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Deutsch–Jozsa — one query, constant or balanced?</div>' +
+      '<canvas class="widget-canvas" width="440" height="200" aria-label="Bar chart of the single-query measurement outcome for the chosen oracle type"></canvas>' +
+      '<div class="widget-controls"><label>oracle</label>' + Object.keys(TYPES).map(function (k) { return '<button class="wbtn osel" data-k="' + k + '" type="button">' + k + "</button>"; }).join("") +
+      '<button class="wbtn" data-act="query" type="button">Run 1 query</button></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var key = "Balanced", ran = false;
+    function setActive() { host.querySelectorAll(".osel").forEach(function (b) { b.classList.toggle("active", b.dataset.k === key); }); }
+    function draw() {
+      ctx.clearRect(0, 0, 440, 200);
+      var isConstant = key.indexOf("Constant") === 0;
+      var result = ran ? (isConstant ? [1, 0] : [0, 1]) : [0.5, 0.5];
+      drawBars(ctx, 60, 20, 320, 130, result, { max: 1, labels: ["all-zeros (constant)", "non-zero (balanced)"], color: function (i) { return i === 0 ? "#34d399" : "#fbbf24"; } });
+      read.innerHTML = ran
+        ? ("Oracle: <b>" + key + "</b> — one query is enough: " + (isConstant ? "all-zeros result ⇒ constant" : "non-zero result ⇒ balanced") + ". A classical computer would need up to 2ⁿ⁻¹+1 queries to be sure.")
+        : "Pick an oracle type, then run the single query — the quantum algorithm decides constant vs. balanced with certainty in ONE shot.";
+    }
+    host.querySelectorAll(".osel").forEach(function (b) { b.onclick = function () { key = b.dataset.k; ran = false; setActive(); draw(); }; });
+    host.querySelector('[data-act="query"]').onclick = function () { ran = true; draw(); };
+    setActive(); draw();
+  }
+
+  /* ---------- quantum phase estimation precision ---------- */
+  function qpeWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Quantum phase estimation — more counting qubits, finer precision</div>' +
+      '<canvas class="widget-canvas" width="440" height="220" aria-label="A number line showing the true phase and the estimate window shrinking as counting qubits increase"></canvas>' +
+      '<div class="widget-controls"><label for="qpe-true">true phase φ</label>' +
+      '<input id="qpe-true" type="range" min="0" max="100" value="37" style="flex:1">' +
+      '<label for="qpe-n">counting qubits n</label>' +
+      '<input id="qpe-n" type="range" min="1" max="8" value="3" style="flex:1"></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var phiS = host.querySelector("#qpe-true"), nS = host.querySelector("#qpe-n");
+    function draw() {
+      var phi = +phiS.value / 100, n = +nS.value, levels = Math.pow(2, n);
+      var est = Math.round(phi * levels) / levels;
+      ctx.clearRect(0, 0, 440, 220);
+      var x0 = 40, x1 = 400, y = 100;
+      ctx.strokeStyle = "#3a4358"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x0, y); ctx.lineTo(x1, y); ctx.stroke();
+      ctx.fillStyle = "#6b7688"; ctx.font = "10px Segoe UI, sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("0", x0, y + 18); ctx.fillText("1", x1, y + 18);
+      var trueX = x0 + phi * (x1 - x0), estX = x0 + est * (x1 - x0), errPx = (1 / levels) * (x1 - x0) / 2;
+      ctx.fillStyle = "#34d39955"; ctx.fillRect(estX - errPx, y - 20, errPx * 2, 40);
+      ctx.strokeStyle = "#22d3ee"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(trueX, y - 30); ctx.lineTo(trueX, y + 30); ctx.stroke();
+      ctx.fillStyle = "#fbbf24"; ctx.beginPath(); ctx.arc(estX, y, 5, 0, 7); ctx.fill();
+      read.innerHTML = "true φ = <b>" + phi.toFixed(3) + "</b>, n = <b>" + n + "</b> counting qubits ⇒ 2<sup>n</sup> = " + levels + " levels, estimate = <b>" + est.toFixed(3) + "</b>, error ≤ <b>" + (1 / (2 * levels)).toFixed(4) + "</b>. More qubits ⇒ a narrower green band.";
+    }
+    phiS.addEventListener("input", draw); nS.addEventListener("input", draw); draw();
+  }
+
+  /* ---------- Shor: period to factors ---------- */
+  function shorWidget(host) {
+    var PRESETS = [{ N: 15, a: 7 }, { N: 21, a: 2 }, { N: 35, a: 2 }];
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Shor’s algorithm — from period to factors</div>' +
+      '<canvas class="widget-canvas" width="440" height="200" aria-label="Step-by-step reveal of Shor’s algorithm finding factors from the period"></canvas>' +
+      '<div class="widget-controls">' + PRESETS.map(function (p) { return '<button class="wbtn nsel" data-n="' + p.N + '" type="button">N=' + p.N + "</button>"; }).join("") +
+      '<button class="wbtn" data-act="next" type="button">Next step →</button>' +
+      '<button class="wbtn reset" data-act="reset" type="button">Restart</button></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    function gcd(a, b) { while (b) { var t = b; b = a % b; a = t; } return a; }
+    function modpow(base, exp, mod) { var r = 1; base = base % mod; while (exp > 0) { if (exp & 1) r = (r * base) % mod; exp = Math.floor(exp / 2); base = (base * base) % mod; } return r; }
+    function findOrder(a, N) { var x = a % N, r = 1; while (x !== 1) { x = (x * a) % N; r++; if (r > 4 * N) return -1; } return r; }
+    var N = 15, step = 0;
+    function preset() { return PRESETS.filter(function (p) { return p.N === N; })[0]; }
+    function compute() {
+      var p = preset(), a = p.a, r = findOrder(a, N), out = { a: a, r: r };
+      if (r % 2 === 0) {
+        var x = modpow(a, r / 2, N);
+        out.x = x; out.f1 = gcd(x - 1, N); out.f2 = gcd(x + 1, N);
+      }
+      return out;
+    }
+    function setActive() { host.querySelectorAll(".nsel").forEach(function (b) { b.classList.toggle("active", +b.dataset.n === N); }); }
+    function draw() {
+      var c = compute();
+      ctx.clearRect(0, 0, 440, 200);
+      ctx.fillStyle = "#e6eaf2"; ctx.font = "13px Segoe UI, sans-serif"; ctx.textAlign = "left";
+      var lines = [
+        "N = " + N + ", pick a = " + c.a + " (coprime to N)",
+        "QFT-based period finding gives r = " + c.r + (c.r % 2 ? " (odd — this a would need to be retried)" : " (even — proceed)"),
+        c.f1 != null ? ("compute x = a^(r/2) mod N = " + c.x) : "",
+        c.f1 != null ? ("factors: gcd(x−1, N) = " + c.f1 + ",  gcd(x+1, N) = " + c.f2) : ""
+      ];
+      for (var i = 0; i <= step && i < lines.length; i++) if (lines[i]) ctx.fillText(lines[i], 24, 30 + i * 34);
+      read.innerHTML = (step >= 3 && c.f1 != null && c.f1 > 1 && c.f2 > 1)
+        ? ("<b>" + N + " = " + c.f1 + " × " + c.f2 + "</b> — found using only the period r, never trial division.")
+        : "Step through: pick N, then reveal how the period r (found by the QFT) turns into real factors.";
+    }
+    host.querySelectorAll(".nsel").forEach(function (b) { b.onclick = function () { N = +b.dataset.n; step = 0; setActive(); draw(); }; });
+    host.querySelector('[data-act="next"]').onclick = function () { step = Math.min(3, step + 1); draw(); };
+    host.querySelector('[data-act="reset"]').onclick = function () { step = 0; draw(); };
+    setActive(); draw();
+  }
+
+  /* ---------- VQE energy landscape ---------- */
+  function vqeWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">VQE — walking down the energy landscape</div>' +
+      '<canvas class="widget-canvas" width="440" height="240" aria-label="Energy landscape E(theta) = cos(theta) with a marker that steps toward the minimum"></canvas>' +
+      '<div class="widget-controls"><button class="wbtn" data-act="step" type="button">Gradient step</button>' +
+      '<button class="wbtn reset" data-act="reset" type="button">Reset</button></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var theta = 0.3, iter = 0, lr = 0.3;
+    function E(t) { return Math.cos(t); }
+    function draw() {
+      ctx.clearRect(0, 0, 440, 240);
+      var x0 = 30, x1 = 410, y0 = 20, y1 = 190;
+      ctx.strokeStyle = "#3a4358"; ctx.lineWidth = 1.4; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
+      ctx.strokeStyle = "#22d3ee"; ctx.lineWidth = 2; ctx.beginPath();
+      for (var i = 0; i <= 200; i++) {
+        var t = (i / 200) * 2 * Math.PI, e = E(t);
+        var px = x0 + (t / (2 * Math.PI)) * (x1 - x0), py = y1 - ((e + 1) / 2) * (y1 - y0);
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      var mx = x0 + (theta / (2 * Math.PI)) * (x1 - x0), my = y1 - ((E(theta) + 1) / 2) * (y1 - y0);
+      ctx.fillStyle = "#fbbf24"; ctx.beginPath(); ctx.arc(mx, my, 6, 0, 7); ctx.fill();
+      read.innerHTML = "iteration <b>" + iter + "</b>: θ = <b>" + theta.toFixed(3) + "</b>, E(θ) = <b>" + E(theta).toFixed(3) + "</b> — the minimum is at θ = π, E = −1.";
+    }
+    host.querySelector('[data-act="step"]').onclick = function () { theta = theta + lr * Math.sin(theta); iter++; draw(); };
+    host.querySelector('[data-act="reset"]').onclick = function () { theta = 0.3; iter = 0; draw(); };
+    draw();
+  }
+
+  /* ---------- QEC: 3-qubit repetition code ---------- */
+  function qecWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Repetition code — encode, inject an error, detect &amp; correct</div>' +
+      '<canvas class="widget-canvas" width="440" height="200" aria-label="Three physical qubits encoding one logical qubit, with error injection and correction"></canvas>' +
+      '<div class="widget-controls"><label>logical bit</label>' +
+      '<button class="wbtn lsel" data-l="0" type="button">0</button><button class="wbtn lsel" data-l="1" type="button">1</button>' +
+      '<label>flip qubit</label>' +
+      '<button class="wbtn esel" data-e="-1" type="button">none</button>' +
+      '<button class="wbtn esel" data-e="0" type="button">q1</button>' +
+      '<button class="wbtn esel" data-e="1" type="button">q2</button>' +
+      '<button class="wbtn esel" data-e="2" type="button">q3</button>' +
+      '<button class="wbtn" data-act="correct" type="button">Detect &amp; correct</button></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var logical = 0, errAt = -1, corrected = false;
+    function setActive() {
+      host.querySelectorAll(".lsel").forEach(function (b) { b.classList.toggle("active", +b.dataset.l === logical); });
+      host.querySelectorAll(".esel").forEach(function (b) { b.classList.toggle("active", +b.dataset.e === errAt); });
+    }
+    function physical() {
+      var bits = [logical, logical, logical];
+      if (errAt >= 0 && !corrected) bits[errAt] = 1 - bits[errAt];
+      return bits;
+    }
+    function draw() {
+      var bits = physical();
+      ctx.clearRect(0, 0, 440, 200);
+      var xs = [110, 220, 330];
+      xs.forEach(function (x, i) {
+        ctx.strokeStyle = bits[i] !== logical ? "#f87171" : "#2b3448"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(x, 90, 34, 0, 7); ctx.stroke();
+        ctx.fillStyle = "#e6eaf2"; ctx.font = "bold 20px Segoe UI, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(String(bits[i]), x, 91);
+        ctx.textBaseline = "alphabetic"; ctx.fillStyle = "#9aa4bb"; ctx.font = "11px Segoe UI, sans-serif";
+        ctx.fillText("q" + (i + 1), x, 140);
+      });
+      var syndrome = (errAt >= 0 && !corrected) ? ("mismatch found on q" + (errAt + 1)) : "no error detected";
+      read.innerHTML = "Logical |" + logical + "⟩ encoded as |" + bits.join("") + "⟩ — syndrome: <b>" + syndrome + "</b>" + (corrected ? (" — corrected back to |" + logical + logical + logical + "⟩.") : ".");
+    }
+    host.querySelectorAll(".lsel").forEach(function (b) { b.onclick = function () { logical = +b.dataset.l; errAt = -1; corrected = false; setActive(); draw(); }; });
+    host.querySelectorAll(".esel").forEach(function (b) { b.onclick = function () { errAt = +b.dataset.e; corrected = false; setActive(); draw(); }; });
+    host.querySelector('[data-act="correct"]').onclick = function () { corrected = true; draw(); };
+    setActive(); draw();
+  }
+
   var BUILDERS = {
     bloch: blochWidget, interference: interferenceWidget, entangle: entanglementWidget,
-    twoqubit: twoQubitWidget, grover: groverWidget, qft: qftWidget, decoherence: decoherenceWidget
+    twoqubit: twoQubitWidget, grover: groverWidget, qft: qftWidget, decoherence: decoherenceWidget,
+    trig: trigWidget, vectors2d: vectors2dWidget, complex: complexWidget, euler: eulerWidget,
+    eigen: eigenWidget, probability: probabilityWidget, sampling: samplingWidget, qubit: qubitWidget,
+    tensor: tensorWidget, teleport: teleportWidget, dj: djWidget, qpe: qpeWidget, shor: shorWidget,
+    vqe: vqeWidget, qec: qecWidget
   };
 
   /* inject after the lesson body on relevant lessons */
