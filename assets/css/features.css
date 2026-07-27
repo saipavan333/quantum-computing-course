@@ -204,5 +204,7 @@ html.loaded #app { opacity: 1; transition: opacity .5s ease; }
 .wbtn { background: var(--panel2); border: 1px solid var(--boxS); color: var(--text); border-radius: 8px; padding: 6px 14px; font-weight: 700; cursor: pointer; font-family: inherit; min-width: 40px; }
 .wbtn:hover { border-color: var(--acc); }
 .wbtn.reset { font-weight: 500; }
+.wbtn.active { background: var(--acc); border-color: var(--acc); color: #0b0e16; }
+.widget-controls select { background: var(--panel2); border: 1px solid var(--boxS); color: var(--text); border-radius: 8px; padding: 6px 10px; font-family: inherit; font-weight: 600; cursor: pointer; }
 .widget-read { color: var(--dim); font-size: .86rem; margin-top: 6px; }
 .widget-read b { color: var(--cyan, #22d3ee); }
