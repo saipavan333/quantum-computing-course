@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" class="preload">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0e14">
+<meta name="description" content="Quantum Computing: Zero to Professional — a complete, free, interactive course from school math to running real quantum hardware. Built by U E Sai Pavan Vamshi Krishna.">
+<meta name="author" content="U E Sai Pavan Vamshi Krishna">
+<title>Quantum Computing: Zero to Professional</title>
+<!-- Open Graph / social (§12 discoverability) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Quantum Computing: Zero to Professional">
+<meta property="og:description" content="From school math to real quantum hardware — an interactive course with runnable code, flashcards, an AI assistant, and a job-readiness track.">
+<meta property="og:image" content="icons/icon-512.png">
+<meta name="twitter:card" content="summary">
+<link rel="canonical" href="./">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="assets/vendor/hljs-dark.min.css">
+<link rel="stylesheet" href="assets/css/styles.css">
+<link rel="stylesheet" href="assets/css/features.css">
+</head>
+<body>
+<a class="skip-link" href="#content">Skip to content</a>
+<div id="app">
+  <button id="menu-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="sidebar">☰</button>
+  <nav id="sidebar" aria-label="Course navigation">
+    <div class="side-head">
+      <a href="#/" class="brand"><span class="brand-q" aria-hidden="true">Q</span><span>Zero → Professional</span></a>
+      <div id="brand-byline"></div>
+      <label class="sr-only" for="search">Search the course</label>
+      <input id="search" type="search" placeholder="Search lessons &amp; glossary…" autocomplete="off">
+      <div class="overall" title="Overall progress"><div class="overall-bar"><div id="overall-fill"></div></div><span id="overall-label">0%</span></div>
+    </div>
+    <div id="nav-modules"></div>
+    <div class="side-foot">
+      <a href="#/about">About &amp; how to deploy</a>
+    </div>
+  </nav>
+  <div id="scrim"></div>
+  <div class="content-col">
+    <main id="content" tabindex="-1"></main>
+    <footer id="site-footer"></footer>
+  </div>
+</div>
+
+<!-- vendor -->
+<script src="assets/vendor/katex/katex.min.js"></script>
+<script src="assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script src="assets/vendor/marked.min.js"></script>
+<script src="assets/vendor/highlight.min.js"></script>
+<!-- course content -->
+<script src="content/manifest.js"></script>
+<script src="content/m0.js"></script>
+<script src="content/m1.js"></script>
+<script src="content/m2.js"></script>
+<script src="content/m3.js"></script>
+<script src="content/m4.js"></script>
+<script src="content/m5.js"></script>
+<script src="content/m6.js"></script>
+<script src="content/m7.js"></script>
+<script src="content/m8.js"></script>
+<script src="content/m9.js"></script>
+<script src="content/m10.js"></script>
+<script src="content/m11.js"></script>
+<script src="content/glossary.js"></script>
+<script src="content/interview.js"></script>
+<!-- visuals + feature modules (register into window.QCC_FEATURES before app boots) -->
+<script src="assets/js/diagrams.js"></script>
+<script src="assets/js/widgets.js"></script>
+<script src="assets/js/site.js"></script>
+<script src="assets/js/features.js"></script>
+<script src="assets/js/runner.js"></script>
+<script src="assets/js/assistant.js"></script>
+<!-- core app boots last and runs all registered feature inits -->
+<script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+
+# tooling caches (never needed to serve the site)
+node_modules/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# owner-only, non-generated assistant config (created if you add the generative tier)
+assets/assistant-config.js
+
+# NOTE: content/*.js ARE committed deliberately — they are the deployable runtime
+# (the static site loads them directly). Regenerate them with `node tools/build.js`
+# after editing lessons/*.md, then re-run `node tools/qa.js` before pushing.
