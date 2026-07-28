@@ -1,17 +1,21 @@
-/* hero.js — the landing-page WebGL hero (playbook §3, §5.6): a quantum-native
-   "Superposition Bloch Field". A wireframe Bloch sphere with a precessing,
-   glowing state-vector and a fading trail, floating over a full-hero
-   domain-warped GLSL interference field (violet -> cyan -> teal on near-black,
-   never white). Cursor parallax. Three.js is vendored locally and lazy-loaded
-   only on the home view, so lesson pages never pay for it. If WebGL is
-   unavailable OR the visitor prefers reduced motion, a calm CSS aurora hero is
-   shown instead — no animation, no dependency. Registered as a QCC feature. */
+/* hero.js — the landing-page WebGL hero (playbook §3, §5.6; built with the
+   Wondersmith method). Concept: "The Double Slit" — a single-pass GLSL field of
+   LIVING INTERFERENCE: sharp luminous fringes from coherent wave sources (real
+   superposition -> |ψ|²), oil-slick violet/cyan/teal color driven by the
+   interference amplitude, on near-black, never white. The visitor is the
+   engine: the cursor is a third wave source that warps the pattern, and a click
+   fires a MEASUREMENT — the fringes resolve into discrete detection specks
+   (wave-particle duality) then flow back to waves. Weighted right so the
+   headline stays clean. Three.js is vendored locally and lazy-loaded only on
+   the home view; a calm CSS aurora hero is shown instead when WebGL is
+   unavailable or motion is reduced. The shader was tuned via a CPU port whose
+   renders were visually critiqued (Wondersmith gauntlet). */
 (window.QCC_FEATURES = window.QCC_FEATURES || []).push(function (QCC) {
   "use strict";
   var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var THREE_URL = "assets/vendor/three.min.js";
   var threePromise = null;
-  var instance = null; // current live hero (so we can dispose on re-render / nav-away)
+  var instance = null;
 
   function loadThree() {
     if (window.THREE) return Promise.resolve(window.THREE);
@@ -33,43 +37,56 @@
     } catch (e) { return false; }
   }
 
-  /* ---------- calm fallback: CSS aurora hero (no JS animation) ---------- */
-  function auroraFallback(hero) {
-    hero.classList.add("hero--aurora");
-  }
+  function auroraFallback(hero) { hero.classList.add("hero--aurora"); }
 
-  /* ---------- the WebGL scene ---------- */
-  var BG_FRAG = [
+  /* ---------- the raymarch ---------- */
+  var VERT = "void main(){ gl_Position = vec4(position.xy, 0.0, 1.0); }";
+
+  /* "Living double-slit interference": sharp luminous fringes from coherent
+     sources (real wave superposition -> |psi|^2), oil-slick chromatic hue driven
+     by the interference amplitude, a radial envelope + left-mask so the bloom
+     sits right-of-center and the headline stays clean, the cursor as a movable
+     third source, and a measurement pulse that resolves the fringes into
+     discrete detection specks (wave-particle duality). Tuned via a CPU port. */
+  var FRAG = [
     "precision highp float;",
-    "uniform float uTime; uniform vec2 uRes; uniform vec2 uMouse;",
-    "float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}",
-    "float noise(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);",
-    " float a=hash(i),b=hash(i+vec2(1.0,0.0)),c=hash(i+vec2(0.0,1.0)),d=hash(i+vec2(1.0,1.0));",
-    " return mix(mix(a,b,f.x),mix(c,d,f.x),f.y);}",
-    "float fbm(vec2 p){float v=0.0,a=0.5;for(int i=0;i<5;i++){v+=a*noise(p);p*=2.03;a*=0.5;}return v;}",
+    "uniform float uTime; uniform vec2 uRes; uniform vec2 uMouse; uniform float uPulse;",
+    // violet #7c5cff, cyan #22d3ee, teal #34d399 — never white
+    "vec3 pal(float t){ vec3 v=vec3(0.486,0.361,1.0), c=vec3(0.133,0.827,0.933), tl=vec3(0.204,0.827,0.6);",
+    "  t=clamp(t,0.0,1.0); return t<0.5 ? mix(v,c,t*2.0) : mix(c,tl,(t-0.5)*2.0); }",
+    "float hash(vec2 p){ return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453); }",
     "void main(){",
-    " vec2 uv=gl_FragCoord.xy/uRes.xy;",
-    " vec2 p=(gl_FragCoord.xy-0.5*uRes.xy)/uRes.y;",
-    " p+=uMouse*0.12;",
-    " float t=uTime*0.05;",
-    " vec2 q=vec2(fbm(p*1.6+t),fbm(p*1.6-t+5.2));",
-    " float f=fbm(p*2.2+q*1.6+vec2(t*0.7,0.0));",
-    " float rings=0.5+0.5*sin(length(p)*9.0-uTime*0.7+f*4.0);",
-    " vec3 base=vec3(0.035,0.047,0.070);",
-    " vec3 violet=vec3(0.486,0.361,1.0);",
-    " vec3 cyan=vec3(0.133,0.827,0.933);",
-    " vec3 teal=vec3(0.204,0.827,0.6);",
-    " vec3 col=base;",
-    " col=mix(col,violet,smoothstep(0.30,0.95,f)*0.55);",
-    " col=mix(col,cyan,rings*0.32);",
-    " col=mix(col,teal,smoothstep(0.62,1.0,q.x)*0.22);",
-    " float vig=smoothstep(1.25,0.15,length(uv-0.5));",
-    " col*=0.55+0.45*vig;",
-    " gl_FragColor=vec4(col,1.0);",
+    "  vec2 uv=(gl_FragCoord.xy-0.5*uRes)/uRes.y;",
+    "  float t=uTime;",
+    "  vec2 s1=vec2(0.40, 0.16), s2=vec2(0.40,-0.16);",           // the two slits
+    "  vec2 s3=vec2(uMouse.x*(0.5*uRes.x/uRes.y)*0.9, uMouse.y*0.5);", // cursor source
+    "  float d1=length(uv-s1), d2=length(uv-s2), d3=length(uv-s3);",
+    "  float k=46.0, w=2.4;",
+    "  float A=(cos(k*d1-w*t)+cos(k*d2-w*t)+0.85*cos(k*d3-w*t))/2.85;", // superposition
+    "  float I=pow(A*A, 1.5);",                                    // |psi|^2 -> fringes
+    "  float sharpNow=1.0+uPulse*2.6;",
+    "  I=pow(I, sharpNow)*2.25*(1.0+uPulse*2.0);",
+    "  if(uPulse>0.01){",                                          // measurement -> detection specks
+    "    float sp=hash(vec2(floor(uv.x*230.0), floor(uv.y*230.0)));",
+    "    float hit=smoothstep(0.72,0.98,I)*step(0.78,sp)*uPulse; I+=hit*2.2;",
+    "  }",
+    "  float dc=length(uv-vec2(0.40,0.0));",
+    "  float env=exp(-pow(dc/0.66,2.0));",
+    "  float val=(I + pow(I,2.4)*1.15)*env;",                      // bloom the maxima
+    "  float leftMask=smoothstep(-0.52,0.12,uv.x);",               // dark on the left (text side)
+    "  val*=leftMask;",
+    "  float hue=0.5 + 0.46*sin(A*3.14159 + dc*1.1 + t*0.22) + 0.10*sin(uv.x*2.2 - t*0.15);",
+    "  vec3 col=pal(hue)*val;",
+    "  float sg=(exp(-pow(d1/0.028,2.0))+exp(-pow(d2/0.028,2.0)))*0.9*leftMask;", // slit anchors
+    "  col+=pal(0.7)*sg;",
+    "  float bg=exp(-pow(dc/0.42,2.0))*0.28*leftMask;",            // luminance floor
+    "  col+=pal(0.55)*bg;",
+    "  col=col/(1.0+col); col=pow(col,vec3(0.82));",               // tonemap
+    "  col+=(hash(gl_FragCoord.xy*0.5+t)-0.5)*0.025;",             // grain
+    "  float vig=smoothstep(1.35,0.28,length(uv)); col*=0.42+0.58*vig;",
+    "  gl_FragColor=vec4(max(col,0.0),1.0);",
     "}"
   ].join("\n");
-
-  var BG_VERT = "void main(){gl_Position=vec4(position.xy,0.0,1.0);}";
 
   function initWebGL(THREE, hero) {
     var canvas = document.createElement("canvas");
@@ -79,106 +96,47 @@
     hero.insertBefore(canvas, hero.firstChild);
     hero.classList.add("hero--webgl");
 
-    var W = hero.clientWidth || 800, H = hero.clientHeight || 360;
+    var W = hero.clientWidth || 800, H = hero.clientHeight || 380;
     var renderer;
-    try {
-      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
-    } catch (e) { hero.classList.remove("hero--webgl"); canvas.remove(); scrim.remove(); auroraFallback(hero); return null; }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+    try { renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: false, alpha: false }); }
+    catch (e) { hero.classList.remove("hero--webgl"); canvas.remove(); scrim.remove(); auroraFallback(hero); return null; }
+    var PR = Math.min(window.devicePixelRatio || 1, 1.5);
+    renderer.setPixelRatio(PR);
     renderer.setSize(W, H, false);
-    renderer.autoClear = false;
 
-    /* background flow-field pass (orthographic full-hero quad) */
-    var bgScene = new THREE.Scene();
-    var bgCam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
-    var bgUniforms = {
-      uTime: { value: 0 }, uRes: { value: new THREE.Vector2(W, H) }, uMouse: { value: new THREE.Vector2(0, 0) }
-    };
-    var bgMat = new THREE.ShaderMaterial({ vertexShader: BG_VERT, fragmentShader: BG_FRAG, uniforms: bgUniforms, depthTest: false, depthWrite: false });
-    var bgMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), bgMat);
-    bgScene.add(bgMesh);
-
-    /* foreground: Bloch sphere group */
     var scene = new THREE.Scene();
-    var camera = new THREE.PerspectiveCamera(48, W / H, 0.1, 100);
-    camera.position.set(0, 0, 4.3);
-    var group = new THREE.Group(); scene.add(group);
+    var cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    var uniforms = {
+      uTime: { value: 30.0 },                          // pre-warm so the first frame is already alive
+      uRes: { value: new THREE.Vector2(W * PR, H * PR) },
+      uMouse: { value: new THREE.Vector2(0, 0) },
+      uPulse: { value: 0 }
+    };
+    var mat = new THREE.ShaderMaterial({ vertexShader: VERT, fragmentShader: FRAG, uniforms: uniforms, depthTest: false, depthWrite: false });
+    var mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat);
+    scene.add(mesh);
 
-    var R = 1.18;
-    var C_CYAN = 0x22d3ee, C_VIOLET = 0x7c5cff, C_TEAL = 0x34d399, C_GOLD = 0xfbbf24;
-
-    var wire = new THREE.Mesh(
-      new THREE.SphereGeometry(R, 26, 18),
-      new THREE.MeshBasicMaterial({ color: C_CYAN, wireframe: true, transparent: true, opacity: 0.13 })
-    );
-    group.add(wire);
-    var glow = new THREE.Mesh(
-      new THREE.SphereGeometry(R * 1.03, 32, 24),
-      new THREE.MeshBasicMaterial({ color: C_VIOLET, transparent: true, opacity: 0.05, blending: THREE.AdditiveBlending, side: THREE.BackSide })
-    );
-    group.add(glow);
-
-    function ring(radius, tube, color, op, rotX, rotY) {
-      var m = new THREE.Mesh(new THREE.TorusGeometry(radius, tube, 10, 96),
-        new THREE.MeshBasicMaterial({ color: color, transparent: true, opacity: op }));
-      m.rotation.x = rotX || 0; m.rotation.y = rotY || 0; group.add(m); return m;
-    }
-    ring(R, 0.006, C_CYAN, 0.55, Math.PI / 2, 0);            // equator
-    ring(R, 0.004, C_VIOLET, 0.35, 0, 0);                    // meridian
-    ring(R, 0.004, C_VIOLET, 0.35, 0, Math.PI / 2);          // meridian
-
-    function pole(y, color) {
-      var m = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 16),
-        new THREE.MeshBasicMaterial({ color: color }));
-      m.position.set(0, y, 0); group.add(m); return m;
-    }
-    pole(R, C_CYAN); pole(-R, C_VIOLET);   // |0> north, |1> south
-
-    /* state vector (a cylinder from center to tip) + glowing tip */
-    var vecGeo = new THREE.CylinderGeometry(0.014, 0.014, 1, 10);
-    vecGeo.translate(0, 0.5, 0); // base at origin, grows along +Y
-    var vec = new THREE.Mesh(vecGeo, new THREE.MeshBasicMaterial({ color: C_GOLD }));
-    group.add(vec);
-    var tip = new THREE.Mesh(new THREE.SphereGeometry(0.055, 18, 18),
-      new THREE.MeshBasicMaterial({ color: C_GOLD }));
-    group.add(tip);
-    var tipGlow = new THREE.Mesh(new THREE.SphereGeometry(0.12, 18, 18),
-      new THREE.MeshBasicMaterial({ color: C_GOLD, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending }));
-    group.add(tipGlow);
-
-    /* precession trail */
-    var TRAIL = 160;
-    var trailPos = new Float32Array(TRAIL * 3);
-    var trailGeo = new THREE.BufferGeometry();
-    trailGeo.setAttribute("position", new THREE.BufferAttribute(trailPos, 3));
-    var trail = new THREE.Line(trailGeo, new THREE.LineBasicMaterial({ color: C_TEAL, transparent: true, opacity: 0.5 }));
-    group.add(trail);
-    var trailCount = 0;
-
-    var up = new THREE.Vector3(0, 1, 0), tmpDir = new THREE.Vector3(), tmpQuat = new THREE.Quaternion();
-
-    /* interaction: cursor parallax */
-    var mx = 0, my = 0, tmx = 0, tmy = 0;
+    /* interaction — the visitor is the engine */
+    var tmx = 0, tmy = 0, mx = 0, my = 0, pulse = 0;
     function onMove(e) {
       var r = hero.getBoundingClientRect();
-      var px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
-      tmx = (px - 0.5) * 2; tmy = (py - 0.5) * 2;
+      tmx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+      tmy = ((e.clientY - r.top) / r.height - 0.5) * 2;
     }
+    function collapse() { pulse = 1; }   // fire a measurement
     hero.addEventListener("pointermove", onMove);
+    hero.addEventListener("pointerdown", collapse);
 
-    /* size handling */
     var ro = null;
     function resize() {
-      W = hero.clientWidth || 800; H = hero.clientHeight || 360;
+      W = hero.clientWidth || 800; H = hero.clientHeight || 380;
       renderer.setSize(W, H, false);
-      bgUniforms.uRes.value.set(W * renderer.getPixelRatio(), H * renderer.getPixelRatio());
-      camera.aspect = W / H; camera.updateProjectionMatrix();
+      uniforms.uRes.value.set(W * PR, H * PR);
     }
     if ("ResizeObserver" in window) { ro = new ResizeObserver(resize); ro.observe(hero); }
     else window.addEventListener("resize", resize);
     resize();
 
-    /* pause when off-screen or tab hidden */
     var visible = true, io = null;
     if ("IntersectionObserver" in window) {
       io = new IntersectionObserver(function (en) { visible = en[0].isIntersecting; start(); }, { threshold: 0.01 });
@@ -187,59 +145,34 @@
     function onVis() { start(); }
     document.addEventListener("visibilitychange", onVis);
 
-    var raf = 0, t0 = performance.now(), active = false;
+    var raf = 0, t0 = performance.now(), active = false, lastPulse = t0;
     function frame() {
       raf = 0;
       if (!visible || document.hidden) { active = false; return; }
-      var t = (performance.now() - t0) / 1000;
-      bgUniforms.uTime.value = t;
-      mx += (tmx - mx) * 0.05; my += (tmy - my) * 0.05;   // ease cursor
-      bgUniforms.uMouse.value.set(mx, -my);
-      group.rotation.y = t * 0.12 + mx * 0.5;
-      group.rotation.x = -0.12 + my * 0.35;
-
-      // precessing state vector: polar angle wobbles, azimuth advances
-      var theta = 0.85 + 0.28 * Math.sin(t * 0.35), phi = t * 0.9;
-      tmpDir.set(Math.sin(theta) * Math.cos(phi), Math.cos(theta), Math.sin(theta) * Math.sin(phi));
-      var tipPos = tmpDir.clone().multiplyScalar(R);
-      tip.position.copy(tipPos); tipGlow.position.copy(tipPos);
-      vec.scale.set(1, tipPos.length(), 1);
-      tmpQuat.setFromUnitVectors(up, tmpDir.clone().normalize());
-      vec.quaternion.copy(tmpQuat);
-
-      // precession trail (rolling buffer)
-      if (trailCount < TRAIL) trailCount++;
-      for (var i = trailCount - 1; i > 0; i--) {
-        trailPos[i * 3] = trailPos[(i - 1) * 3];
-        trailPos[i * 3 + 1] = trailPos[(i - 1) * 3 + 1];
-        trailPos[i * 3 + 2] = trailPos[(i - 1) * 3 + 2];
-      }
-      trailPos[0] = tipPos.x; trailPos[1] = tipPos.y; trailPos[2] = tipPos.z;
-      trailGeo.setDrawRange(0, trailCount);
-      trailGeo.attributes.position.needsUpdate = true;
-
-      renderer.clear();
-      renderer.render(bgScene, bgCam);
-      renderer.clearDepth();
-      renderer.render(scene, camera);
-
+      var now = performance.now(), t = 30 + (now - t0) / 1000;
+      // auto-fire a gentle measurement every ~9s so the piece breathes on its own
+      if (now - lastPulse > 9000) { pulse = Math.max(pulse, 0.85); lastPulse = now; }
+      mx += (tmx - mx) * 0.045; my += (tmy - my) * 0.045;
+      pulse *= 0.955; if (pulse < 0.003) pulse = 0;
+      uniforms.uTime.value = t;
+      uniforms.uMouse.value.set(mx, -my);
+      uniforms.uPulse.value = pulse;
+      renderer.render(scene, cam);
       raf = requestAnimationFrame(frame);
     }
     function start() { if (active || !visible || document.hidden) return; active = true; raf = requestAnimationFrame(frame); }
-
     start();
 
     return {
       dispose: function () {
         if (raf) cancelAnimationFrame(raf); raf = 0; active = false;
         hero.removeEventListener("pointermove", onMove);
+        hero.removeEventListener("pointerdown", collapse);
         document.removeEventListener("visibilitychange", onVis);
         if (ro) ro.disconnect(); else window.removeEventListener("resize", resize);
         if (io) io.disconnect();
         try {
-          trailGeo.dispose(); vecGeo.dispose(); bgMat.dispose(); bgMesh.geometry.dispose();
-          wire.geometry.dispose(); wire.material.dispose(); glow.geometry.dispose(); glow.material.dispose();
-          renderer.dispose();
+          mesh.geometry.dispose(); mat.dispose(); renderer.dispose();
           var gl = renderer.getContext && renderer.getContext();
           var lose = gl && gl.getExtension && gl.getExtension("WEBGL_lose_context");
           if (lose) lose.loseContext();
@@ -254,7 +187,6 @@
     if (instance) { instance.dispose(); instance = null; }
     if (reduce || !webglOK()) { auroraFallback(hero); return; }
     loadThree().then(function (THREE) {
-      // the home view may have been navigated away from while three loaded
       if (!document.body.contains(hero)) return;
       instance = initWebGL(THREE, hero);
     }).catch(function () { auroraFallback(hero); });
@@ -264,8 +196,6 @@
     if (ctx && ctx.view === "home") {
       var hero = root.querySelector(".hero");
       if (hero) mountHero(hero);
-    } else if (instance) {
-      instance.dispose(); instance = null;
-    }
+    } else if (instance) { instance.dispose(); instance = null; }
   });
 });

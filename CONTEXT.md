@@ -17,11 +17,16 @@ a WebGL landing hero, and site-wide page effects. `sw.js` VERSION: `qcc-v2.5.0`.
 - `site.js` (byline+a11y+reveal) · `features.js` (glossary, flashcards, review, cheatsheets,
   interview, exam, map, read-aloud, search) · `runner.js` (Pyodide + embedded pure-Python
   `QuantumCircuit` sim) · `assistant.js` (free retrieval AI).
-- `hero.js` — WebGL landing hero ("Superposition Bloch Field": Three.js wire Bloch sphere +
-  precessing state-vector + trail over a domain-warped GLSL flow field, cursor parallax).
-  Three.js is vendored at `assets/vendor/three.min.js` (r128, UMD global `THREE`) and
-  **lazy-loaded only on the home view**; falls back to a CSS aurora hero if WebGL is
-  unavailable or `prefers-reduced-motion`. Mounts/disposes via an `onRender` hook (view==='home').
+- `hero.js` — WebGL landing hero, concept "The Double Slit": a single-pass GLSL field of
+  living interference (sharp luminous fringes from coherent wave sources → |ψ|², oil-slick
+  violet/cyan/teal driven by the interference amplitude, weighted right so the headline stays
+  clean). Visitor is the engine: cursor is a third wave source; click fires a "measurement"
+  that resolves the fringes into discrete detection specks then flows back. Tuned via a CPU
+  port (`outputs/verify/render2.js`) whose PNG renders were visually critiqued — the earlier
+  raymarched-orbital and wire-Bloch-globe versions were rejected as formless blobs. Three.js
+  vendored at `assets/vendor/three.min.js` (r128, UMD global `THREE`), **lazy-loaded only on
+  home**; CSS-aurora fallback if WebGL unavailable or `prefers-reduced-motion`. Mounts/disposes
+  via an `onRender` hook (view==='home').
 - `effects.js` — site-wide page effects: animated aurora background (`#fx-aurora`, drifts on
   scroll via `--fx-scroll`), scroll-progress bar (`#fx-progress`), staggered `.reveal`
   entrances, magnetic/glow hover on `.module-card`/`.tool-tile`, animated stat count-up. All
