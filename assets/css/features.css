@@ -95,6 +95,25 @@ html.loaded #app { opacity: 1; transition: opacity .5s ease; }
 .info-panel dt { color: var(--acc); font-weight: 700; font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; }
 .info-panel dd { margin: 0; color: var(--dim); font-size: .92rem; line-height: 1.55; }
 @media (max-width: 560px) { .info-panel { grid-template-columns: 1fr; row-gap: 4px; } .info-panel dd { margin-bottom: 8px; } }
+
+/* ---------- lab "how to read the picture" legend + "try this" ---------- */
+.lab-legend, .lab-try { margin: 16px 0 0; }
+.lab-legend h4, .lab-try h4 { margin: 0 0 9px; font-size: .8rem; text-transform: uppercase; letter-spacing: .04em; color: var(--acc); font-weight: 700; }
+.lab-legend ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.lab-legend li { display: flex; align-items: flex-start; gap: 10px; color: var(--dim); font-size: .9rem; line-height: 1.5; }
+.lab-swatch { width: 14px; height: 14px; border-radius: 4px; flex: none; margin-top: 2px; border: 1px solid rgba(255,255,255,.18); }
+.lab-swatch.dot { border-radius: 50%; background: var(--dim); }
+.lab-try { border-left: 3px solid var(--cyan, #22d3ee); padding-left: 15px; }
+.lab-try ol { margin: 0; padding-left: 20px; color: var(--dim); font-size: .9rem; line-height: 1.6; display: grid; gap: 9px; }
+.lab-try b { color: var(--text); }
+
+/* ---------- in-widget "how to read this" caption ---------- */
+.widget-caption { margin-top: 14px; padding-top: 11px; border-top: 1px dashed var(--boxS); color: var(--dim); font-size: .83rem; line-height: 1.55; }
+.widget-caption b { color: var(--accT, #a9b6ff); }
+
+/* pending CNOT control cell in the circuit lab */
+.circuit-cell.pending { border-color: var(--cyan, #22d3ee); box-shadow: 0 0 0 2px rgba(34,211,238,.35) inset; }
+
 .nav-tool:hover { background: var(--panel2); color: var(--text); text-decoration: none; }
 
 /* ---------- runnable code ---------- */

@@ -1099,6 +1099,33 @@
     return '<dl class="info-panel">' + order.map(function (pair) { return "<dt>" + pair[0] + "</dt><dd>" + pair[1] + "</dd>"; }).join("") + "</dl>";
   }
 
+  /* one-line visual decode shown directly under each widget (what every color,
+     bar, and axis on the canvas means) — always visible, unlike the details panel */
+  var CAPTIONS = {
+    bloch: "The arrow is the qubit; north is |0⟩ and south is |1⟩. Each button rotates it, and the readout's P(0)/P(1) are your odds of measuring 0 or 1.",
+    interference: "The two short arrows are the two path amplitudes and the green arrow is their sum; the bar is the detection probability. Drag the phase to make them reinforce (bright) or cancel (dark).",
+    entangle: "Press Measure repeatedly and the histogram counts each joint outcome — green bars are matching results, purple are differing, and that pattern is the correlation.",
+    twoqubit: "The top dot is the control and the bottom symbol is the target. Flip the input toggles and read the output state to see when the target changes and when it does not.",
+    grover: "Each bar is one state's amplitude and the gold bar is your target; every step should grow it. Watch P(marked) in the readout climb, then fall if you over-step.",
+    qft: "The purple top bars are the periodic input; the bottom bars are the transform's output, with green peaks at multiples of N/r. That peak spacing is the period readout.",
+    decoherence: "The gold curve is the qubit's energy (T₁) decaying and the cyan curve is its phase coherence (T₂). The faster they fall, the fewer gates fit before the qubit forgets.",
+    trig: "The blue arrow sits at angle θ on the unit circle; its shadow on the horizontal axis is cos θ and on the vertical axis is sin θ.",
+    vectors2d: "The blue and gold arrows are your two vectors and the green arrow is their tip-to-tail sum; the dot product hits zero exactly when they are perpendicular.",
+    complex: "The blue arrow is the number a + bi; its length is the modulus |z| and its angle from the horizontal axis is the argument.",
+    euler: "The arrow is e^(iθ) and always rides the unit circle; the two bars are its cosine (horizontal) and sine (vertical) parts.",
+    eigen: "Faint arrows are sample vectors and cyan arrows are those same vectors after the matrix acts; gold lines mark eigen-directions that keep their heading.",
+    probability: "Each bar is how often a die face has come up and the gold dashed line is the ideal 1/6 — roll more and the bars settle toward it.",
+    sampling: "The cyan line is the running average and the gold dashed line is the true probability; more flips pull the estimate onto the truth.",
+    qubit: "The left bars are the amplitudes α and β and the right bars are the probabilities α² and β² (the Born rule), which always sum to 1.",
+    tensor: "The four bars are the amplitudes of the combined two-qubit state over |00⟩, |01⟩, |10⟩, and |11⟩ — the tensor product worked out for you.",
+    teleport: "The three lines are qubit wires and the readout narrates each stage; watch that only 2 classical bits ever travel, yet the exact state still arrives.",
+    dj: "One query decides the oracle: an all-zeros bar (green) means constant and any non-zero bar (gold) means balanced — impossible classically in a single query.",
+    qpe: "The blue line is the true phase, the gold dot is the estimate, and the green band is its error; add counting qubits and the band narrows.",
+    shor: "Each step turns the period r (from the quantum part) into real factors of N by gcd, and the readout shows the factorization when it lands.",
+    vqe: "The curve is the energy for each angle θ and the gold dot is you; every gradient step slides it downhill toward the minimum at θ = π.",
+    qec: "The three circles are one logical bit stored three times; a red outline is an injected error, and Detect & correct majority-votes it away."
+  };
+
   /* inject after the lesson body on relevant lessons */
   QCC.onRender(function (root, ctx) {
     if (!ctx || ctx.view !== "lesson") return;
@@ -1112,5 +1139,15 @@
     }
     var host = document.createElement("div"); host.className = "widget-host reveal";
     body.appendChild(host); BUILDERS[kind](host);
+    var cap = CAPTIONS[kind];
+    if (cap) {
+      var widgetBox = host.querySelector(".widget");
+      if (widgetBox) {
+        var capEl = document.createElement("div");
+        capEl.className = "widget-caption";
+        capEl.innerHTML = "<b>How to read this:</b> " + cap;
+        widgetBox.appendChild(capEl);
+      }
+    }
   });
 });
