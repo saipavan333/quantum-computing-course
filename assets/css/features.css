@@ -255,3 +255,51 @@ html.loaded #app { opacity: 1; transition: opacity .5s ease; }
 .widget-controls select { background: var(--panel2); border: 1px solid var(--boxS); color: var(--text); border-radius: 8px; padding: 6px 10px; font-family: inherit; font-weight: 600; cursor: pointer; }
 .widget-read { color: var(--dim); font-size: .86rem; margin-top: 6px; }
 .widget-read b { color: var(--cyan, #22d3ee); }
+.widget-hint { color: var(--faint); font-size: .82rem; }
+
+/* ==================== landing hero (WebGL) + fallback ==================== */
+.hero { position: relative; }
+.hero--webgl { min-height: 380px; padding: 40px 34px; border-radius: 18px; overflow: hidden; border: 1px solid var(--border); }
+.hero--webgl > *:not(.hero-canvas):not(.hero-scrim) { position: relative; z-index: 2; }
+.hero-canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+.hero-scrim { position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(105deg, rgba(11,14,20,.88) 0%, rgba(11,14,20,.55) 42%, rgba(11,14,20,.10) 100%); }
+
+/* calm fallback when WebGL is unavailable or motion is reduced */
+.hero--aurora { min-height: 300px; padding: 40px 34px; border-radius: 18px; overflow: hidden; position: relative; border: 1px solid var(--border); }
+.hero--aurora::before { content: ""; position: absolute; inset: -35%; z-index: 0; filter: blur(70px);
+  background: conic-gradient(from 0deg, rgba(124,92,255,.42), rgba(34,211,238,.36), rgba(52,211,153,.30), rgba(124,92,255,.42));
+  animation: heroSpin 26s linear infinite; }
+.hero--aurora > * { position: relative; z-index: 2; }
+@keyframes heroSpin { to { transform: rotate(360deg); } }
+
+/* ==================== site-wide page effects ==================== */
+/* aurora background */
+#fx-aurora { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+  transform: translateY(calc(var(--fx-scroll, 0) * -36px)); }
+#app { position: relative; z-index: 1; }
+.fx-blob { position: absolute; border-radius: 50%; filter: blur(90px); opacity: .26; will-change: transform; }
+.fx-blob.b1 { width: 46vw; height: 46vw; left: -8vw; top: -8vw; background: radial-gradient(circle, rgba(124,92,255,.9), transparent 70%); animation: fxBlob1 26s ease-in-out infinite alternate; }
+.fx-blob.b2 { width: 40vw; height: 40vw; right: -6vw; top: 18vh; background: radial-gradient(circle, rgba(34,211,238,.85), transparent 70%); animation: fxBlob2 31s ease-in-out infinite alternate; }
+.fx-blob.b3 { width: 38vw; height: 38vw; left: 28vw; bottom: -14vw; background: radial-gradient(circle, rgba(52,211,153,.75), transparent 70%); animation: fxBlob3 36s ease-in-out infinite alternate; }
+@keyframes fxBlob1 { to { transform: translate(6vw, 8vh) scale(1.15); } }
+@keyframes fxBlob2 { to { transform: translate(-5vw, -6vh) scale(1.12); } }
+@keyframes fxBlob3 { to { transform: translate(4vw, -8vh) scale(1.2); } }
+
+/* scroll-progress bar */
+#fx-progress { position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 60; pointer-events: none;
+  background: linear-gradient(90deg, var(--acc), var(--acc2), var(--good)); box-shadow: 0 0 8px rgba(34,211,238,.5); transition: width .1s linear; }
+
+/* magnetic / glowing cards */
+.module-card, .tool-tile { overflow: hidden; will-change: transform; }
+.module-card::before, .tool-tile::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0; transition: opacity .25s ease;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(124,92,255,.20), transparent 60%); }
+.module-card > *, .tool-tile > * { position: relative; z-index: 1; }
+.module-card.fx-glow::before, .tool-tile.fx-glow::before { opacity: 1; }
+.module-card.fx-glow, .tool-tile.fx-glow { border-color: var(--acc); box-shadow: 0 10px 34px rgba(124,92,255,.16); transform: translate(var(--tx, 0), var(--ty, 0)); }
+
+@media (prefers-reduced-motion: reduce) {
+  #fx-aurora { transform: none !important; }
+  .fx-blob, .hero--aurora::before { animation: none !important; }
+  .module-card.fx-glow, .tool-tile.fx-glow { transform: none !important; }
+}

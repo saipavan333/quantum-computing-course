@@ -14,7 +14,11 @@
     grover: "grover", qft: "qft", noise: "decoherence",
     trig: "trig", vectors2d: "vectors2d", complex: "complex", euler: "euler", eigen: "eigen",
     probability: "probability", sampling: "sampling", qubit: "qubit", tensor: "tensor",
-    protocols: "teleport", "deutsch-jozsa": "dj", qpe: "qpe", shor: "shor", vqe: "vqe", qec: "qec"
+    protocols: "teleport", "deutsch-jozsa": "dj", qpe: "qpe", shor: "shor", vqe: "vqe", qec: "qec",
+    numbers: "numbers", algebra: "algebra", matrices: "matrices", "vector-spaces": "vectorspaces",
+    dirac: "dirac", "quantum-world": "measure", "qiskit-circuits": "qiskitcirc", simulation: "shots",
+    transpilation: "transpile", "real-hardware": "hardware", qaoa: "qaoa", qml: "qml",
+    "surface-code": "surface", ftqc: "threshold"
   };
 
   /* ---------- shared bar-chart helper ---------- */
@@ -928,13 +932,542 @@
     setActive(); draw();
   }
 
+  /* ---------- numbers: exponentials & logarithms ---------- */
+  function numbersWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Exponentials &amp; logarithms — two views of the same curve</div>' +
+      '<canvas class="widget-canvas" width="440" height="260" aria-label="The curve b to the power x with the current point marked"></canvas>' +
+      '<div class="widget-controls"><label>base</label>' +
+      ["2", "e", "10"].map(function (b) { return '<button class="wbtn bsel" data-b="' + b + '" type="button">' + b + "</button>"; }).join("") +
+      '<label for="num-x">exponent x</label><input id="num-x" type="range" min="-30" max="30" value="10" style="flex:1"></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read"), slide = host.querySelector("#num-x");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var base = 2, bval = 2;
+    function setActive() { host.querySelectorAll(".bsel").forEach(function (b) { b.classList.toggle("active", b.dataset.b === (base === Math.E ? "e" : String(base))); }); }
+    function draw() {
+      var x = +slide.value / 10;
+      ctx.clearRect(0, 0, 440, 260);
+      var x0 = 40, x1 = 420, y0 = 20, y1 = 220, xmin = -3, xmax = 3, ymax = Math.pow(bval, xmax);
+      ctx.strokeStyle = "#2b3448"; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
+      var y0line = y1 - (1 / ymax) * (y1 - y0);
+      ctx.strokeStyle = "#232a3a"; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(x0, y0line); ctx.lineTo(x1, y0line); ctx.stroke(); ctx.setLineDash([]);
+      ctx.strokeStyle = "#22d3ee"; ctx.lineWidth = 2; ctx.beginPath();
+      for (var i = 0; i <= 200; i++) {
+        var xx = xmin + (i / 200) * (xmax - xmin), yy = Math.pow(bval, xx);
+        var px = x0 + ((xx - xmin) / (xmax - xmin)) * (x1 - x0), py = y1 - (yy / ymax) * (y1 - y0);
+        if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      var val = Math.pow(bval, x), pxp = x0 + ((x - xmin) / (xmax - xmin)) * (x1 - x0), pyp = y1 - (val / ymax) * (y1 - y0);
+      if (x >= xmin && x <= xmax) { ctx.fillStyle = "#fbbf24"; ctx.beginPath(); ctx.arc(pxp, Math.max(y0, pyp), 5, 0, 7); ctx.fill(); }
+      var bl = base === Math.E ? "e" : String(base);
+      read.innerHTML = bl + "<sup>" + x.toFixed(1) + "</sup> = <b>" + val.toFixed(3) + "</b> &nbsp;·&nbsp; and the inverse: log<sub>" + bl + "</sub>(" + val.toFixed(2) + ") = <b>" + x.toFixed(1) + "</b>. A logarithm just reads the exponent back off.";
+    }
+    host.querySelectorAll(".bsel").forEach(function (b) { b.onclick = function () { base = b.dataset.b === "e" ? Math.E : +b.dataset.b; bval = base; setActive(); draw(); }; });
+    slide.addEventListener("input", draw); setActive(); draw();
+  }
+
+  /* ---------- algebra: quadratic function plotter ---------- */
+  function algebraWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Functions — shape a parabola and find its roots</div>' +
+      '<canvas class="widget-canvas" width="440" height="260" aria-label="The parabola y = a x squared + b x + c with its roots and vertex"></canvas>' +
+      '<div class="widget-controls"><label for="q-a">a</label><input id="q-a" type="range" min="-30" max="30" value="10" style="flex:1">' +
+      '<label for="q-b">b</label><input id="q-b" type="range" min="-40" max="40" value="0" style="flex:1">' +
+      '<label for="q-c">c</label><input id="q-c" type="range" min="-40" max="40" value="-20" style="flex:1"></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var A = host.querySelector("#q-a"), B = host.querySelector("#q-b"), C = host.querySelector("#q-c");
+    function draw() {
+      var a = +A.value / 10, b = +B.value / 10, c = +C.value / 10;
+      ctx.clearRect(0, 0, 440, 260);
+      var cx = 220, cy = 130, sx = 30, sy = 12;
+      ctx.strokeStyle = "#232a3a"; ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(440, cy); ctx.moveTo(cx, 0); ctx.lineTo(cx, 260); ctx.stroke();
+      ctx.strokeStyle = "#22d3ee"; ctx.lineWidth = 2; ctx.beginPath();
+      for (var px = 0; px <= 440; px += 2) {
+        var xx = (px - cx) / sx, yy = a * xx * xx + b * xx + c, py = cy - yy * sy;
+        if (px === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+      var disc = b * b - 4 * a * c, rootsTxt;
+      if (Math.abs(a) < 1e-6) { rootsTxt = "not a parabola (a = 0)"; }
+      else if (disc < 0) { rootsTxt = "no real roots (discriminant &lt; 0)"; }
+      else {
+        var r1 = (-b - Math.sqrt(disc)) / (2 * a), r2 = (-b + Math.sqrt(disc)) / (2 * a);
+        [r1, r2].forEach(function (r) { ctx.fillStyle = "#34d399"; ctx.beginPath(); ctx.arc(cx + r * sx, cy, 5, 0, 7); ctx.fill(); });
+        rootsTxt = "roots at x = <b>" + r1.toFixed(2) + "</b>, <b>" + r2.toFixed(2) + "</b>";
+      }
+      if (Math.abs(a) > 1e-6) { var vx = -b / (2 * a), vy = a * vx * vx + b * vx + c; ctx.fillStyle = "#fbbf24"; ctx.beginPath(); ctx.arc(cx + vx * sx, cy - vy * sy, 5, 0, 7); ctx.fill(); }
+      read.innerHTML = "y = <b>" + a.toFixed(1) + "</b>x² + <b>" + b.toFixed(1) + "</b>x + <b>" + c.toFixed(1) + "</b> — " + rootsTxt + " (green), vertex in gold.";
+    }
+    [A, B, C].forEach(function (el) { el.addEventListener("input", draw); }); draw();
+  }
+
+  /* ---------- matrices as transformations ---------- */
+  function matricesWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">A matrix is a transformation — watch it bend space</div>' +
+      '<canvas class="widget-canvas" width="440" height="280" aria-label="The unit square and basis vectors before and after a 2 by 2 matrix transformation"></canvas>' +
+      '<div class="widget-controls"><label>[a b; c d]</label>' +
+      '<input id="m-a" type="range" min="-20" max="20" value="12" style="width:60px">' +
+      '<input id="m-b" type="range" min="-20" max="20" value="-5" style="width:60px">' +
+      '<input id="m-c" type="range" min="-20" max="20" value="5" style="width:60px">' +
+      '<input id="m-d" type="range" min="-20" max="20" value="12" style="width:60px"></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var A = host.querySelector("#m-a"), B = host.querySelector("#m-b"), C = host.querySelector("#m-c"), D = host.querySelector("#m-d");
+    function draw() {
+      var a = +A.value / 10, b = +B.value / 10, c = +C.value / 10, d = +D.value / 10;
+      ctx.clearRect(0, 0, 440, 280);
+      var ox = 220, oy = 150, s = 46;
+      function P(x, y) { return [ox + x * s, oy - y * s]; }
+      ctx.strokeStyle = "#1c2233"; ctx.lineWidth = 1;
+      for (var g = -4; g <= 4; g++) { var a1 = P(g, -4), a2 = P(g, 4), b1 = P(-4, g), b2 = P(4, g); ctx.beginPath(); ctx.moveTo(a1[0], a1[1]); ctx.lineTo(a2[0], a2[1]); ctx.moveTo(b1[0], b1[1]); ctx.lineTo(b2[0], b2[1]); ctx.stroke(); }
+      // original unit square (faint)
+      ctx.strokeStyle = "#3a4358"; ctx.lineWidth = 1.5; var o = [P(0, 0), P(1, 0), P(1, 1), P(0, 1)];
+      ctx.beginPath(); ctx.moveTo(o[0][0], o[0][1]); [1, 2, 3, 0].forEach(function (i) { ctx.lineTo(o[i][0], o[i][1]); }); ctx.stroke();
+      // transformed square
+      function T(x, y) { return P(a * x + b * y, c * x + d * y); }
+      var t = [T(0, 0), T(1, 0), T(1, 1), T(0, 1)];
+      ctx.fillStyle = "rgba(124,92,255,.16)"; ctx.strokeStyle = "#7c5cff"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(t[0][0], t[0][1]); [1, 2, 3, 0].forEach(function (i) { ctx.lineTo(t[i][0], t[i][1]); }); ctx.fill(); ctx.stroke();
+      // transformed basis vectors
+      function arrow(p, col) { ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(p[0], p[1]); ctx.stroke(); ctx.fillStyle = col; ctx.beginPath(); ctx.arc(p[0], p[1], 4, 0, 7); ctx.fill(); }
+      arrow(T(1, 0), "#22d3ee"); arrow(T(0, 1), "#34d399");
+      var det = a * d - b * c;
+      read.innerHTML = "det = ad − bc = <b>" + det.toFixed(2) + "</b> — the unit square's area scales by |det|" + (det < 0 ? " and flips orientation" : "") + ". Cyan = where (1,0) lands, green = where (0,1) lands.";
+    }
+    [A, B, C, D].forEach(function (el) { el.addEventListener("input", draw); }); draw();
+  }
+
+  /* ---------- vector spaces: basis & linear combination ---------- */
+  function vectorSpacesWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Basis &amp; span — build any vector from two building blocks</div>' +
+      '<canvas class="widget-canvas" width="440" height="280" aria-label="Two basis vectors and their scaled sum reaching a target point"></canvas>' +
+      '<div class="widget-controls"><label for="vs-a">a · v₁</label><input id="vs-a" type="range" min="-30" max="30" value="15" style="flex:1">' +
+      '<label for="vs-b">b · v₂</label><input id="vs-b" type="range" min="-30" max="30" value="10" style="flex:1"></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var SA = host.querySelector("#vs-a"), SB = host.querySelector("#vs-b");
+    var v1 = [1, 0.4], v2 = [0.3, 1];
+    function draw() {
+      var a = +SA.value / 10, b = +SB.value / 10;
+      ctx.clearRect(0, 0, 440, 280);
+      var ox = 220, oy = 150, s = 34;
+      function P(x, y) { return [ox + x * s, oy - y * s]; }
+      ctx.strokeStyle = "#1c2233"; for (var g = -5; g <= 5; g++) { var p1 = P(g, -5), p2 = P(g, 5), q1 = P(-6, g), q2 = P(6, g); ctx.beginPath(); ctx.moveTo(p1[0], p1[1]); ctx.lineTo(p2[0], p2[1]); ctx.moveTo(q1[0], q1[1]); ctx.lineTo(q2[0], q2[1]); ctx.stroke(); }
+      function arrow(x, y, col, w) { var p = P(x, y); ctx.strokeStyle = col; ctx.lineWidth = w || 2; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(p[0], p[1]); ctx.stroke(); ctx.fillStyle = col; ctx.beginPath(); ctx.arc(p[0], p[1], 4, 0, 7); ctx.fill(); }
+      // scaled components (dashed) then resultant
+      var sx = a * v1[0], sy = a * v1[1], tx = sx + b * v2[0], ty = sy + b * v2[1];
+      ctx.setLineDash([4, 3]); arrow(sx, sy, "#22d3ee"); ctx.setLineDash([]);
+      var pfrom = P(sx, sy), pto = P(tx, ty);
+      ctx.strokeStyle = "#34d399"; ctx.lineWidth = 2; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(pfrom[0], pfrom[1]); ctx.lineTo(pto[0], pto[1]); ctx.stroke(); ctx.setLineDash([]);
+      arrow(v1[0], v1[1], "#22d3ee", 1.4); arrow(v2[0], v2[1], "#34d399", 1.4);
+      arrow(tx, ty, "#fbbf24", 3);
+      read.innerHTML = "<b>" + a.toFixed(1) + "</b>·v₁ + <b>" + b.toFixed(1) + "</b>·v₂ = (" + tx.toFixed(2) + ", " + ty.toFixed(2) + "). Any point in the plane is reachable — that is what it means for v₁, v₂ to span the space.";
+    }
+    [SA, SB].forEach(function (el) { el.addEventListener("input", draw); }); draw();
+  }
+
+  /* ---------- Dirac: inner product / projection ---------- */
+  function diracWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Inner product ⟨a|b⟩ — overlap as a projection</div>' +
+      '<canvas class="widget-canvas" width="440" height="260" aria-label="Two unit vectors and the projection of one onto the other"></canvas>' +
+      '<div class="widget-controls"><label for="d-a">angle of |a⟩</label><input id="d-a" type="range" min="0" max="360" value="20" style="flex:1">' +
+      '<label for="d-b">angle of |b⟩</label><input id="d-b" type="range" min="0" max="360" value="80" style="flex:1"></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var A = host.querySelector("#d-a"), B = host.querySelector("#d-b");
+    function draw() {
+      var ra = +A.value * Math.PI / 180, rb = +B.value * Math.PI / 180;
+      ctx.clearRect(0, 0, 440, 260);
+      var ox = 150, oy = 140, R = 100;
+      ctx.strokeStyle = "#232a3a"; ctx.beginPath(); ctx.arc(ox, oy, R, 0, 7); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ox - R - 15, oy); ctx.lineTo(ox + R + 15, oy); ctx.moveTo(ox, oy - R - 15); ctx.lineTo(ox, oy + R + 15); ctx.stroke();
+      function arrow(ang, col) { var ex = ox + R * Math.cos(ang), ey = oy - R * Math.sin(ang); ctx.strokeStyle = col; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(ex, ey); ctx.stroke(); ctx.fillStyle = col; ctx.beginPath(); ctx.arc(ex, ey, 4, 0, 7); ctx.fill(); return [ex, ey]; }
+      var pb = arrow(rb, "#34d399"), pa = arrow(ra, "#22d3ee");
+      // projection of b onto a
+      var dot = Math.cos(ra - rb);
+      var projx = ox + R * dot * Math.cos(ra), projy = oy - R * dot * Math.sin(ra);
+      ctx.strokeStyle = "#fbbf24"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(projx, projy); ctx.stroke();
+      ctx.setLineDash([3, 3]); ctx.strokeStyle = "#6b7688"; ctx.beginPath(); ctx.moveTo(pb[0], pb[1]); ctx.lineTo(projx, projy); ctx.stroke(); ctx.setLineDash([]);
+      read.innerHTML = "⟨a|b⟩ = cos(Δ) = <b>" + dot.toFixed(3) + "</b> (gold = the projection of |b⟩ onto |a⟩). At 90° apart it is <b>0</b> — the states are orthogonal, perfectly distinguishable.";
+    }
+    [A, B].forEach(function (el) { el.addEventListener("input", draw); }); draw();
+  }
+
+  /* ---------- measurement collapse ---------- */
+  function measureWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Measurement collapse — random once, predictable in bulk</div>' +
+      '<canvas class="widget-canvas" width="440" height="240" aria-label="A superposition bar, the last collapsed outcome, and a running tally"></canvas>' +
+      '<div class="widget-controls"><label for="mc-p">P(0) before measuring</label><input id="mc-p" type="range" min="0" max="100" value="70" style="flex:1">' +
+      '<button class="wbtn" data-act="one" type="button">Measure ×1</button>' +
+      '<button class="wbtn" data-act="many" type="button">Measure ×100</button>' +
+      '<button class="wbtn reset" data-act="reset" type="button">Reset</button></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read"), slide = host.querySelector("#mc-p");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var n0 = 0, n1 = 0, last = null;
+    function measure(k) { var p = +slide.value / 100; for (var i = 0; i < k; i++) { if (Math.random() < p) { n0++; last = 0; } else { n1++; last = 1; } } draw(); }
+    function draw() {
+      var p = +slide.value / 100, total = n0 + n1;
+      ctx.clearRect(0, 0, 440, 240);
+      // superposition bar
+      ctx.fillStyle = "#9aa4bb"; ctx.font = "11px Segoe UI, sans-serif"; ctx.textAlign = "left"; ctx.fillText("state before measuring", 20, 14);
+      ctx.fillStyle = "#22d3ee"; ctx.fillRect(20, 22, 400 * p, 20); ctx.fillStyle = "#7c5cff"; ctx.fillRect(20 + 400 * p, 22, 400 * (1 - p), 20);
+      ctx.fillStyle = "#0b0e16"; ctx.font = "bold 12px Segoe UI, sans-serif"; ctx.textAlign = "center";
+      if (p > 0.12) ctx.fillText("|0⟩ " + (p * 100).toFixed(0) + "%", 20 + 200 * p, 37);
+      if (1 - p > 0.12) ctx.fillText("|1⟩ " + ((1 - p) * 100).toFixed(0) + "%", 20 + 400 * p + 200 * (1 - p), 37);
+      // last outcome
+      ctx.fillStyle = "#e6eaf2"; ctx.font = "13px Segoe UI, sans-serif"; ctx.textAlign = "left"; ctx.fillText("last measurement:", 20, 78);
+      if (last !== null) { ctx.fillStyle = last === 0 ? "#22d3ee" : "#7c5cff"; ctx.beginPath(); ctx.arc(160, 74, 16, 0, 7); ctx.fill(); ctx.fillStyle = "#0b0e16"; ctx.font = "bold 16px Segoe UI, sans-serif"; ctx.textAlign = "center"; ctx.fillText(String(last), 160, 79); }
+      // tally bars
+      var f0 = total ? n0 / total : 0, f1 = total ? n1 / total : 0, bx = 20, by = 110, bw = 400, bh = 90;
+      ctx.strokeStyle = "#2b3448"; ctx.strokeRect(bx, by, bw, bh);
+      ctx.fillStyle = "#22d3ee"; ctx.fillRect(bx, by + bh - f0 * bh, bw / 2 - 4, f0 * bh);
+      ctx.fillStyle = "#7c5cff"; ctx.fillRect(bx + bw / 2 + 4, by + bh - f1 * bh, bw / 2 - 4, f1 * bh);
+      ctx.fillStyle = "#6b7688"; ctx.font = "11px Segoe UI, sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("measured |0⟩: " + n0, bx + bw / 4, by + bh + 14); ctx.fillText("measured |1⟩: " + n1, bx + 3 * bw / 4, by + bh + 14);
+      read.innerHTML = total ? ("After <b>" + total + "</b> measurements: |0⟩ " + (f0 * 100).toFixed(1) + "%, |1⟩ " + (f1 * 100).toFixed(1) + "% — each shot is random, but the frequencies converge on P(0) = " + p.toFixed(2) + ".") : "Set P(0), then measure. Each measurement collapses the superposition to a single definite 0 or 1.";
+    }
+    slide.addEventListener("input", draw);
+    host.querySelector('[data-act="one"]').onclick = function () { measure(1); };
+    host.querySelector('[data-act="many"]').onclick = function () { measure(100); };
+    host.querySelector('[data-act="reset"]').onclick = function () { n0 = n1 = 0; last = null; draw(); };
+    draw();
+  }
+
+  /* ---------- Qiskit circuits: 1-qubit gate sequence ---------- */
+  function qiskitCircWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Build a 1-qubit circuit — gates apply left to right</div>' +
+      '<canvas class="widget-canvas" width="440" height="200" aria-label="A one-qubit circuit wire with the applied gate sequence and the resulting probabilities"></canvas>' +
+      '<div class="widget-controls">' +
+      ["H", "X", "Y", "Z", "S", "T"].map(function (g) { return '<button class="wbtn gadd" data-g="' + g + '" type="button">+' + g + "</button>"; }).join("") +
+      '<button class="wbtn reset" data-act="clear" type="button">Clear</button></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var seq = [];
+    // 1-qubit state as Bloch vector; gates act on it
+    function apply(v, g) {
+      var x = v[0], y = v[1], z = v[2];
+      if (g === "X") return [x, -y, -z]; if (g === "Y") return [-x, y, -z]; if (g === "Z") return [-x, -y, z];
+      if (g === "H") return [z, -y, x]; if (g === "S") return [-y, x, z];
+      if (g === "T") { var c = Math.cos(Math.PI / 4), s = Math.sin(Math.PI / 4); return [c * x - s * y, s * x + c * y, z]; }
+      return v;
+    }
+    function draw() {
+      var v = [0, 0, 1]; seq.forEach(function (g) { v = apply(v, g); });
+      var p0 = (1 + v[2]) / 2;
+      ctx.clearRect(0, 0, 440, 200);
+      ctx.strokeStyle = "#3a4358"; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(30, 60); ctx.lineTo(410, 60); ctx.stroke();
+      ctx.fillStyle = "#9aa4bb"; ctx.font = "12px Segoe UI, sans-serif"; ctx.textAlign = "right"; ctx.fillText("|0⟩", 26, 64);
+      seq.slice(0, 9).forEach(function (g, i) {
+        var x = 60 + i * 38;
+        ctx.fillStyle = "rgba(124,92,255,.2)"; ctx.strokeStyle = "#7c5cff"; ctx.lineWidth = 1.5;
+        ctx.fillRect(x - 15, 45, 30, 30); ctx.strokeRect(x - 15, 45, 30, 30);
+        ctx.fillStyle = "#e6eaf2"; ctx.font = "bold 13px Segoe UI, sans-serif"; ctx.textAlign = "center"; ctx.fillText(g, x, 65);
+      });
+      // probability bars
+      drawBars(ctx, 120, 100, 200, 70, [p0, 1 - p0], { max: 1, labels: ["P(0)", "P(1)"], color: function (i) { return i === 0 ? "#22d3ee" : "#7c5cff"; } });
+      read.innerHTML = seq.length ? ("Circuit: " + seq.join(" · ") + " → P(0) = <b>" + p0.toFixed(3) + "</b>, P(1) = <b>" + (1 - p0).toFixed(3) + "</b>.") : "Add gates to build a circuit. They apply in order, exactly as Qiskit's <code>qc.h(0); qc.x(0)</code> would.";
+    }
+    host.querySelectorAll(".gadd").forEach(function (b) { b.onclick = function () { if (seq.length < 9) seq.push(b.dataset.g); draw(); }; });
+    host.querySelector('[data-act="clear"]').onclick = function () { seq = []; draw(); };
+    draw();
+  }
+
+  /* ---------- simulation: exact vs sampled shots ---------- */
+  function shotsWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Statevector vs. shots — exact odds vs. sampled counts</div>' +
+      '<canvas class="widget-canvas" width="440" height="240" aria-label="Exact probabilities overlaid with a sampled histogram for the chosen number of shots"></canvas>' +
+      '<div class="widget-controls"><label>shots</label>' +
+      ["10", "100", "1000", "8192"].map(function (n) { return '<button class="wbtn nsel" data-n="' + n + '" type="button">' + n + "</button>"; }).join("") +
+      '<button class="wbtn" data-act="resample" type="button">Resample</button></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    // exact distribution over 4 outcomes (e.g. a 2-qubit circuit)
+    var exact = [0.5, 0.0, 0.0, 0.5], labels = ["00", "01", "10", "11"], shots = 100, counts = [0, 0, 0, 0];
+    function sample() {
+      counts = [0, 0, 0, 0];
+      for (var i = 0; i < shots; i++) { var r = Math.random(), acc = 0, k = 0; for (k = 0; k < 4; k++) { acc += exact[k]; if (r < acc) break; } counts[Math.min(k, 3)]++; }
+      draw();
+    }
+    function draw() {
+      ctx.clearRect(0, 0, 440, 240);
+      var n = 4, x0 = 40, gap = 30, bw = (360 - gap * (n - 1)) / n, base = 200, H = 160;
+      for (var i = 0; i < n; i++) {
+        var x = x0 + i * (bw + gap);
+        // exact (translucent outline)
+        var he = exact[i] * H;
+        ctx.fillStyle = "rgba(124,92,255,.25)"; ctx.fillRect(x, base - he, bw, he);
+        ctx.strokeStyle = "#7c5cff"; ctx.lineWidth = 1.5; ctx.strokeRect(x, base - he, bw, he);
+        // sampled (solid, narrower)
+        var hs = (counts[i] / shots) * H;
+        ctx.fillStyle = "#22d3ee"; ctx.fillRect(x + bw * 0.28, base - hs, bw * 0.44, hs);
+        ctx.fillStyle = "#6b7688"; ctx.font = "11px Segoe UI, sans-serif"; ctx.textAlign = "center"; ctx.fillText("|" + labels[i] + "⟩", x + bw / 2, base + 16);
+      }
+      ctx.fillStyle = "#7c5cff"; ctx.font = "11px Segoe UI, sans-serif"; ctx.textAlign = "left"; ctx.fillText("■ exact", 40, 24);
+      ctx.fillStyle = "#22d3ee"; ctx.fillText("■ sampled", 110, 24);
+      read.innerHTML = "<b>" + shots + "</b> shots — the cyan sampled bars jump around the exact violet outline; add shots and the noise (∝ 1/√shots) shrinks toward the true statevector probabilities.";
+    }
+    host.querySelectorAll(".nsel").forEach(function (b) { b.onclick = function () { shots = +b.dataset.n; host.querySelectorAll(".nsel").forEach(function (x) { x.classList.toggle("active", x === b); }); sample(); }; });
+    host.querySelector('[data-act="resample"]').onclick = sample;
+    host.querySelectorAll(".nsel")[1].classList.add("active"); sample();
+  }
+
+  /* ---------- transpilation: routing on a line ---------- */
+  function transpileWidget(host) {
+    var N = 5;
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Transpilation — routing a CNOT the hardware can’t do directly</div>' +
+      '<canvas class="widget-canvas" width="440" height="180" aria-label="A line of qubits with SWAP gates inserted to route a CNOT between distant qubits"></canvas>' +
+      '<div class="widget-controls"><label>CNOT control</label><select id="tr-c"></select><label>target</label><select id="tr-t"></select></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var cs = host.querySelector("#tr-c"), ts = host.querySelector("#tr-t");
+    for (var i = 0; i < N; i++) { var o1 = document.createElement("option"); o1.value = String(i); o1.textContent = "q" + i; cs.appendChild(o1); var o2 = document.createElement("option"); o2.value = String(i); o2.textContent = "q" + i; ts.appendChild(o2); }
+    cs.value = "0"; ts.value = "4";
+    function draw() {
+      var c = +cs.value, t = +ts.value;
+      ctx.clearRect(0, 0, 440, 180);
+      var y = 70, x0 = 50, dx = 85;
+      for (var i = 0; i < N; i++) {
+        if (i < N - 1) { ctx.strokeStyle = "#3a4358"; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x0 + i * dx, y); ctx.lineTo(x0 + (i + 1) * dx, y); ctx.stroke(); }
+      }
+      for (i = 0; i < N; i++) {
+        var on = i === c || i === t;
+        ctx.fillStyle = i === c ? "#22d3ee" : i === t ? "#fbbf24" : "#161b28"; ctx.strokeStyle = on ? "#e6eaf2" : "#2b3448"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(x0 + i * dx, y, 18, 0, 7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = on ? "#0b0e16" : "#9aa4bb"; ctx.font = "bold 12px Segoe UI, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("q" + i, x0 + i * dx, y + 1); ctx.textBaseline = "alphabetic";
+      }
+      var dist = Math.abs(c - t), swaps = Math.max(0, dist - 1);
+      // draw swap arrows along the path
+      var lo = Math.min(c, t);
+      ctx.fillStyle = "#7c5cff"; ctx.font = "11px Segoe UI, sans-serif"; ctx.textAlign = "center";
+      for (i = 0; i < swaps; i++) { var mx = x0 + (lo + i + 0.5) * dx; ctx.fillText("⇄", mx, y - 26); }
+      read.innerHTML = c === t ? "Pick two different qubits." : ("On this line, q" + c + " and q" + t + " are <b>" + dist + "</b> apart, so the compiler inserts <b>" + swaps + "</b> SWAP gate" + (swaps === 1 ? "" : "s") + " to bring them adjacent before the CNOT. Routing is why circuit depth grows on real hardware.");
+    }
+    cs.addEventListener("change", draw); ts.addEventListener("change", draw); draw();
+  }
+
+  /* ---------- real hardware: calibration heatmap ---------- */
+  function hardwareWidget(host) {
+    var N = 6;
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Real hardware — pick your qubits by their error rates</div>' +
+      '<canvas class="widget-canvas" width="440" height="200" aria-label="A ring of qubits colored by error rate, best highlighted"></canvas>' +
+      '<div class="widget-controls"><button class="wbtn" data-act="recal" type="button">🎲 New calibration</button></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var err = [];
+    function recal() { err = []; for (var i = 0; i < N; i++) err.push(0.002 + Math.random() * 0.04); draw(); }
+    function draw() {
+      ctx.clearRect(0, 0, 440, 200);
+      var cx = 150, cy = 100, R = 70, best = 0;
+      for (var i = 1; i < N; i++) if (err[i] < err[best]) best = i;
+      // edges (ring)
+      ctx.strokeStyle = "#2b3448"; ctx.lineWidth = 2;
+      for (i = 0; i < N; i++) { var a1 = i / N * 2 * Math.PI, a2 = (i + 1) / N * 2 * Math.PI; ctx.beginPath(); ctx.moveTo(cx + R * Math.cos(a1), cy + R * Math.sin(a1)); ctx.lineTo(cx + R * Math.cos(a2), cy + R * Math.sin(a2)); ctx.stroke(); }
+      for (i = 0; i < N; i++) {
+        var a = i / N * 2 * Math.PI, x = cx + R * Math.cos(a), y = cy + R * Math.sin(a);
+        var e = err[i], tcol = e / 0.042; // 0 good .. 1 bad
+        var rr = Math.round(60 + 195 * tcol), gg = Math.round(210 - 150 * tcol);
+        ctx.fillStyle = "rgb(" + rr + "," + gg + ",90)"; ctx.strokeStyle = i === best ? "#e6eaf2" : "#0b0e16"; ctx.lineWidth = i === best ? 3 : 1;
+        ctx.beginPath(); ctx.arc(x, y, 20, 0, 7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#0b0e16"; ctx.font = "bold 11px Segoe UI, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText("q" + i, x, y + 1); ctx.textBaseline = "alphabetic";
+      }
+      // legend
+      ctx.textAlign = "left"; ctx.font = "11px Segoe UI, sans-serif";
+      ctx.fillStyle = "#34d399"; ctx.fillText("● low error", 280, 80); ctx.fillStyle = "#f87171"; ctx.fillText("● high error", 280, 100);
+      read.innerHTML = "Every qubit has a different, drifting error rate. Right now <b>q" + best + "</b> is the best (" + (err[best] * 100).toFixed(2) + "% gate error). Good quantum programs read the daily calibration and map onto the healthiest qubits.";
+    }
+    host.querySelector('[data-act="recal"]').onclick = recal;
+    recal();
+  }
+
+  /* ---------- QAOA / Max-Cut (interactive partition) ---------- */
+  function qaoaWidget(host) {
+    var nodes = [[90, 60], [220, 40], [350, 70], [120, 160], [300, 165]];
+    var edges = [[0, 1], [1, 2], [0, 3], [3, 4], [4, 2], [1, 4], [0, 4]];
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Max-Cut — split the nodes to cut the most edges</div>' +
+      '<canvas class="widget-canvas" width="440" height="220" aria-label="A graph whose nodes you assign to two sets, with cut edges highlighted"></canvas>' +
+      '<div class="widget-controls"><span class="widget-hint">Click a node to flip its set.</span>' +
+      '<button class="wbtn" data-act="best" type="button">Show max cut</button>' +
+      '<button class="wbtn reset" data-act="reset" type="button">Reset</button></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var set = [0, 0, 0, 0, 0];
+    function cutOf(s) { var c = 0; edges.forEach(function (e) { if (s[e[0]] !== s[e[1]]) c++; }); return c; }
+    function maxCut() { var best = 0, bestS = null; for (var m = 0; m < 32; m++) { var s = []; for (var i = 0; i < 5; i++) s.push((m >> i) & 1); var c = cutOf(s); if (c > best) { best = c; bestS = s; } } return { best: best, s: bestS }; }
+    function draw() {
+      ctx.clearRect(0, 0, 440, 220);
+      edges.forEach(function (e) {
+        var cut = set[e[0]] !== set[e[1]];
+        ctx.strokeStyle = cut ? "#34d399" : "#2b3448"; ctx.lineWidth = cut ? 3 : 1.5;
+        ctx.beginPath(); ctx.moveTo(nodes[e[0]][0], nodes[e[0]][1]); ctx.lineTo(nodes[e[1]][0], nodes[e[1]][1]); ctx.stroke();
+      });
+      nodes.forEach(function (p, i) {
+        ctx.fillStyle = set[i] === 0 ? "#22d3ee" : "#fbbf24"; ctx.strokeStyle = "#0b0e16"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(p[0], p[1], 18, 0, 7); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = "#0b0e16"; ctx.font = "bold 12px Segoe UI, sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(String(i), p[0], p[1] + 1); ctx.textBaseline = "alphabetic";
+      });
+      var mc = maxCut();
+      read.innerHTML = "Cut = <b>" + cutOf(set) + "</b> of " + edges.length + " edges (green = cut). The optimum for this graph is <b>" + mc.best + "</b>. QAOA is a quantum method for finding exactly this kind of best split.";
+    }
+    cv.addEventListener("click", function (e) {
+      var r = cv.getBoundingClientRect(), sx = cv.width / r.width, sy = cv.height / r.height;
+      var mx = (e.clientX - r.left) * sx, my = (e.clientY - r.top) * sy;
+      nodes.forEach(function (p, i) { if ((mx - p[0]) * (mx - p[0]) + (my - p[1]) * (my - p[1]) < 22 * 22) { set[i] = 1 - set[i]; } });
+      draw();
+    });
+    host.querySelector('[data-act="best"]').onclick = function () { set = maxCut().s.slice(); draw(); };
+    host.querySelector('[data-act="reset"]').onclick = function () { set = [0, 0, 0, 0, 0]; draw(); };
+    draw();
+  }
+
+  /* ---------- QML: linear decision boundary ---------- */
+  function qmlWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">A trainable classifier — rotate the boundary to separate the classes</div>' +
+      '<canvas class="widget-canvas" width="440" height="240" aria-label="Two classes of points and a rotating decision boundary with live accuracy"></canvas>' +
+      '<div class="widget-controls"><label for="qml-a">boundary angle</label><input id="qml-a" type="range" min="0" max="180" value="20" style="flex:1">' +
+      '<label for="qml-b">offset</label><input id="qml-b" type="range" min="-60" max="60" value="0" style="flex:1"></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var A = host.querySelector("#qml-a"), B = host.querySelector("#qml-b");
+    var pts = []; (function gen() { for (var i = 0; i < 40; i++) { var cls = i % 2, ang = Math.random() * 6.28, rr = 30 + Math.random() * 55; var cxp = cls ? 150 : 290, cyp = cls ? 90 : 150; pts.push({ x: cxp + Math.cos(ang) * rr * 0.7, y: cyp + Math.sin(ang) * rr * 0.7, c: cls }); } })();
+    function draw() {
+      var ang = +A.value * Math.PI / 180, off = +B.value;
+      ctx.clearRect(0, 0, 440, 240);
+      var cx = 220, cy = 120, nx = Math.cos(ang), ny = Math.sin(ang);
+      // boundary line (perpendicular to normal (nx,ny))
+      ctx.strokeStyle = "#e6eaf2"; ctx.lineWidth = 2;
+      var lx = -ny, ly = nx, ox = cx + nx * off, oy = cy + ny * off;
+      ctx.beginPath(); ctx.moveTo(ox - lx * 300, oy - ly * 300); ctx.lineTo(ox + lx * 300, oy + ly * 300); ctx.stroke();
+      var correct = 0;
+      pts.forEach(function (p) {
+        var side = ((p.x - ox) * nx + (p.y - oy) * ny) > 0 ? 1 : 0;
+        if (side === p.c) correct++;
+        ctx.fillStyle = p.c ? "#22d3ee" : "#fbbf24"; ctx.beginPath(); ctx.arc(p.x, p.y, 4.5, 0, 7); ctx.fill();
+      });
+      var acc = correct / pts.length;
+      read.innerHTML = "Accuracy = <b>" + (acc * 100).toFixed(0) + "%</b> (" + correct + "/" + pts.length + "). Tuning the angle and offset is exactly what training does — a quantum classifier just tunes circuit angles instead of a line.";
+    }
+    [A, B].forEach(function (el) { el.addEventListener("input", draw); }); draw();
+  }
+
+  /* ---------- surface code: stabilizer syndrome ---------- */
+  function surfaceWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">Surface code — flip a data qubit, watch the stabilizers fire</div>' +
+      '<canvas class="widget-canvas" width="440" height="240" aria-label="A surface-code lattice where flipping a data qubit lights up the neighboring stabilizers"></canvas>' +
+      '<div class="widget-controls"><span class="widget-hint">Click a circular data qubit to inject an error.</span>' +
+      '<button class="wbtn reset" data-act="reset" type="button">Clear errors</button></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    // 3x3 grid of data qubits; Z-stabilizers sit on the 2x2 plaquettes between them
+    var D = 3, gap = 60, ox = 120, oy = 50, err = {};
+    function dpos(r, c) { return [ox + c * gap, oy + r * gap]; }
+    function draw() {
+      ctx.clearRect(0, 0, 440, 240);
+      var lit = 0, litList = [];
+      // plaquette stabilizers (between 4 data qubits)
+      for (var r = 0; r < D - 1; r++) for (var c = 0; c < D - 1; c++) {
+        var parity = (err[r + "," + c] ? 1 : 0) ^ (err[r + "," + (c + 1)] ? 1 : 0) ^ (err[(r + 1) + "," + c] ? 1 : 0) ^ (err[(r + 1) + "," + (c + 1)] ? 1 : 0);
+        var px = ox + (c + 0.5) * gap, py = oy + (r + 0.5) * gap;
+        ctx.fillStyle = parity ? "rgba(248,113,113,.9)" : "rgba(52,211,153,.15)"; ctx.strokeStyle = parity ? "#f87171" : "#2b3448"; ctx.lineWidth = 2;
+        ctx.fillRect(px - 16, py - 16, 32, 32); ctx.strokeRect(px - 16, py - 16, 32, 32);
+        if (parity) { lit++; litList.push("(" + r + "," + c + ")"); }
+      }
+      // data qubits
+      for (r = 0; r < D; r++) for (c = 0; c < D; c++) {
+        var p = dpos(r, c), e = err[r + "," + c];
+        ctx.fillStyle = e ? "#fbbf24" : "#161b28"; ctx.strokeStyle = e ? "#fbbf24" : "#3a4358"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(p[0], p[1], 13, 0, 7); ctx.fill(); ctx.stroke();
+      }
+      ctx.fillStyle = "#6b7688"; ctx.font = "11px Segoe UI, sans-serif"; ctx.textAlign = "left";
+      ctx.fillText("● data qubit   ■ stabilizer check", 250, 210);
+      read.innerHTML = lit ? ("<b>" + lit + "</b> stabilizer" + (lit === 1 ? "" : "s") + " fired (red). The pattern of fired checks is the <b>syndrome</b> — decoders use it to locate errors without ever measuring the data itself.") : "Click a data qubit to flip it. Only the neighboring stabilizer squares light up — that local syndrome is how the surface code spots errors.";
+    }
+    cv.addEventListener("click", function (e) {
+      var rr = cv.getBoundingClientRect(), sx = cv.width / rr.width, sy = cv.height / rr.height;
+      var mx = (e.clientX - rr.left) * sx, my = (e.clientY - rr.top) * sy;
+      for (var r = 0; r < D; r++) for (var c = 0; c < D; c++) { var p = dpos(r, c); if ((mx - p[0]) * (mx - p[0]) + (my - p[1]) * (my - p[1]) < 16 * 16) { var k = r + "," + c; err[k] = !err[k]; } }
+      draw();
+    });
+    host.querySelector('[data-act="reset"]').onclick = function () { err = {}; draw(); };
+    draw();
+  }
+
+  /* ---------- fault tolerance: threshold curves ---------- */
+  function thresholdWidget(host) {
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">The threshold theorem — when does adding qubits help?</div>' +
+      '<canvas class="widget-canvas" width="440" height="260" aria-label="Logical error rate versus physical error rate for several code distances, crossing at the threshold"></canvas>' +
+      '<div class="widget-controls"><label for="th-p">physical error rate p</label><input id="th-p" type="range" min="1" max="200" value="60" style="flex:1"></div>' +
+      '<div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var pth = 0.01; // 1% threshold
+    var slide = host.querySelector("#th-p");
+    // logical error ~ A*(p/pth)^((d+1)/2)
+    function logical(p, d) { return Math.pow(p / pth, (d + 1) / 2); }
+    function draw() {
+      var p = (+slide.value / 200) * 0.02; // 0..2%
+      ctx.clearRect(0, 0, 440, 260);
+      var x0 = 50, x1 = 420, y0 = 20, y1 = 210, pmax = 0.02;
+      ctx.strokeStyle = "#2b3448"; ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x0, y1); ctx.lineTo(x1, y1); ctx.stroke();
+      ctx.fillStyle = "#6b7688"; ctx.font = "10px Segoe UI, sans-serif"; ctx.textAlign = "center";
+      ctx.fillText("0", x0, y1 + 14); ctx.fillText("1%", x0 + (0.01 / pmax) * (x1 - x0), y1 + 14); ctx.fillText("2%", x1, y1 + 14);
+      ctx.save(); ctx.translate(14, 115); ctx.rotate(-Math.PI / 2); ctx.textAlign = "center"; ctx.fillText("logical error (relative)", 0, 0); ctx.restore();
+      // threshold line
+      var xth = x0 + (pth / pmax) * (x1 - x0);
+      ctx.strokeStyle = "#6b7688"; ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(xth, y0); ctx.lineTo(xth, y1); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = "#9aa4bb"; ctx.textAlign = "left"; ctx.fillText("threshold", xth + 4, y0 + 10);
+      var cols = { 3: "#22d3ee", 5: "#7c5cff", 7: "#34d399" };
+      [3, 5, 7].forEach(function (d) {
+        ctx.strokeStyle = cols[d]; ctx.lineWidth = 2; ctx.beginPath();
+        for (var i = 0; i <= 200; i++) { var pp = (i / 200) * pmax, L = Math.min(2, logical(pp, d)); var px = x0 + (pp / pmax) * (x1 - x0), py = y1 - (L / 2) * (y1 - y0); if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py); }
+        ctx.stroke();
+        ctx.fillStyle = cols[d]; ctx.textAlign = "left"; ctx.fillText("d=" + d, x1 - 34, y0 + 12 + (d === 3 ? 0 : d === 5 ? 14 : 28));
+      });
+      // marker
+      var mx = x0 + (p / pmax) * (x1 - x0); ctx.strokeStyle = "#fbbf24"; ctx.setLineDash([2, 2]); ctx.beginPath(); ctx.moveTo(mx, y0); ctx.lineTo(mx, y1); ctx.stroke(); ctx.setLineDash([]);
+      var below = p < pth;
+      read.innerHTML = "p = <b>" + (p * 100).toFixed(2) + "%</b> — " + (below ? "<b>below</b> threshold: bigger codes (higher d) drive logical error <b>down</b>, so adding qubits helps." : "<b>above</b> threshold: bigger codes make things <b>worse</b> — error correction can't win until p drops under ~1%.");
+    }
+    slide.addEventListener("input", draw); draw();
+  }
+
   var BUILDERS = {
     bloch: blochWidget, interference: interferenceWidget, entangle: entanglementWidget,
     twoqubit: twoQubitWidget, grover: groverWidget, qft: qftWidget, decoherence: decoherenceWidget,
     trig: trigWidget, vectors2d: vectors2dWidget, complex: complexWidget, euler: eulerWidget,
     eigen: eigenWidget, probability: probabilityWidget, sampling: samplingWidget, qubit: qubitWidget,
     tensor: tensorWidget, teleport: teleportWidget, dj: djWidget, qpe: qpeWidget, shor: shorWidget,
-    vqe: vqeWidget, qec: qecWidget
+    vqe: vqeWidget, qec: qecWidget,
+    numbers: numbersWidget, algebra: algebraWidget, matrices: matricesWidget, vectorspaces: vectorSpacesWidget,
+    dirac: diracWidget, measure: measureWidget, qiskitcirc: qiskitCircWidget, shots: shotsWidget,
+    transpile: transpileWidget, hardware: hardwareWidget, qaoa: qaoaWidget, qml: qmlWidget,
+    surface: surfaceWidget, threshold: thresholdWidget
   };
 
   /* ---------- what/why/how/where/when, one entry per widget kind ---------- */
@@ -1092,6 +1625,104 @@
       how: "Pick a logical bit, choose which qubit to flip (or none), and click “Detect & correct” to watch the syndrome get found and fixed.",
       where: "Directly demonstrates this lesson's repetition-code construction.",
       when: "Use it before the Error Correction Lab, which adds phase-flip codes and random errors on top of this same mechanic."
+    },
+    numbers: {
+      what: "One curve, two readings — slide the exponent along b^x and watch the value, then see the logarithm read that same exponent back off.",
+      why: "Exponentials and logarithms are the language of qubit counts (2ⁿ states) and complexity; being fluent both ways is assumed everywhere later.",
+      how: "Pick a base (2, e, or 10) and drag the exponent slider; the gold dot rides the curve and the readout shows b^x and its inverse log.",
+      where: "Grounds this lesson's exponent and logarithm rules in a picture.",
+      when: "Come back whenever a lesson writes 2ⁿ or a log and you want to feel what it means."
+    },
+    algebra: {
+      what: "A live parabola — drag a, b, c and watch the roots, vertex, and shape respond instantly.",
+      why: "Reading a function's roots and turning points off its formula is a basic skill the quantum-math lessons lean on constantly.",
+      how: "Move the a, b, c sliders; green dots mark where the curve crosses zero (the roots) and the gold dot marks the vertex.",
+      where: "Backs this lesson's treatment of functions and equations.",
+      when: "Use it any time an equation's roots or vertex matter and you want to see, not just solve."
+    },
+    matrices: {
+      what: "A matrix shown as motion — set the four entries and watch the unit square and basis vectors get transformed.",
+      why: "Quantum gates are matrices; seeing a matrix as a transformation of space is the single most useful mental model for the whole course.",
+      how: "Drag the a, b, c, d sliders; the violet region is the transformed unit square and the cyan/green arrows show where the basis vectors land, with the determinant as the area factor.",
+      where: "Makes this lesson's matrix mechanics visual and concrete.",
+      when: "Revisit it whenever a gate 'does something' to a state and you want to picture the geometry."
+    },
+    vectorspaces: {
+      what: "A span builder — scale two basis vectors and combine them to reach any point in the plane.",
+      why: "Every quantum state is a linear combination of basis states; this is that idea in its simplest 2-D form.",
+      how: "Drag the two coefficient sliders; the dashed pieces are the scaled basis vectors and the gold arrow is their sum.",
+      where: "Illustrates this lesson's basis, span, and linear-combination definitions.",
+      when: "Use it before Dirac notation, where the same combination is written with kets."
+    },
+    dirac: {
+      what: "An inner-product visualizer — rotate two states and watch their overlap ⟨a|b⟩ appear as a projection.",
+      why: "The inner product decides measurement probabilities and whether states are distinguishable; it is the workhorse of bra-ket notation.",
+      how: "Drag the two angle sliders; the gold segment is one state projected onto the other, and its length equals ⟨a|b⟩ = cos of the angle between them.",
+      where: "Anchors this lesson's inner-product and Dirac-notation material.",
+      when: "Return to it whenever ⟨a|b⟩ shows up and you want to know what it measures."
+    },
+    measure: {
+      what: "A collapse demonstrator — set P(0), then measure once (random) or a hundred times (statistical).",
+      why: "Measurement is where quantum weirdness meets reality: one shot is unpredictable, but the long-run frequencies are exactly the amplitudes squared.",
+      how: "Set the P(0) slider, click Measure ×1 to collapse to a single 0 or 1, or ×100 to build a tally that converges on P(0).",
+      where: "Directly demonstrates this lesson's superposition-and-measurement story.",
+      when: "Use it whenever you need to separate 'a single random outcome' from 'the underlying probability'."
+    },
+    qiskitcirc: {
+      what: "A 1-qubit circuit builder — append gates and watch the resulting probabilities, exactly as Qiskit would compute them.",
+      why: "Before wiring multi-qubit circuits, you need to feel how a sequence of gates transforms a single qubit's state.",
+      how: "Click +H, +X, … to append gates left to right; the boxes show your circuit and the bars show the resulting P(0) and P(1). Clear resets it.",
+      where: "Mirrors this lesson's Qiskit circuit-construction syntax in a picture.",
+      when: "Use it to predict a small circuit's output before running it in real Qiskit."
+    },
+    shots: {
+      what: "Exact vs. sampled — compare a circuit's true probabilities against a finite-shot histogram.",
+      why: "Real hardware never gives you the exact statevector; it gives you noisy counts, and knowing how many shots you need is a daily practical judgment.",
+      how: "Pick a shot count (10 → 8192) or Resample; the violet outlines are the exact probabilities and the cyan bars are the sampled counts.",
+      where: "Backs this lesson's Statevector-vs-sampling discussion.",
+      when: "Use it whenever you have to decide how many shots a measurement needs."
+    },
+    transpile: {
+      what: "A routing visualizer — see why a CNOT between distant qubits needs SWAP gates on real hardware.",
+      why: "Hardware only connects neighboring qubits, so the compiler (transpiler) inserts SWAPs; that overhead is a major reason real circuits are deeper than the ideal.",
+      how: "Pick a control and target qubit from the dropdowns; the ⇄ marks show the SWAPs inserted to bring them adjacent, and the readout counts them.",
+      where: "Makes this lesson's transpilation and coupling-map ideas concrete.",
+      when: "Reference it whenever a circuit runs deeper on hardware than you expected."
+    },
+    hardware: {
+      what: "A calibration snapshot — a ring of qubits colored by error rate, with the best one highlighted.",
+      why: "Every physical qubit is different and drifts daily; picking good qubits is a real, points-on-the-board way to get better results.",
+      how: "Click 'New calibration' to draw fresh error rates; greener qubits are lower-error and the white-outlined one is currently best.",
+      where: "Illustrates this lesson's real-hardware and primitives discussion.",
+      when: "Use it to appreciate why production code reads calibration data before choosing qubits."
+    },
+    qaoa: {
+      what: "An interactive Max-Cut — split the graph's nodes into two sets to cut as many edges as possible.",
+      why: "Max-Cut is the textbook optimization problem QAOA targets; feeling how hard the best split is to find motivates the quantum approach.",
+      how: "Click nodes to flip which set they are in; green edges are cut. 'Show max cut' reveals the optimum for comparison.",
+      where: "Sets up this lesson's QAOA discussion with the problem it solves.",
+      when: "Play with it before the QAOA lab, which tunes circuit angles to find this same split."
+    },
+    qml: {
+      what: "A trainable classifier — rotate and shift a decision boundary to separate two classes of points.",
+      why: "Quantum machine-learning models train the same way: adjust parameters to reduce error; this strips the idea down to a line you can move.",
+      how: "Drag the angle and offset sliders; the readout shows live accuracy as the boundary separates the cyan and gold points.",
+      where: "Grounds this lesson's quantum-machine-learning promise-vs-reality discussion.",
+      when: "Use it to understand what 'training' means before mapping it onto circuit parameters."
+    },
+    surface: {
+      what: "A surface-code syndrome demo — click a data qubit to inject an error and watch only the neighboring stabilizers fire.",
+      why: "The surface code is the leading path to fault tolerance, and its whole trick is that local checks reveal errors without ever measuring the data.",
+      how: "Click any circular data qubit to flip it; the square stabilizer checks next to it turn red, and that red pattern is the syndrome a decoder reads.",
+      where: "Makes this lesson's surface-code and stabilizer material tangible.",
+      when: "Use it before the fault-tolerance lesson to see how errors are detected locally."
+    },
+    threshold: {
+      what: "The threshold theorem, plotted — logical error vs. physical error for several code distances, crossing at the threshold.",
+      why: "This single crossing point is why scalable quantum computing is believed possible: below it, adding qubits wins; above it, it loses.",
+      how: "Drag the physical-error slider; the gold marker's side of the dashed threshold tells you whether bigger codes (d=3,5,7) help or hurt.",
+      where: "Visualizes this lesson's fault-tolerance and threshold argument.",
+      when: "Return to it whenever a claim about 'below threshold' hardware comes up."
     }
   };
   function renderInfoDL(info) {
@@ -1123,7 +1754,21 @@
     qpe: "The blue line is the true phase, the gold dot is the estimate, and the green band is its error; add counting qubits and the band narrows.",
     shor: "Each step turns the period r (from the quantum part) into real factors of N by gcd, and the readout shows the factorization when it lands.",
     vqe: "The curve is the energy for each angle θ and the gold dot is you; every gradient step slides it downhill toward the minimum at θ = π.",
-    qec: "The three circles are one logical bit stored three times; a red outline is an injected error, and Detect & correct majority-votes it away."
+    qec: "The three circles are one logical bit stored three times; a red outline is an injected error, and Detect & correct majority-votes it away.",
+    numbers: "The cyan curve is b raised to the power x and the gold dot is your current exponent; the readout shows that a logarithm just reads that exponent back off.",
+    algebra: "The cyan curve is the parabola, green dots are its roots (where it crosses zero), and the gold dot is its vertex (highest or lowest point).",
+    matrices: "The faint square is space before the matrix acts; the violet square and the cyan/green arrows show where it lands. The determinant in the readout is the area-scaling factor.",
+    vectorspaces: "The cyan and green arrows are the two basis vectors; the gold arrow is your scaled combination of them, which can reach any point in the plane.",
+    dirac: "The two unit arrows are the states; the gold segment is one projected onto the other, and its length is the inner product — zero means orthogonal.",
+    measure: "The top bar is the superposition, the circle is the last (random) collapse, and the tally bars show frequencies converging on P(0) as you measure more.",
+    qiskitcirc: "The boxes on the wire are your gate sequence applied left to right; the two bars are the resulting P(0) and P(1), exactly as a Qiskit statevector sim would report.",
+    shots: "The violet outlines are the exact probabilities and the solid cyan bars are one sampled run; add shots and the cyan bars settle onto the outlines.",
+    transpile: "The circles are qubits on a line and the ⇄ marks are inserted SWAPs; a CNOT between distant qubits needs one SWAP per gap to route them together.",
+    hardware: "Each circle is a qubit colored by its error rate (green good, red bad); the white-outlined one is currently the best to run on.",
+    qaoa: "Each node is colored by which set it is in; green edges are cut (endpoints in different sets). The readout compares your cut to the graph's best possible.",
+    qml: "The two colors are two data classes and the white line is the decision boundary; drag it to separate them and watch the accuracy in the readout.",
+    surface: "Circles are data qubits (gold = flipped) and squares are stabilizer checks; only checks next to an error turn red, and that red pattern is the syndrome.",
+    threshold: "Each colored curve is a code distance d; below the dashed threshold, higher d means lower logical error, so the gold marker's side tells you whether adding qubits helps."
   };
 
   /* inject after the lesson body on relevant lessons */

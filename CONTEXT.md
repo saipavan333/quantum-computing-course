@@ -7,24 +7,36 @@
 - **Governing spec:** `../COURSE_BUILD_PLAYBOOK.md` (Tutorial Hub standard).
 
 **Status:** built to playbook standard; `node tools/qa.js` = 0 issues; every route verified
-headlessly with 0 JS errors. 12 modules / 47 lessons, 22 in-lesson widgets, a 6-lab section.
-`sw.js` VERSION: `qcc-v2.2.0`.
+headlessly with 0 JS errors. 12 modules / 47 lessons, **37 in-lesson widgets, a 10-lab section**,
+a WebGL landing hero, and site-wide page effects. `sw.js` VERSION: `qcc-v2.5.0`.
 
 **Architecture (single-source, modular):**
 - `assets/js/app.js` = core + `window.QCC` API. Feature files push an init fn to
   `window.QCC_FEATURES`; inside use `QCC.registerRoute(fn)`, `QCC.onRender(fn)`,
   `QCC.setContent`, `QCC.renderMarkdown`, `QCC.COURSE/CONTENT/FLAT/store/escapeHtml`.
-- `site.js` (byline+a11y+effects) · `features.js` (glossary, flashcards, review, cheatsheets,
+- `site.js` (byline+a11y+reveal) · `features.js` (glossary, flashcards, review, cheatsheets,
   interview, exam, map, read-aloud, search) · `runner.js` (Pyodide + embedded pure-Python
   `QuantumCircuit` sim) · `assistant.js` (free retrieval AI).
-- `widgets.js` — 22 in-lesson canvas widgets keyed by lesson id in the `WIDGETS`/`BUILDERS`
-  maps (bloch, interference, entanglement, two-qubit-gates, grover, qft, noise, trig,
-  vectors2d, complex, euler, eigen, probability, sampling, qubit, tensor, teleport,
-  deutsch-jozsa, qpe, shor, vqe, qec) + a shared `drawBars` helper.
-- `labs.js` — the "🧪 Interactive Labs" section: 6 flagship standalone sandboxes (Circuit
-  Builder with a real ≤3-qubit complex-statevector simulator, Bloch Sphere Sandbox, Grover
-  Playground, QFT/Period-Finding Lab, Error Correction Lab, VQE Optimization Lab), reachable
-  via `#/labs` + `#/lab/:id`, a dedicated home-page section, and its own sidebar nav group.
+- `hero.js` — WebGL landing hero ("Superposition Bloch Field": Three.js wire Bloch sphere +
+  precessing state-vector + trail over a domain-warped GLSL flow field, cursor parallax).
+  Three.js is vendored at `assets/vendor/three.min.js` (r128, UMD global `THREE`) and
+  **lazy-loaded only on the home view**; falls back to a CSS aurora hero if WebGL is
+  unavailable or `prefers-reduced-motion`. Mounts/disposes via an `onRender` hook (view==='home').
+- `effects.js` — site-wide page effects: animated aurora background (`#fx-aurora`, drifts on
+  scroll via `--fx-scroll`), scroll-progress bar (`#fx-progress`), staggered `.reveal`
+  entrances, magnetic/glow hover on `.module-card`/`.tool-tile`, animated stat count-up. All
+  reduced-motion aware.
+- `widgets.js` — 36 distinct in-lesson canvas widgets across 37 lesson mounts, keyed by lesson
+  id in `WIDGETS`→`BUILDERS`; each kind also has an `INFO` (what/why/how/where/when, shown as a
+  `<details>` above the widget) and a `CAPTIONS` one-line "how to read this" (shown under it).
+  Shared `drawBars` helper. (single-gates reuses the bloch widget.)
+- `labs.js` — the "🧪 Interactive Labs" section: 10 flagship standalone sandboxes (Circuit
+  Builder w/ real ≤3-qubit complex statevector sim, Bloch Sandbox, Grover, QFT/Period-Finding,
+  Error Correction, VQE, Measurement & Basis, Teleportation w/ fidelity, QAOA/Max-Cut w/ real
+  p=1 circuit + angle optimize, Entanglement Explorer Bell/GHZ/W). Each lab's `LAB_INFO` entry
+  has what/why/how/where/when + a color `legend` (swatches) + `tryThis` experiments, rendered by
+  `infoPanel()`. Routes `#/labs` + `#/lab/:id`, home-page section, own sidebar nav group.
+  The Circuit lab renders its shell once and repaints only `#circuit-grid` on clicks.
 - Data: `lessons/<m>/<nn>-<id>.md` → compiled to `content/*.js` by `tools/build.js`;
   plus `content/glossary.js`, `content/interview.js`; diagrams in `assets/js/diagrams.js`.
 
