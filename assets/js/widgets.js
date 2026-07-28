@@ -937,11 +937,179 @@
     vqe: vqeWidget, qec: qecWidget
   };
 
+  /* ---------- what/why/how/where/when, one entry per widget kind ---------- */
+  var INFO = {
+    bloch: {
+      what: "A live Bloch sphere — click a gate button and watch the qubit's state vector rotate in real time.",
+      why: "Every single-qubit gate has an exact geometric meaning as a rotation; seeing it move makes gates memorable instead of abstract.",
+      how: "Click any gate (H, X, Y, Z, S, T) to apply it and watch the vector animate to its new position; Reset returns to |0⟩.",
+      where: "Appears on the qubit/Bloch-sphere lesson and again on the single-qubit gate set lesson — both use the same live sphere.",
+      when: "Use it any time a gate's effect isn't obvious from the matrix alone."
+    },
+    interference: {
+      what: "A two-path interference explorer — drag the relative phase between two paths and watch the detection probability change.",
+      why: "Interference is the mechanism behind every quantum speedup; without it, a quantum computer is just an expensive random-number generator.",
+      how: "Drag the phase slider φ from 0 to 2π and watch the two phasors add up, and the detection-probability bar respond.",
+      where: "Pairs with this lesson's discussion of gates as unitary evolution and the phase that matters.",
+      when: "Revisit it whenever a later lesson says “this only works because of interference” and you want the intuition back."
+    },
+    entangle: {
+      what: "An entangled-pair simulator — pick a Bell state, measure both qubits repeatedly, and watch the outcomes build a histogram.",
+      why: "Entanglement's defining feature is correlation without communication — the histogram proves it experimentally, not just on paper.",
+      how: "Pick Φ+/Φ−/Ψ+/Ψ−, click Measure repeatedly, and watch the 00/01/10/11 counts pile up — Φ states always match, Ψ states always differ.",
+      where: "Directly illustrates this lesson's Bell states and no-cloning discussion.",
+      when: "Use it to settle any doubt about what “entangled” actually means before moving on to teleportation."
+    },
+    twoqubit: {
+      what: "A two-qubit circuit diagram — pick CNOT, CZ, or SWAP, set the input bits, and see the exact output.",
+      why: "Two-qubit gates are how qubits actually interact; almost every useful algorithm needs at least one of these three.",
+      how: "Choose a gate, set control and target bits with the toggle buttons, and read the output ket below the wires.",
+      where: "Covers this lesson's CNOT, CZ, and SWAP definitions directly.",
+      when: "Use it to double-check a truth table before writing it into real Qiskit code."
+    },
+    grover: {
+      what: "A single-marked-item amplitude bar chart — step through Grover's oracle and diffusion operator one iteration at a time.",
+      why: "Watching the marked amplitude grow (and shrink again if you over-rotate) is the fastest way to internalize why the optimal iteration count matters.",
+      how: "Pick a marked item from the dropdown, then click “Apply oracle + diffusion” repeatedly and watch the bars change.",
+      where: "Illustrates this lesson's quadratic-speedup claim directly — the Grover Playground lab generalizes this to any register size and any number of marked items.",
+      when: "Use it for a first look before jumping to the Grover Playground lab for deeper exploration."
+    },
+    qft: {
+      what: "An input-comb-to-output-peaks explorer — pick a period and watch exactly where the quantum Fourier transform's output lights up.",
+      why: "This peak-at-multiples-of-N/r behavior is the entire reason Shor's algorithm can find periods efficiently.",
+      how: "Click a period button (1, 2, 4, or 8) and compare the input pattern (top) to the QFT output magnitudes (bottom, peaks in green).",
+      where: "Sets up this lesson's transform and feeds directly into the Shor's algorithm lesson right after it.",
+      when: "Revisit right before Shor's algorithm if the “peaks reveal the period” idea feels shaky."
+    },
+    decoherence: {
+      what: "A T1/T2 decay-curve plot — drag two sliders and watch a qubit's energy and coherence fade over time.",
+      why: "Every real quantum computer is racing against these two clocks; understanding them explains why circuits must be short and fast.",
+      how: "Drag the T1 and T2 sliders (T2 is physically capped at 2×T1) and read off how many gates fit before coherence is lost.",
+      where: "Directly visualizes this lesson's T1, T2, and gate-error discussion.",
+      when: "Use it when comparing real hardware specs — better T1/T2 numbers literally mean more usable gates per circuit."
+    },
+    trig: {
+      what: "The unit circle — drag the angle and watch sine, cosine, and tangent update live.",
+      why: "Quantum states are built from sines and cosines of angles; this is the geometric foundation everything later depends on.",
+      how: "Drag the angle slider and read the projections (sine in green, cosine in gold) directly off the circle.",
+      where: "Refreshes this lesson's trigonometry before it's needed for rotations and phases.",
+      when: "Revisit any time a later formula has a cos or sin in it and the angle isn't obvious."
+    },
+    vectors2d: {
+      what: "A 2D vector playground — set two vectors with sliders and see their sum and dot product live.",
+      why: "Quantum states are vectors; dot products measure how “aligned” two states are, which is exactly what overlap and fidelity mean later.",
+      how: "Adjust the four sliders for u and v, and watch the sum (green) and dot-product readout update.",
+      where: "Builds the vector-algebra foundation this lesson introduces.",
+      when: "Use it to build intuition for “perpendicular means dot product zero” before that shows up as “orthogonal states” later."
+    },
+    complex: {
+      what: "The complex plane — drag the real and imaginary parts of z and watch its modulus and argument update.",
+      why: "Quantum amplitudes are complex numbers; modulus-squared gives probability and argument gives the phase that drives interference.",
+      how: "Drag the a and b sliders and read |z| and arg(z) off the live readout.",
+      where: "Covers this lesson's complex-number geometry directly.",
+      when: "Revisit whenever a probability calculation needs |amplitude|² and the modulus isn't obvious."
+    },
+    euler: {
+      what: "A rotating phasor — drag θ and watch e^(iθ) trace the unit circle while its cosine and sine components update as bars.",
+      why: "Euler's formula is the compact notation for every phase and rotation used from here to the end of the course.",
+      how: "Drag the θ slider and watch the phasor rotate and the cos θ / sin θ bars respond in real time.",
+      where: "Illustrates this lesson's e^(iθ) = cos θ + i sin θ identity directly.",
+      when: "Keep this in mind whenever a gate matrix has an e^(iθ) term in it."
+    },
+    eigen: {
+      what: "An eigenvector field — pick a matrix and see which sample vectors keep their direction after the transformation.",
+      why: "Eigenvectors of Hermitian and unitary matrices are literally the measurement outcomes and gate axes used throughout quantum mechanics.",
+      how: "Pick Scale, Shear, or Rotate 90°, and compare the faint grey (before) arrows to the blue (after) ones — gold lines mark real eigen-directions, when they exist.",
+      where: "Directly demonstrates this lesson's eigenvalue and eigenvector definitions.",
+      when: "Use it to build the “which vectors don't change direction” intuition before it's applied to Hermitian observables."
+    },
+    probability: {
+      what: "A dice-rolling histogram — roll a die (once or fifty times) and watch the empirical frequency chase the theoretical 1/6 line.",
+      why: "This is the law of large numbers in action, and it's exactly why running a quantum circuit multiple “shots” matters.",
+      how: "Click Roll ×1 or Roll ×50 repeatedly and watch the bars settle toward the dashed theoretical line.",
+      where: "Grounds this lesson's probability-distribution discussion in a hands-on demo.",
+      when: "Revisit before the sampling lesson, which builds directly on this idea."
+    },
+    sampling: {
+      what: "A running-average tracker — flip a biased coin many times and watch the estimate converge to the true probability.",
+      why: "Quantum measurement outcomes are also probabilistic; more “shots” means a tighter estimate — never a guaranteed exact answer.",
+      how: "Set the true P(heads) with the slider, click “Flip 200 more” repeatedly, and watch the blue line settle onto the gold true-value line.",
+      where: "Directly demonstrates this lesson's “why shots matter” argument.",
+      when: "Reference this any time you're deciding how many shots a real quantum job needs."
+    },
+    qubit: {
+      what: "An amplitude-to-probability converter — set the amplitude α and watch both the raw amplitudes and the resulting Born-rule probabilities.",
+      why: "The Born rule (probability = amplitude squared) is the single most-used formula in the entire course.",
+      how: "Drag the α slider and compare the left bar chart (amplitudes) to the right one (probabilities, |amplitude|²).",
+      where: "Directly visualizes this lesson's qubit state vector and Born rule.",
+      when: "Use it any time a probability calculation from an amplitude needs double-checking."
+    },
+    tensor: {
+      what: "A tensor-product builder — pick a state for each of two qubits and see the resulting four-amplitude joint state.",
+      why: "Tensor products are how independent qubits combine into a joint system — the mechanical foundation for every multi-qubit circuit.",
+      how: "Pick a state for qubit A and qubit B from the buttons, and read the four joint amplitudes off the bar chart.",
+      where: "Directly demonstrates this lesson's tensor-product construction.",
+      when: "Use it to check a tensor-product calculation by hand before trusting the arithmetic."
+    },
+    teleport: {
+      what: "A step-through of the teleportation protocol — five clicks walk through entangling, measuring, sending classical bits, and correcting.",
+      why: "Teleportation is the cleanest illustration of how classical and quantum information interact — and it never violates no-cloning or faster-than-light limits.",
+      how: "Click “Next step” to advance through all five stages, or “Back” to review any step.",
+      where: "Walks through this lesson's teleportation protocol one stage at a time.",
+      when: "Use it whenever the full five-step sequence is hard to hold in your head at once."
+    },
+    dj: {
+      what: "A single-query oracle test — pick constant or balanced, run one query, and see the algorithm decide with certainty.",
+      why: "Deutsch–Jozsa is the first algorithm to prove a real quantum-vs-classical speedup, however impractical — it's the “hello world” of quantum advantage.",
+      how: "Pick an oracle type, click “Run 1 query”, and see which outcome (all-zeros vs. non-zero) reveals the answer.",
+      where: "Runs this lesson's oracle experiment directly.",
+      when: "Use it to see why one query is provably enough — a fact classical computers can't match."
+    },
+    qpe: {
+      what: "A precision dial — set a true phase and the number of counting qubits, and watch the estimate window shrink.",
+      why: "Phase estimation is the subroutine hiding inside Shor's algorithm and most quantum chemistry algorithms — precision literally comes from adding more qubits.",
+      how: "Set the true phase and the qubit count with the sliders, and watch the green precision band narrow as qubits increase.",
+      where: "Directly visualizes this lesson's precision-vs-qubit-count tradeoff.",
+      when: "Reference it whenever a later lesson says “n counting qubits gives 2⁻ⁿ precision” and you want to see why."
+    },
+    shor: {
+      what: "A step-through of Shor's algorithm — pick N, reveal the period r, and watch it turn into real factors via gcd.",
+      why: "This is the algorithm that threatens RSA encryption — seeing the period-to-factor arithmetic makes the threat concrete instead of abstract.",
+      how: "Pick N (15, 21, or 35), then click “Next step” to reveal the period, the computed x, and finally the factors.",
+      where: "Walks through this lesson's period-to-factor argument with real, checkable numbers.",
+      when: "Use it right after the QFT & Period-Finding Lab, which supplies the period-finding step this widget assumes."
+    },
+    vqe: {
+      what: "A 1-parameter energy landscape — click “Gradient step” and watch a marker walk downhill toward the minimum.",
+      why: "VQE is the leading near-term quantum algorithm, and this is its classical half: an ordinary optimizer walking a landscape shaped by quantum measurements.",
+      how: "Click “Gradient step” repeatedly and watch θ and E(θ) converge toward the minimum at θ = π.",
+      where: "Directly demonstrates this lesson's variational optimization loop.",
+      when: "Use it before the full 2-parameter VQE Optimization Lab, which generalizes this same idea."
+    },
+    qec: {
+      what: "A repetition-code demo — encode a logical bit into three physical qubits, flip one, and correct it by majority vote.",
+      why: "This is the simplest error-correcting code that actually works, and every more advanced code (including the surface code) builds on this same syndrome-and-correct idea.",
+      how: "Pick a logical bit, choose which qubit to flip (or none), and click “Detect & correct” to watch the syndrome get found and fixed.",
+      where: "Directly demonstrates this lesson's repetition-code construction.",
+      when: "Use it before the Error Correction Lab, which adds phase-flip codes and random errors on top of this same mechanic."
+    }
+  };
+  function renderInfoDL(info) {
+    var order = [["What", info.what], ["Why", info.why], ["How", info.how], ["Where", info.where], ["When", info.when]];
+    return '<dl class="info-panel">' + order.map(function (pair) { return "<dt>" + pair[0] + "</dt><dd>" + pair[1] + "</dd>"; }).join("") + "</dl>";
+  }
+
   /* inject after the lesson body on relevant lessons */
   QCC.onRender(function (root, ctx) {
     if (!ctx || ctx.view !== "lesson") return;
     var kind = WIDGETS[ctx.id]; if (!kind || !BUILDERS[kind]) return;
     var body = root.querySelector(".lesson-body"); if (!body || body.querySelector(".widget")) return;
+    var info = INFO[kind];
+    if (info) {
+      var infoHost = document.createElement("details"); infoHost.className = "info-toggle reveal"; infoHost.open = true;
+      infoHost.innerHTML = "<summary>What is this widget? (what, why, how, where, when)</summary>" + renderInfoDL(info);
+      body.appendChild(infoHost);
+    }
     var host = document.createElement("div"); host.className = "widget-host reveal";
     body.appendChild(host); BUILDERS[kind](host);
   });

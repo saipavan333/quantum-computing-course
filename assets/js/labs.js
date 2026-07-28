@@ -21,6 +21,57 @@
   function page(inner) { return '<div class="page">' + inner + "</div>"; }
   function labById(id) { for (var i = 0; i < LABS.length; i++) if (LABS[i].id === id) return LABS[i]; return null; }
 
+  /* ---------- what/why/how/where/when, one entry per lab ---------- */
+  var LAB_INFO = {
+    circuit: {
+      what: "A click-to-build quantum circuit editor for up to 3 qubits that runs an exact complex-number statevector simulation the moment you hit Run — no approximation, no cloud call.",
+      why: "Reading a circuit diagram and predicting its output is one of the most common quantum-computing interview and homework tasks; building your own circuits and seeing the real math work is how that intuition sticks.",
+      how: "Pick a gate from the toolbar (CNOT needs two clicks — control then target, in the same column), click a cell on the grid to place it, then press “Run simulation” to see the measurement-probability bar chart and the top three most likely outcomes.",
+      where: "Builds on Module 6 (multi-qubit systems, tensor products, CNOT) and Module 7 (Qiskit circuits) — revisit “Qiskit fundamentals: building &amp; visualizing circuits” if a gate's effect surprises you.",
+      when: "Use it whenever you want to sanity-check a circuit idea before writing real Qiskit code, or to build intuition for how gate order and CNOT placement change outcomes."
+    },
+    "bloch-sandbox": {
+      what: "A free-form single-qubit state explorer — rotate by any angle about any axis, jump to the six cardinal states, and freeze a second “reference” vector to compare against.",
+      why: "Every single-qubit gate is a rotation of the Bloch vector; once you can predict where a rotation lands, gates like H, S, and T stop being memorized symbols and become obviously-necessary moves.",
+      how: "Pick an axis (X/Y/Z), set an angle with the slider, click “Apply rotation” to actually move the state using the exact rotation formula, and click “Save as reference” to pin the current position in grey for comparison.",
+      where: "Pairs with Module 5 (“The Bloch sphere”) and Module 6 (“The single-qubit gate set”) — the in-lesson Bloch widget there uses fixed gate buttons; this sandbox lets you dial in any rotation.",
+      when: "Use it to build the rotation intuition needed for calibrating real hardware pulses, or any time a lesson says “rotate by θ about the X-axis” and you want to see it rather than imagine it."
+    },
+    "grover-lab": {
+      what: "A full amplitude-amplification simulator where you choose the register size (2–4 qubits) and mark any subset of items, then step through the oracle-plus-diffusion cycle and watch the probability of hitting a marked item climb.",
+      why: "Grover's algorithm is the canonical example of a real quantum speedup, and the only way to build real intuition for “why does over-rotating hurt” is to keep clicking past the optimal iteration count and watch performance fall back down.",
+      how: "Choose a qubit count, toggle any number of marked items in the grid, then click “Apply oracle + diffusion” repeatedly — the bar chart shows every amplitude live, and the line chart below tracks total success probability across iterations.",
+      where: "Follows Module 8's “Grover's search: quadratic speedup” — the in-lesson widget there is fixed at 8 states and 1 marked item; this lab generalizes both.",
+      when: "Reach for it whenever you need to reason about how the number of marked items or register size changes the optimal iteration count — a question that comes up constantly in quantum algorithms interviews."
+    },
+    "qft-lab": {
+      what: "A generalized quantum Fourier transform explorer — pick a register size up to 4 qubits and any period that divides it, and see exactly which output frequencies light up.",
+      why: "The QFT is the engine inside Shor's algorithm, and its “peaks appear at multiples of N/r” behavior is the entire reason quantum computers can find periods — and therefore factor numbers — exponentially faster than classical ones.",
+      how: "Choose a qubit count, then pick a period r from the buttons (only valid divisors of N are offered) — the top row shows the input pattern, the bottom row shows the QFT's output magnitudes, with the true peaks highlighted in green.",
+      where: "Extends Module 8's “The quantum Fourier transform” and directly sets up “Shor's algorithm &amp; why RSA cares” — the in-lesson Shor widget uses this exact peak-finding step, just with the arithmetic done for you.",
+      when: "Use it right before or during the Shor's algorithm lesson to see the period-finding step in isolation, separate from the modular-arithmetic bookkeeping."
+    },
+    "qec-lab": {
+      what: "A working repetition-code simulator for both bit-flip and phase-flip errors — encode a logical qubit into three physical qubits, inject an error (chosen or random), read the syndrome, and correct it.",
+      why: "Every real quantum computer today is noisy, and error correction is the entire reason the field believes useful, large-scale quantum computing is possible at all — this lab shows the core majority-vote trick that all more advanced codes (like the surface code) build on.",
+      how: "Pick a code type, set the logical bit, either choose which physical qubit to flip or click “🎲 Random error” for a surprise, then click “Detect &amp; correct” to watch the syndrome get read and the error undone.",
+      where: "Matches Module 10's “From repetition codes to stabilizers” and “The surface code &amp; logical qubits” — this lab is the repetition code from that first lesson, made interactive.",
+      when: "Use it to build intuition before tackling the surface code, which is the same idea scaled up to catch both error types at once."
+    },
+    "vqe-lab": {
+      what: "A 2-parameter variational landscape you can literally see — a color-coded energy heatmap with a marker that steps downhill via real gradient descent.",
+      why: "VQE and every other near-term “variational” quantum algorithm (QAOA included) works by having a classical optimizer walk a landscape shaped by measurements from a quantum circuit; this lab isolates and visualizes that classical half of the loop, usually the hardest part to picture.",
+      how: "Click “Gradient step” repeatedly to watch the marker descend toward a minimum (blue = lower energy), adjust the learning-rate slider to see how step size changes the path, and “Reset” to start over from the same point.",
+      where: "Follows Module 9's “VQE: the variational workhorse” and pairs naturally with “QAOA: quantum optimization” right after it — the in-lesson VQE widget is the 1-parameter version of this same idea.",
+      when: "Revisit this whenever a lesson mentions “the optimizer got stuck in a local minimum” — you can literally engineer that situation here by starting from a different point."
+    }
+  };
+  function infoPanel(info) {
+    if (!info) return "";
+    var order = [["What", info.what], ["Why", info.why], ["How", info.how], ["Where", info.where], ["When", info.when]];
+    return '<dl class="info-panel">' + order.map(function (pair) { return "<dt>" + pair[0] + "</dt><dd>" + pair[1] + "</dd>"; }).join("") + "</dl>";
+  }
+
   /* ============ home-page section + sidebar group ============ */
   QCC.onRender(function (root, ctx) {
     if (!ctx || ctx.view !== "home") return;
@@ -100,7 +151,7 @@
       return state;
     }
     function render() {
-      var html = head("Circuit Builder Lab", "Pick a tool, click cells to place gates (CNOT: click control then target in the same column), then run an exact simulation.");
+      var html = head("Circuit Builder Lab", "Pick a tool, click cells to place gates (CNOT: click control then target in the same column), then run an exact simulation.") + infoPanel(LAB_INFO.circuit);
       html += '<div class="widget"><div class="widget-controls">' +
         TOOLS.map(function (t) { return '<button class="wbtn tsel" data-t="' + t + '" type="button">' + t + "</button>"; }).join("") + "</div>";
       html += '<div class="circuit-grid">';
@@ -179,7 +230,7 @@
       v = [v[0] * c + cross[0] * s + k[0] * kv * (1 - c), v[1] * c + cross[1] * s + k[1] * kv * (1 - c), v[2] * c + cross[2] * s + k[2] * kv * (1 - c)];
     }
     function render() {
-      var html = head("Bloch Sphere Sandbox", "Rotate freely about any axis by any angle, jump to preset states, and save a reference to compare against.");
+      var html = head("Bloch Sphere Sandbox", "Rotate freely about any axis by any angle, jump to preset states, and save a reference to compare against.") + infoPanel(LAB_INFO["bloch-sandbox"]);
       html += '<div class="widget"><div class="widget-controls">' +
         Object.keys(PRESETS).map(function (k) { return '<button class="wbtn psel" data-k="' + k + '" type="button">' + k + "</button>"; }).join("") +
         '</div><div class="widget-controls"><label>axis</label>' +
@@ -244,7 +295,7 @@
       iter++; history.push(computeP());
     }
     function render() {
-      var html = head("Grover Playground", "Pick the register size and mark any items, then step through amplitude amplification. Optimal iterations ≈ (π/4)√N.");
+      var html = head("Grover Playground", "Pick the register size and mark any items, then step through amplitude amplification. Optimal iterations ≈ (π/4)√N.") + infoPanel(LAB_INFO["grover-lab"]);
       html += '<div class="widget"><div class="widget-controls"><label>qubits</label>' +
         [2, 3, 4].map(function (q) { return '<button class="wbtn qsel" data-q="' + q + '" type="button">' + q + " (" + Math.pow(2, q) + " states)</button>"; }).join("") +
         '</div><div class="widget-controls"><label>marked items (click to toggle)</label></div>' +
@@ -308,7 +359,7 @@
       return { S: S, out: out };
     }
     function render() {
-      var html = head("QFT & Period-Finding Lab", "The transform behind Shor's algorithm — pick a register size and period, and watch where the output peaks.");
+      var html = head("QFT & Period-Finding Lab", "The transform behind Shor's algorithm — pick a register size and period, and watch where the output peaks.") + infoPanel(LAB_INFO["qft-lab"]);
       html += '<div class="widget"><div class="widget-controls"><label>qubits</label>' +
         [2, 3, 4].map(function (q) { return '<button class="wbtn qsel" data-q="' + q + '" type="button">' + q + " (" + Math.pow(2, q) + " states)</button>"; }).join("") +
         '</div><div class="widget-controls" id="qft-rsel"></div>' +
@@ -362,7 +413,7 @@
       return bits;
     }
     function render() {
-      var html = head("Error Correction Lab", "Bit-flip and phase-flip repetition codes: encode, inject an error, read the syndrome, and correct it.");
+      var html = head("Error Correction Lab", "Bit-flip and phase-flip repetition codes: encode, inject an error, read the syndrome, and correct it.") + infoPanel(LAB_INFO["qec-lab"]);
       html += '<div class="widget"><div class="widget-controls"><label>code</label>' +
         '<button class="wbtn msel" data-m="bit" type="button">Bit-flip</button>' +
         '<button class="wbtn msel" data-m="phase" type="button">Phase-flip</button>' +
@@ -428,7 +479,7 @@
     }
     function reset() { theta1 = 0.5; theta2 = 5.5; path = [[theta1, theta2]]; }
     function render() {
-      var html = head("VQE Optimization Lab", "A 2-parameter energy landscape E(θ₁, θ₂) — step gradient descent and watch it find a minimum.");
+      var html = head("VQE Optimization Lab", "A 2-parameter energy landscape E(θ₁, θ₂) — step gradient descent and watch it find a minimum.") + infoPanel(LAB_INFO["vqe-lab"]);
       html += '<div class="widget"><div class="widget-controls"><button class="btn primary" id="vqe-step" type="button">Gradient step</button>' +
         '<button class="btn" id="vqe-reset" type="button">Reset</button>' +
         '<label for="vqe-lr">learning rate</label><input id="vqe-lr" type="range" min="1" max="50" value="15" style="flex:1"></div>' +
