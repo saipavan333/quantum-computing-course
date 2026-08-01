@@ -177,6 +177,18 @@ a:hover { text-decoration: underline; }
 }
 .lesson-body pre code.hljs { background: transparent; padding: 0; }
 
+/* Math emphasis — equations & quantities read as distinct from prose */
+.lesson-body .katex { font-size: 1.06em; color: #d7d0ff; }
+.lesson-body p .katex, .lesson-body li .katex, .lesson-body td .katex {
+  background: rgba(124, 92, 255, .10); padding: .05em .34em; border-radius: 5px;
+}
+.lesson-body .katex-display {
+  margin: 22px 0; padding: 14px 20px; overflow-x: auto; overflow-y: hidden;
+  background: rgba(124, 92, 255, .07); border-left: 3px solid var(--acc);
+  border-radius: 0 8px 8px 0;
+}
+.lesson-body .katex-display > .katex { background: none; padding: 0; font-size: 1.16em; color: #e9e5ff; }
+
 /* Tables */
 .lesson-body table {
   border-collapse: collapse; width: 100%; margin: 18px 0; font-size: .89rem;
