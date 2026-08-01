@@ -23,6 +23,10 @@
     "        s=self.s.reshape([2]*self.n); s=np.moveaxis(s,[self._ax(c),self._ax(t)],[0,1])",
     "        sh=s.shape; s=(U@s.reshape(4,-1)).reshape((2,2)+sh[2:])",
     "        self.s=np.moveaxis(s,[0,1],[self._ax(c),self._ax(t)]).reshape(2**self.n)",
+    "    def _apply3(self,U,a,b,c):",
+    "        s=self.s.reshape([2]*self.n); s=np.moveaxis(s,[self._ax(a),self._ax(b),self._ax(c)],[0,1,2])",
+    "        sh=s.shape; s=(U@s.reshape(8,-1)).reshape((2,2,2)+sh[3:])",
+    "        self.s=np.moveaxis(s,[0,1,2],[self._ax(a),self._ax(b),self._ax(c)]).reshape(2**self.n)",
     "    def h(self,q): self._apply1(np.array([[1,1],[1,-1]])/np.sqrt(2),q); return self",
     "    def x(self,q): self._apply1(np.array([[0,1],[1,0]],complex),q); return self",
     "    def y(self,q): self._apply1(np.array([[0,-1j],[1j,0]]),q); return self",
@@ -36,6 +40,9 @@
     "    def rz(self,th,q): self._apply1(np.array([[np.exp(-1j*th/2),0],[0,np.exp(1j*th/2)]]),q); return self",
     "    def cx(self,c,t): self._apply2(np.array([[1,0,0,0],[0,1,0,0],[0,0,0,1],[0,0,1,0]],complex),c,t); return self",
     "    def cz(self,c,t): self._apply2(np.diag([1,1,1,-1]).astype(complex),c,t); return self",
+    "    def ccx(self,a,b,c): U=np.eye(8,dtype=complex); U[[6,7]]=U[[7,6]]; self._apply3(U,a,b,c); return self",
+    "    def ccz(self,a,b,c): self._apply3(np.diag([1,1,1,1,1,1,1,-1]).astype(complex),a,b,c); return self",
+    "    def toffoli(self,a,b,c): return self.ccx(a,b,c)",
     "    def statevector(self): return self.s.copy()",
     "    def probabilities(self):",
     "        p=np.abs(self.s)**2",
@@ -69,8 +76,8 @@
   }
 
   function run(block) {
-    var codeEnc = block.getAttribute("data-code");
-    var code = decodeURIComponent(codeEnc);
+    var edit = block.querySelector(".run-edit");
+    var code = edit ? edit.value : decodeURIComponent(block.getAttribute("data-code") || "");
     var out = block.querySelector(".run-out");
     var btn = block.querySelector(".run-btn");
     // auto-grade: leading "# expect: TEXT"
@@ -102,6 +109,30 @@
       btn.disabled = false; btn.textContent = "▶ Run";
     });
   }
+
+  /* turn every runnable block into an editable cell (edit the code, then Run) */
+  QCC.onRender(function (root) {
+    var blocks = (root && root.querySelectorAll) ? root.querySelectorAll(".run-block") : [];
+    Array.prototype.forEach.call(blocks, function (block) {
+      if (block.dataset.enhanced) return; block.dataset.enhanced = "1";
+      var pre = block.querySelector("pre");
+      var code = decodeURIComponent(block.getAttribute("data-code") || "");
+      var ta = document.createElement("textarea");
+      ta.className = "run-edit"; ta.spellcheck = false; ta.value = code;
+      ta.setAttribute("aria-label", "Editable Python code — change it, then press Run");
+      ta.rows = Math.min(28, Math.max(4, code.split("\n").length));
+      ta.addEventListener("keydown", function (e) {
+        if (e.key === "Tab") {
+          e.preventDefault();
+          var s = ta.selectionStart, en = ta.selectionEnd;
+          ta.value = ta.value.slice(0, s) + "    " + ta.value.slice(en);
+          ta.selectionStart = ta.selectionEnd = s + 4;
+        }
+      });
+      if (pre) pre.replaceWith(ta); else block.insertBefore(ta, block.firstChild);
+      var hint = block.querySelector(".run-hint"); if (hint) hint.textContent = "editable · runs in your browser";
+    });
+  });
 
   document.addEventListener("click", function (e) {
     var btn = e.target.closest && e.target.closest(".run-btn");

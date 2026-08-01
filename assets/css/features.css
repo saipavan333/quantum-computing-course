@@ -119,12 +119,14 @@ html.loaded #app { opacity: 1; transition: opacity .5s ease; }
 /* ---------- runnable code ---------- */
 .run-block { margin: 16px 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--code-bg); }
 .run-block pre { margin: 0; border: 0; border-radius: 0; }
+.run-edit { display: block; width: 100%; box-sizing: border-box; margin: 0; border: 0; background: var(--code-bg); color: #e8eeff; font-family: "Cascadia Code", Consolas, "JetBrains Mono", Menlo, monospace; font-size: .96rem; line-height: 1.62; padding: 16px 18px; resize: vertical; tab-size: 4; outline: none; }
+.run-edit:focus { box-shadow: inset 0 0 0 2px var(--acc); }
 .run-bar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-top: 1px solid var(--border); background: var(--panel2); }
 .run-btn { background: linear-gradient(135deg, var(--good), #2bb98a); color: #04110c; border: 0; font-weight: 700; padding: 6px 16px; border-radius: 7px; cursor: pointer; font-family: inherit; }
 .run-btn:hover { filter: brightness(1.08); }
 .run-btn[disabled] { opacity: .6; cursor: default; }
-.run-hint { color: var(--faint); font-size: .76rem; }
-.run-out { padding: 12px 14px; border-top: 1px solid var(--border); font-family: "Cascadia Code", Consolas, monospace; font-size: .82rem; white-space: pre-wrap; color: #cfe3ff; }
+.run-hint { color: var(--faint); font-size: .82rem; }
+.run-out { padding: 14px 16px; border-top: 1px solid var(--border); font-family: "Cascadia Code", Consolas, monospace; font-size: .92rem; line-height: 1.55; white-space: pre-wrap; color: #cfe3ff; }
 .run-out.err { color: var(--badT); }
 .run-out .ok { color: var(--goodT); } .run-out .fail { color: var(--badT); }
 

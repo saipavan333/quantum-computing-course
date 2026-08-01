@@ -63,45 +63,47 @@ And the professional warning, now as math: past $k^*$ the arrow rotates back dow
 {"q":"Grover on N=8 (θ ≈ 20.7°): success at k = 1, 2, 3 rounds is ~78%, ~95%, ~33%. Why does k=3 get WORSE?","options":["Decoherence accumulates","Each round ROTATES the arrow by 2θ; past 90° it rotates away from the winner — success is sin²((2k+1)θ), an oscillation, not a running total","The oracle wears out","Floating-point error"],"answer":1,"why":"(2·3+1)·20.7° ≈ 145°: past vertical, heading back down. Grover is geometry with an optimal stopping point — 'more is better' fails by design."}
 ```
 
-## Predict, then run — Grover in Qiskit (3 qubits, winner |101⟩)
+## Predict, then run — Grover live (3 qubits, winner |101⟩)
 
-**Predict first.** For $N = 8$, $\theta \approx 20.7°$, so $k^* \approx \tfrac\pi4\sqrt 8 - \tfrac12 \approx 1.7$. Round it: how many rounds will you run, and what do you expect $p(\text{winner})$ to be there? Write your two numbers down *before* you read the output — the gap between your guess and the result is where the learning happens.
+The cell below is **live: edit it and press Run.** It executes on the course's in-browser simulator, whose `QuantumCircuit` API mirrors Qiskit (`h`, `x`, `ccx`, …), so the very same code shape runs in real Qiskit once you install it. No setup, nothing to download.
 
-```python
+**Predict first.** For $N = 8$, $\theta \approx 20.7°$, so $k^* \approx \tfrac\pi4\sqrt 8 - \tfrac12 \approx 1.7$. Round it: how many rounds will you run, and what do you expect $p(\text{winner})$ to be there? Write your two numbers down *before* you press Run — the gap between your guess and the result is where the learning happens.
+
+```run
+# Live cell — edit and Run. QuantumCircuit is already available (no import needed);
+# the API mirrors Qiskit. Try changing `winner` to "110", or the round count.
 import numpy as np
-from qiskit import QuantumCircuit
-from qiskit.quantum_info import Statevector
 
-n = 3; N = 2**n; winner = "101"
+n = 3; N = 2 ** n; winner = "101"
 
 def oracle(qc):
-    """Phase-flip |101⟩: X-sandwich the 0-bits, then CCZ (via H-CCX-H)."""
-    for k, bit in enumerate(reversed(winner)):   # little-endian, as always
+    for k, bit in enumerate(reversed(winner)):   # little-endian, like Qiskit
         if bit == "0": qc.x(k)
-    qc.h(2); qc.ccx(0, 1, 2); qc.h(2)            # CCZ on the |111⟩ pattern
+    qc.h(2); qc.ccx(0, 1, 2); qc.h(2)            # CCZ: phase-flip the |111> pattern
     for k, bit in enumerate(reversed(winner)):
         if bit == "0": qc.x(k)
 
-def diffuser(qc):
-    """Reflect about |s⟩: H's, flip-all-but-|0…0⟩ sign (X-sandwich + CCZ), H's."""
-    qc.h(range(n)); qc.x(range(n))
+def diffuser(qc):                                # reflect about |s>: H, flip-all-but-|0>, H
+    for q in range(n): qc.h(q)
+    for q in range(n): qc.x(q)
     qc.h(2); qc.ccx(0, 1, 2); qc.h(2)
-    qc.x(range(n)); qc.h(range(n))
+    for q in range(n): qc.x(q)
+    for q in range(n): qc.h(q)
 
-theta = np.arcsin(1/np.sqrt(N))
-k_opt = round(np.pi/(4*theta) - 0.5)
-print("k* =", k_opt)                              # 2 for N=8
+theta = np.arcsin(1 / np.sqrt(N))
+k_opt = round(np.pi / (4 * theta) - 0.5)
+print("optimal rounds k* =", k_opt)              # 2 for N = 8
 
 qc = QuantumCircuit(n)
-qc.h(range(n))
+for q in range(n): qc.h(q)                        # start: equal superposition
 for _ in range(k_opt):
     oracle(qc); diffuser(qc)
-probs = Statevector(qc).probabilities_dict()
-print({k: round(v, 4) for k, v in sorted(probs.items(), key=lambda kv: -kv[1])})
-# {'101': 0.9453, '000': 0.0078, ...}  — 94.5% after 2 iterations (theory: sin²(5·20.7°) ✓)
+
+for state, p in sorted(qc.probabilities().items(), key=lambda kv: -kv[1])[:4]:
+    print(state, round(p, 4))                     # winner 101 -> ~0.945 after 2 rounds
 ```
 
-Run the loop for k = 0..6 and watch the oscillation: 12.5% → 78.1% → **94.5%** → 33.0% → … — the $\sin^2((2k+1)\theta)$ curve, live. Did the peak land where you predicted? That printout is the single most instructive plot in quantum algorithms; Exercise 1 makes you produce it.
+Now change the last loop to run a fixed `k` from 0 to 6 and print $p(\text{winner})$ each time — you will see the oscillation 12.5% → 78.1% → **94.5%** → 33.0% → … , the $\sin^2((2k+1)\theta)$ curve, live. Did the peak land where you predicted? Exercise 1 turns this into the single most instructive plot in quantum algorithms.
 
 ## Multiple winners and unknown counts
 

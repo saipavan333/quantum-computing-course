@@ -143,13 +143,14 @@ a:hover { text-decoration: underline; }
 .btn.primary { background: linear-gradient(135deg, var(--acc), #5b8cff); border: 0; color: #fff; font-weight: 600; }
 
 /* Lesson body typography */
+.lesson-body { font-size: 1.08rem; line-height: 1.8; letter-spacing: .1px; }
 .lesson-body h2 {
-  font-size: 1.42rem; margin: 44px 0 14px; padding-top: 18px;
+  font-size: 1.55rem; margin: 46px 0 14px; padding-top: 18px;
   border-top: 1px solid var(--border);
 }
-.lesson-body h3 { font-size: 1.12rem; margin: 30px 0 10px; color: #dfe6ff; }
-.lesson-body p { margin: 12px 0; }
-.lesson-body li { margin: 6px 0; }
+.lesson-body h3 { font-size: 1.24rem; margin: 32px 0 10px; color: #dfe6ff; }
+.lesson-body p { margin: 15px 0; }
+.lesson-body li { margin: 8px 0; }
 .lesson-body blockquote {
   margin: 18px 0; padding: 12px 18px; border-left: 3px solid var(--acc);
   background: rgba(124, 92, 255, .07); border-radius: 0 8px 8px 0; color: #d6dcea;
@@ -165,14 +166,14 @@ a:hover { text-decoration: underline; }
 /* Code */
 .lesson-body pre {
   background: var(--code-bg); border: 1px solid var(--border); border-radius: 9px;
-  padding: 14px 16px; overflow-x: auto; font-size: .86rem; line-height: 1.55; margin: 16px 0;
+  padding: 16px 18px; overflow-x: auto; font-size: .96rem; line-height: 1.6; margin: 18px 0;
 }
 .lesson-body code {
   font-family: "Cascadia Code", Consolas, "JetBrains Mono", Menlo, monospace;
 }
 .lesson-body :not(pre) > code {
   background: var(--code-bg); border: 1px solid var(--border);
-  padding: 1.5px 6px; border-radius: 5px; font-size: .84em; color: #9fd0ff;
+  padding: 1.5px 6px; border-radius: 5px; font-size: .9em; color: #9fd0ff;
 }
 .lesson-body pre code.hljs { background: transparent; padding: 0; }
 
