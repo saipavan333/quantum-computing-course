@@ -2,6 +2,12 @@
 
 Knowledge gets you past a resume screen; a portfolio gets you the job. In a field where most applicants have watched the same lectures, *demonstrated ability* — real code, real results, honest analysis — is the differentiator. This lesson specifies three portfolio projects, each exercising a different competency band, each producing a public artifact (GitHub repo + README + plots) that concretely proves you can do the work. Build these to the standard described and you'll have more to show than most bootcamp graduates and many degree holders. They also double as the answer to the inevitable interview question: "tell me about a quantum project you built."
 
+## Start here — the intuition
+
+Three ideas turn effort into offers. **Demonstrated work beats credentials:** in an oversubscribed field, a public repo with real results proves you can *do the job* in a way a course certificate never can. **There are three project tracks matched to three roles** — a hardware benchmarking suite (software/systems), a VQE chemistry study (applications), and a QEC threshold study (theory/research) — and building two, one hardware‑fluency and one algorithm‑or‑theory, gives a rounded portfolio. **The gap between an unhireable notebook and a hireable repo is professional standards, not quantum knowledge** — tests, reproducibility, error bars, a story‑telling README, and honest limitations. The polish *is* the skill.
+
+Carry one counterintuitive move: **volunteer your project's limitations.** Writing "H₂ is classically trivial — this shows method fluency, not quantum advantage" builds the trust that gets offers, because in a hype‑prone field, the person who tells the truth about their own work is the rare one worth hiring.
+
 ## The portfolio principles (before the projects)
 
 Every project must satisfy the standards you've built all course:
@@ -173,3 +179,12 @@ Reviewed against "would a hiring manager keep reading?": the first sentence stat
 6. The single figure that best proves the project's value (fidelity-vs-size, dissociation curve, threshold plot); the README leads with it because a hiring manager skims in ~90 seconds and one honest, error-barred, well-captioned figure communicates capability faster than paragraphs.
 7. Model 6-month plan: Months 1-2 — primary capstone matching your strongest interest, built thoroughly to standard (this sustains motivation and produces one polished artifact). Months 3-4 — second capstone for breadth (different competency band), reusing the repo scaffold. Month 5 — the claims-dashboard/blog (landscape lesson) + write up both capstones as blog posts (communication practice + SEO for your name). Month 6 — polish, cross-link everything from a personal site/GitHub profile README, and begin applications/networking. Integration: one `qbench` mono-repo growing since Module 7, plus a personal site linking repos + blog + dashboard. Networking use: the dashboard/blog are conversation-starters (comment on companies' announcements with your assessments), the repos are proof when reaching out, and in applications you lead with the money-shot figures. MINIMUM VIABLE PORTFOLIO: ONE thoroughly-polished capstone (repo + README + honest results) + a short "quantum claims, assessed" post demonstrating judgment — that pair alone (one DO artifact, one JUDGMENT artifact) makes you credible, because together they prove you can both build quantum software and tell the truth about the field, the two rarest and most valued traits. Everything beyond that is amplification. The plan's realism matters more than its ambition: a completed minimum-viable portfolio beats an elaborate one still "in progress" when the application deadline arrives — the same finish-over-scope principle, applied to your career.
 ````
+
+## Mastery checklist — you are ready to move on when you can
+
+- ☐ Name the three capstone tracks and which role each targets.
+- ☐ List the non‑negotiable standards every project must meet (repo, tests, seeds, ±2SE, README, limitations).
+- ☐ Explain why the notebook‑vs‑repo gap is professional standards, not quantum knowledge.
+- ☐ Describe a "money shot" figure and write an honest, error‑barred caption for it.
+- ☐ Say why volunteering limitations strengthens a project.
+- ☐ Scope one capstone to Milestone 1 at professional standard in your growing repo.

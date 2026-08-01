@@ -4,6 +4,12 @@ You've been using Qiskit as a calculator. Now you learn it as a professional ins
 
 @@diagram:qiskit-stack|Where your code sits: you build circuits (SDK) → the transpiler rewrites them for a target → a primitive (Sampler/Estimator) executes on simulator or QPU → results return as counts/expectations. Module 7 walks this stack top to bottom.
 
+## Start here — the intuition
+
+Three ideas make Qiskit click. **A circuit has two kinds of bits** — qubits hold quantum state, classical bits catch measurement outcomes, and `measure` is the bridge between them; forgetting the classical bits is the classic first stumble. **Two circuits with the same gate count can cost wildly different amounts** — because what noise actually sees is *depth* (the number of sequential layers), not *size* (the raw operation count), so a shallow circuit survives on hardware where a deep one dissolves. **Circuits are composable, parameterized building blocks** — you write functions that *return* circuits and use symbolic `Parameter` angles, which is the exact design that makes Module 9's variational algorithms possible.
+
+Carry one habit above all: **quote depth, size, and `count_ops` whenever you discuss a circuit's cost.** Depth is the ruler for "will this run on real hardware?" — the question every other Module 7 lesson circles back to.
+
 ## 1. Circuits, registers, and the two kinds of bits
 
 ```python
@@ -64,6 +70,30 @@ qc.draw("mpl", fold=20)            # wrap wide circuits
 ```
 
 Read circuit diagrams like sheet music: time flows left→right, each wire is a qubit, boxed letters are gates, vertical connections are entangling operations, the meter symbol dumps to a classical wire (drawn doubled). Ten minutes of deliberate reading practice now pays for every paper and PR you'll ever review.
+
+@@widget
+
+## Predict, then run — build a circuit and sample it
+
+Real Qiskit shown above; the in‑browser cell uses the course's lightweight simulator (same `QuantumCircuit(n)` / `qc.h` / `qc.cx` calls, plus `.probabilities()` and `.sample(shots)` in place of Qiskit's primitives). Here we build a 4‑qubit GHZ state — an H followed by a CNOT *chain* — and sample it.
+
+**Predict first.** A GHZ state is $(\ket{0000}+\ket{1111})/\sqrt2$. When you sample 1,000 shots, how many *distinct* bit‑strings should appear — 2, 8, or 16? And which two? Guess, then Run.
+
+```run
+# Live cell — build a GHZ state (H then a CNOT chain) and sample it.
+qc = QuantumCircuit(4)
+qc.h(0)
+for k in range(3):
+    qc.cx(k, k + 1)                 # chain: each qubit entangles the next (depth grows with n)
+print("exact probabilities:", qc.probabilities())
+print("1000 shots:", qc.sample(1000, seed=7))
+```
+
+Only two strings appear — `0000` and `1111`, ~50/50 — because GHZ is all‑zeros or all‑ones, never anything between (measuring one qubit determines the rest). Notice the structure: this chain adds one CNOT layer per qubit, so its *depth* grows with $n$ — the very cost the worked example below cuts to $\log_2 n$ with a tree of CNOTs, the difference between a clean GHZ and noise on real hardware.
+
+```quiz
+{"q":"Two circuits both have size()=40, but depths 8 and 35. Which claim is right?","options":["They cost the same on hardware","The depth-8 circuit spends ~1/4 the wall-clock exposed to decoherence — likely far higher fidelity despite identical gate counts","The depth-35 circuit is more parallel","Depth only matters on simulators"],"answer":1,"why":"Depth counts sequential layers — the duration noise acts on the qubits. A shallow (parallel) circuit spends less time decohering. Size is the work; depth is the exposure — the number to watch for hardware."}
+```
 
 ## 3. Composition — circuits as building blocks
 
@@ -293,3 +323,12 @@ Depth n versus depth ⌈log₂n⌉ + 1 — at 32 qubits, 32 layers vs 6. The noi
 6. `sv = Statevector(circ)`; `assert set(sv.probabilities_dict()) == {"00","11"}`; `assert np.allclose(list(sv.probabilities_dict().values()), 0.5)`.
 7. Model: `preparers.py` (`bell()`, `ghz(n)`, `w(n)`, each returning a fresh named circuit, docstring stating depth/cx cost, no hidden measurement); `blocks.py` (`parity_check(n)`, `qft(n)` later — pure, composable, parameterized via passed-in `Parameter`s so callers own binding); `verify.py` (`assert_state(circ, expected_probs, atol)` and `selftest()` running every preparer's assertions — the CI entry point). Policies: **all functions return new circuits** (mutation forbidden — aliasing scars); no `measure` inside library circuits (measurement is the caller's concern — keeps everything Statevector-testable); parameters passed as objects, never created twice by name. One page of structure that a year of growth won't break — which is precisely what "senior" means in code.
 ````
+
+## Mastery checklist — you are ready to move on when you can
+
+- ☐ Build a circuit with qubits and classical bits, and wire measurement with one consistent policy.
+- ☐ Report `depth()`, `size()`, and `count_ops()` and say why depth is the noise ruler.
+- ☐ Run the live cell and explain why a GHZ state samples to only all‑0s and all‑1s.
+- ☐ Compose programs from circuit‑returning functions; use `to_gate()` and `inverse()`.
+- ☐ Build a symbolic `Parameter` template and bind it many times.
+- ☐ Test a circuit with statevector assertions on its support and probabilities.

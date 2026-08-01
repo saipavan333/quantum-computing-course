@@ -2,6 +2,12 @@
 
 This is the last lesson, and it's the most practical: how to convert everything you've built into an actual job. The quantum job market in 2026 is real, growing, and — contrary to the PhD-gatekeeping myth — increasingly open to strong self-taught and bachelor's-level candidates for software and applications roles. This lesson covers the job map, a resume strategy for career-changers, a 40-question interview bank with answers, and where the community actually lives. You've done the hard part (the twelve modules); this is the map for the last mile.
 
+## Start here — the intuition
+
+Three truths make the last mile walkable. **Roughly half of quantum postings don't require a PhD** — software, tooling, advocacy, and applications‑engineering roles are genuinely accessible with a bachelor's (or demonstrated skill) plus a strong portfolio; the research‑invention roles (algorithms, QEC theory, hardware physics) are the ones that still want graduate degrees. **For a career‑changer, the portfolio *is* the strategy** — lead with demonstrated work, because your Module‑7 engineering discipline and real‑hardware fluency are things many physics PhDs can't show, and "think quantumly" beats "have a quantum degree." **Interviews test judgment, not memorization** — they probe to find your edges, so calibrated honesty ("I don't know that specifically, but based on X I'd expect Y") and volunteering the honest caveat beat bluffing every time.
+
+Carry one line into every conversation: **demonstrated professional‑standard work beats credentials.** You built real capability from nothing — now prove it with artifacts, apply while still building, and let the community (Qiskit Slack, OSS, Stack Exchange) multiply your reach.
+
 ## 1. The job map — roles, requirements, salaries
 
 The 2026 landscape (from Module 0's research, now actionable):
@@ -195,3 +201,13 @@ Reviewed against "would this get a first-round interview?": Does the resume lead
 6. You'll never feel fully ready (impostor feeling is universal), the field is hiring now, and interviews are the best calibration of what to learn next — applying while building turns the search itself into targeted learning, and waiting only delays entry into a growing market.
 7. Model 90-day plan: Weeks 1-2 — finalize package (resume, GitHub, pitch), target list of 20+ roles across types/layers. Weeks 3-8 — apply to 3-5 roles/week (quality over spray), contribute to one OSS project, answer/ask on Stack Exchange weekly, publish 2 blog posts (capstone writeups), attend one community event. Weeks 9-12 — interview practice (the bank, mock interviews with peers/community), continue applying and networking, iterate. Weekly targets: N applications, one community contribution, one learning goal. ADAPT: if *no responses* → the resume/portfolio isn't landing — get feedback (community, mentors), strengthen the money-shot results, widen role types, check keyword matching (ATS). If *interviews but no offers* → the gap is interview performance — drill the bank harder, do more mock interviews, get specific feedback on where you lost them (usually a conceptual gap or communication issue you can target). MOST LIKELY FAILURE MODE: discouragement from rejections (the field is competitive and most applications don't convert — this is normal, not a verdict on you). Response: treat it as a numbers-and-iteration game (every strong candidate faces many rejections), keep the community engagement up (opportunities often come from connections, not cold applications), and remember the arc — you built real capability from nothing, which most people never do; persistence through the search is the final skill, and it's the same finish-over-scope, consistency-compounds discipline that got you through twelve modules. The job search, like the course, rewards the person who keeps showing up. You've proven you're that person. Keep going.
 ````
+
+## Mastery checklist — you are ready to move on when you can
+
+- ☐ Name which quantum roles are portfolio‑accessible and which usually need a graduate degree.
+- ☐ Structure a career‑changer resume that leads with demonstrated work.
+- ☐ Answer conceptual, algorithm, NISQ, QEC, coding, and judgment questions with honest caveats.
+- ☐ Explain a quantum concept to a non‑technical executive — correct, clear, and honest.
+- ☐ Handle an unknown question with reasoning instead of bluffing.
+- ☐ Name where the community lives and how contributing there creates opportunity.
+- ☐ Assemble a complete application package and start applying while still building.

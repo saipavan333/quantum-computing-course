@@ -2,6 +2,12 @@
 
 Your circuit says `h(0); cx(0, 7)`. The chip has no H gate, and qubits 0 and 7 aren't connected. **Transpilation** is the compiler pass that bridges that gap — rewriting your ideal circuit into an equivalent one the hardware can physically execute: its native gates, its wiring diagram, hopefully with fewer errors than a naive translation. Since Qiskit 2.x you *must* transpile before running on IBM hardware (primitives accept only "ISA circuits" — Instruction Set Architecture-conformant). Understanding what the transpiler does — and reading what it did — separates people who run circuits from people who can explain their results.
 
+## Start here — the intuition
+
+The compiler faces two hard walls, and everything follows. **The chip speaks only a few native gates** — typically `rz` (free), `sx`, `x`, and one two‑qubit gate (`ecr` or `cz`) — so every H, T, and Toffoli you wrote must be *translated* into those. **The chip's qubits are sparsely wired** (heavy‑hex: 2–3 neighbors each), so a gate between unconnected qubits must be *routed* by SWAP chains — and since a SWAP is 3 two‑qubit gates, distance literally costs fidelity. The transpiler's **layout** (which physical qubits to use) and **routing** (how to connect them) therefore set most of your error budget, and higher optimization levels can *halve* the two‑qubit gate count of the exact same circuit.
+
+Carry one number: **the post‑transpile two‑qubit gate count is your circuit's true price tag.** Log it, compare optimization levels, and seed the transpiler — because on hardware your circuit isn't what you wrote, it's what the transpiler emitted.
+
 ## 1. The target: what a real device offers
 
 Interrogate any backend and two constraints define your world:
@@ -19,6 +25,29 @@ print(backend.num_qubits)           # 127
 **Coupling map**: which qubit pairs can host a two-qubit gate. IBM's chips use a **heavy-hex lattice** — most qubits touch only 2–3 neighbors (a deliberate crosstalk-vs-connectivity trade-off). A CNOT between unconnected qubits must be *routed*: SWAP chains moving states adjacent (3 CNOT-equivalents per hop — the cost you predicted in Module 6).
 
 @@diagram:coupling-map|A heavy-hex fragment: qubits are dots, two-qubit gates live only on edges. cx(0,7) with no edge means SWAP chains — each hop costs ~3 native two-qubit gates. Layout choice is error budget.
+
+@@widget
+
+## Predict, then run — routing rests on one identity: SWAP = 3 CNOTs
+
+Real Qiskit above; the in‑browser cell uses the course's lightweight simulator. Routing moves a state between distant qubits using SWAP gates, and each SWAP is *three* CNOTs — that's the whole reason distance costs fidelity. Here we move a state from qubit 0 to qubit 2 with a manual 3‑CNOT SWAP and check it matches preparing it directly on qubit 2.
+
+**Predict first.** After ry(1.1) on qubit 0, then a 3‑CNOT SWAP of qubits 0 and 2, will the resulting distribution match preparing ry(1.1) directly on qubit 2? And how many two‑qubit gates did that one move cost? Guess, then Run.
+
+```run
+# Live cell — a SWAP is 3 CNOTs; that is why moving a state across the chip costs gates.
+a = QuantumCircuit(3); a.ry(1.1, 0)              # a nontrivial state on qubit 0
+a.cx(0, 2); a.cx(2, 0); a.cx(0, 2)               # SWAP q0 <-> q2, built from 3 CNOTs
+b = QuantumCircuit(3); b.ry(1.1, 2)              # reference: same state prepared on q2
+print("manual SWAP result:", a.probabilities())
+print("direct on q2:      ", b.probabilities())  # identical -> the SWAP relocated the state
+```
+
+The two distributions match exactly — the 3‑CNOT SWAP genuinely relocated the state from qubit 0 to qubit 2 — and it cost *three* two‑qubit gates to move it one "distance." Now scale that up: a CNOT between qubits several hops apart pays ~3 gates to route in and ~3 to route back, so sparse connectivity is a fidelity tax and choosing a good layout (short routes) is the single biggest lever the transpiler pulls.
+
+```quiz
+{"q":"Routing a CNOT between two qubits that are 2 hops apart on the coupling map costs roughly how many native 2-qubit gates, all-in?","options":["1 — distance doesn't matter","~7 — route in (3) + the gate (1) + route back (3), since each SWAP is 3 two-qubit gates","Exactly 2","0 — the transpiler removes it"],"answer":1,"why":"Each SWAP is 3 two-qubit gates. Moving a state 2 hops in, applying the gate, and routing back is ~3+1+3 = 7 — which is why sparse connectivity is a fidelity tax and layout is the biggest lever."}
+```
 
 ## 2. The pipeline — six stages, two that dominate your results
 
@@ -212,3 +241,12 @@ Answers with reasoning: (a) **level 0 or 1** — CI on ideal Aer doesn't care ab
 6. When you have fresh calibration data identifying a specific high-fidelity qubit line (or need run-to-run comparability on fixed qubits); check TODAY's per-qubit/per-gate error rates and readout errors first — yesterday's heroes recalibrate into villains.
 7. Model record: {backend name + calibration timestamp; qiskit + runtime versions; optimization level + seed_transpiler; initial and final layout; count_ops + 2q-gate total + depth (physical); basis gate set; barriers present y/n; transpile wall-time}. Investigations served: score regressions (2q count & layout diff — the Monday scenario), device-vs-compilation attribution (calibration timestamp), reproducibility (seeds/versions), cost drift in CI (counts over time), and support tickets (versions + minimal reproducer). Generated at pre-flight stage 3 (the fake-backend rehearsal) and re-generated at submission — two records, so a rehearsal-vs-reality diff is always available. One dataclass, six investigations, zero "we can't explain Monday" meetings.
 ````
+
+## Mastery checklist — you are ready to move on when you can
+
+- ☐ Name a device's basis gates and read its coupling map as the wiring constraint.
+- ☐ Explain layout and routing and why they set most of the error budget.
+- ☐ Run the live cell and explain why a SWAP costs three two‑qubit gates.
+- ☐ Pick an optimization level for CI, hardware, and transpiler‑bug hunting.
+- ☐ Read `count_ops()` post‑transpile and treat the 2q count as the price tag.
+- ☐ Seed the transpiler and log layout/counts as experiment metadata.

@@ -6,6 +6,12 @@ By the end, you will write programs that run on a real 156-qubit quantum process
 
 @@diagram:course-map|Your path: every module builds on the last. Skipping ahead is how people stay confused for years.
 
+## Start here — the intuition
+
+Before any math, hold four sentences and the rest of the course has somewhere to land. **A qubit is not a faster bit** — it adds three abilities (superposition, entanglement, interference) that a bit simply doesn't have. **Measurement is the catch that defines the field:** no matter how rich the quantum state, reading a qubit gives you one plain 0 or 1, so every algorithm is a race to arrange the answer before measurement destroys everything else. **The honest 2026 status is "real machines, no proven commercial advantage yet"** — and that gap is exactly why the industry is hiring. **The method matters as much as the material:** in order, type every line, struggle before peeking, verify by hand then in code.
+
+Everything below expands these four. You don't need to understand the worked example yet — you need to see the destination so the climb makes sense.
+
 ## 1. What a quantum computer actually is
 
 A classical computer stores information in **bits**: each is 0 or 1, always, definitely. Every photo, program, and AI model is a gigantic pile of these definite 0s and 1s, flipped billions of times per second.
@@ -45,7 +51,7 @@ You're joining at a genuinely interesting moment — the **NISQ era** (Noisy Int
 
 - IBM offers free public access to 156-qubit Heron processors; its roadmap targets **Starling**, a fault-tolerant machine with 200 *logical* qubits running 100 million gates, by 2029.
 - Google's Willow chip demonstrated **below-threshold error correction** — adding qubits now *reduces* logical error rates, the key milestone for scaling.
-- Quantinuum's trapped-ion machines hold record fidelities (two-qubit gates above 99.9%) and demonstrated 12 logical qubits; the company filed for an IPO in January 2026 at a valuation around 20 billion USD.
+- Quantinuum's trapped-ion machines hold record fidelities (two-qubit gates above 99.9%) and demonstrated 12 logical qubits; the company went public on Nasdaq in June 2026 (ticker QNT), raising about 1.68 billion USD at a valuation near 15.6 billion USD — a marker of how much capital is flowing into the field.
 - Nobody has yet demonstrated a commercially valuable problem solved better by a quantum computer than by classical methods. Anyone who tells you otherwise is selling something.
 
 That last point is not discouraging — it's *why there are jobs*. The industry is hiring people to close that gap.
@@ -163,3 +169,12 @@ There's no single right answer, but strong contracts share these properties:
 6. Google's Willow chip demonstrated below-threshold surface-code operation: enlarging the code *reduced* logical error rates — the precondition for scaling to fault tolerance.
 7. A strong plan: weeks 1–2 M0+M1, 3–4 M2, 5 M3, 6–7 M4, 8–9 M5, 10–11 M6, 12–13 M7, 14 M8 (first half), 15 buffer, 16 M8 finish — deliberately deferring M9–M11 to a "season 2" rather than rushing. The right module to let slip is a *later* one (e.g., QML in M9), never a foundation: everything compounds on M1–M5. Justification matters more than the exact layout: foundations are load-bearing; applications can be re-sequenced.
 ````
+
+## Mastery checklist — you are ready to move on when you can
+
+- ☐ Name the three abilities a qubit adds over a bit, and why each matters computationally.
+- ☐ Explain why measurement collapse means superposition alone doesn't "try all answers at once."
+- ☐ State the honest 2026 status — real machines, no proven commercial advantage — and why that means jobs.
+- ☐ Name two realistic entry‑level quantum roles this course targets and their rough pay band.
+- ☐ Commit to the study method: in order, type everything, struggle before solutions, verify in code.
+- ☐ Have written a specific weekly study contract with a floor and a catch‑up rule.

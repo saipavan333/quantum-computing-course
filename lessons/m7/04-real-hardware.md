@@ -2,6 +2,12 @@
 
 Today your code leaves the simulator and executes on a physical quantum processor — 156 superconducting qubits at 15 millikelvin, controlled by microwave pulses, queued behind researchers worldwide. The interface is **Qiskit Runtime's V2 primitives**: `SamplerV2` (get bit-string samples) and `EstimatorV2` (get expectation values). Master their input format (PUBs), the execution modes, and the budget discipline of the free Open Plan, and you have the exact workflow used on paid enterprise plans — just with more zeros on the invoice.
 
+## Start here — the intuition
+
+Three ideas make hardware runs routine. **There are two primitives for two questions:** `SamplerV2` returns bit‑string counts (your circuit needs measurements), and `EstimatorV2` returns expectation values $\langle\psi|O|\psi\rangle$ (your circuit needs *no* measurements — it appends its own, and the observable must be `apply_layout`‑ed to follow the qubits). **Inputs are PUBs** — a circuit bundled with its parameter values and shots — and a parameter *array* broadcasts through one job, so a whole sweep rides a single queue wait. **The scarce resource is QPU‑seconds, not your time:** the free plan gives ~10 minutes per 28 days, so the discipline is *filter, batch, broadcast, budget, log* — simulate and rehearse first, spend hardware seconds only on validated circuits.
+
+Carry one expectation: **real results have ~5% "forbidden" outcomes, and that's not failure — it's measurable physics** (readout + gate errors + decoherence), always reported with $\pm2\text{SE}$. It's Module 9's front door.
+
 ## 1. The service, the backends, the budget
 
 ```python
@@ -63,6 +69,30 @@ print(counts)      # {'00': 1949, '11': 1907, '01': 121, '10': 119}  ← real ha
 Anatomy of the result path — `result[0].data.meas.get_counts()` — because everyone stumbles here once: `result[k]` is the k-th PUB's result; `.data` holds per-classical-register fields; **`.meas`** is the register name `measure_all()` creates (explicit registers appear under their own names — `result[0].data.result` for a register named "result"); `.get_counts()` aggregates shots into the familiar dict. There is also `.get_bitstrings()` — the raw per-shot list, gold for correlation analysis.
 
 And look at those counts: ~5.8% of shots landed on outcomes the Bell state forbids. That's not failure — that's *physics you can now measure*: readout error (~1%/qubit) + gate errors + decoherence, previewing Module 9. Report it as you were trained: $p(\text{valid}) = 0.941 \pm 0.007$.
+
+@@widget
+
+## Predict, then run — the interference sweep, phase into probability
+
+Real Runtime shown above; the in‑browser cell uses the course's lightweight simulator. This is the course's oldest running example — the $H$–phase($\varphi$)–$H$ circuit that turns an unmeasurable phase into a measurable probability, the exact experiment Exercise 1 runs on real hardware.
+
+**Predict first.** As $\varphi$ sweeps $0\to\pi$, the two Hadamards make the branches interfere. Does $p(0)$ stay flat, or trace out $\cos^2(\varphi/2)$ from 1 down to 0? Guess, then Run.
+
+```run
+# Live cell — H - phase(phi) - H converts a relative phase into a measurable probability.
+import math
+for phi in [0, math.pi/2, math.pi, 3*math.pi/2]:
+    qc = QuantumCircuit(1)
+    qc.h(0); qc.rz(phi, 0); qc.h(0)              # a phase phi sandwiched between two H gates
+    p0 = qc.probabilities().get("0", 0.0)
+    print(f"phi={phi:.3f}  p(0)={p0:.4f}   cos^2(phi/2)={math.cos(phi/2)**2:.4f}")
+```
+
+$p(0)$ sweeps $1 \to 0.5 \to 0 \to 0.5$, tracking $\cos^2(\varphi/2)$ exactly. The phase was invisible to a direct measurement, but sandwiching it between Hadamards makes the two computational branches interfere — and the interference *is* the measurable probability. On real hardware this same sweep comes back as fringes with ~95% visibility, the gap from perfect being the device noise you'll learn to mitigate in Module 9.
+
+```quiz
+{"q":"The circuit H – phase(φ) – H gives p(0) = cos²(φ/2). Why does a phase you 'can't measure directly' become visible here?","options":["The phase gate is secretly a measurement","The two H gates convert the relative phase into interference of the two amplitudes, so the phase shows up as a probability","Phases are always directly measurable","It doesn't — p(0) is constant"],"answer":1,"why":"A phase alone is invisible to a Z-basis measurement, but sandwiching it between Hadamards makes the two branches interfere — constructively or destructively depending on φ — turning the phase into a measurable probability. That conversion is the heart of every quantum algorithm."}
+```
 
 ## 4. EstimatorV2 — expectation values as a service
 
@@ -274,3 +304,12 @@ Extrapolation: the signature decays roughly geometrically per added qubit (each 
 6. ±1% at worst-case p: n = 1/ε² = 10,000 shots/point ×60 = 600k shots ≈ 1200 QPU-s = 20 min — exceeds the 10-min plan. Options in a defensible answer: relax to ±1.5% (267k shots ≈ 8.9 min — fits), exploit known p ≈ small to shrink variance, or split across two months. The arithmetic-first reflex is the point.
 7. Model: validates — every circuit is ISA for THIS backend (basis + coupling check), has measurements, parameter-free (all bound), estimated QPU cost = Σshots×duration_est fits remaining monthly budget (tracked in a local ledger file), preflight-passed flag present in metadata. Logs — job IDs ↔ labels, full transpilation record, calibration snapshot timestamp, git commit of the code. Returns — job handles + a written manifest (JSON) enabling retrieve-later analysis with zero human memory. Refuses — (i) sweep-as-N-jobs when one broadcast PUB would do (auto-rewrites or errors with instructions), (ii) submissions exceeding X% of remaining monthly budget without an override flag (the "one experiment eats the month" pattern). A gateway function is a policy document that executes — and writing it is how a junior becomes the person the team trusts with the QPU keys.
 ````
+
+## Mastery checklist — you are ready to move on when you can
+
+- ☐ Choose Sampler (counts, needs measurements) vs Estimator (expectations, `apply_layout` the observable).
+- ☐ Build a PUB and broadcast a parameter array through one job.
+- ☐ Run the live cell and explain how $H$–phase–$H$ turns a phase into a probability.
+- ☐ Read a result: `result[k].data.<register>.get_counts()`.
+- ☐ Budget QPU‑seconds and apply filter → batch → broadcast → budget → log.
+- ☐ Report a hardware result's forbidden‑outcome rate with $\pm2\text{SE}$.

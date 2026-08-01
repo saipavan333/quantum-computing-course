@@ -2,6 +2,12 @@
 
 Here is an open secret about quantum hiring: candidates who know quantum mechanics are common; candidates who can *ship maintainable quantum software* are rare — and teams pay for the second kind. This lesson converts your accumulated habits (referee checks, preflight ladders, metadata logging) into the formal structure employers recognize: project layout, automated tests, version control, and reproducible environments. It's the least glamorous lesson in the course and possibly the highest-paying one.
 
+## Start here — the intuition
+
+Four habits separate a shippable repo from a pile of notebooks. **Pure core, dirty edges:** keep circuit‑building and analysis functions free of I/O and network so they're instantly testable, and quarantine everything slow, stateful, or networked in one `runners` module. **Tests are the referee, automated:** the NumPy cross‑checks you've done all course become a suite — many *exact* checks (statevector equivalence, phase‑aware), a few *statistical* ones (seeded, generous tolerances), one *contract* canary. **Git is the lab notebook that can't lie:** small commits with *why* messages, credentials never committed, result manifests over gigabyte dumps. **Reproducibility is six lines** — commit hash, versions, seeds, backend + calibration, shots — the difference between science and anecdote.
+
+Carry one truth: **your GitHub repo is the portfolio artifact that outranks certificates.** A recruiter clicking your profile should find tests passing, honest error bars, and a clean history — build it as if they read it, because they do.
+
 ## 1. Project structure — the shape of a serious repo
 
 The layout that scales from coursework to production (and that interviewers subconsciously scan for):
@@ -76,6 +82,40 @@ def test_bell_sampling_statistics():
 **Tier 3: contract tests (one or two).** The preflight harness against a fake backend with a *loose* threshold — the canary that catches "this Qiskit upgrade changed transpilation behavior."
 
 Run it all with `pytest -q` — green in seconds, on every change. The psychological shift to internalize: tests aren't bureaucracy; they're the **referee, automated** — the same NumPy cross-checks you've done all course, now running themselves while you sleep.
+
+## Predict, then run — the referee, automated
+
+Real pytest above; the in‑browser cell uses the course's lightweight simulator. Here the assertions *are* the test suite: GHZ invariants (exact, phase‑aware), then a demonstration that a counts test would miss a phase imposter.
+
+**Predict first.** A GHZ state should show only all‑0s and all‑1s at 50/50. And the $\Phi^-$ imposter (a stray Z) — will it have the *same* histogram as $\Phi^+$ but a *different* statevector? Guess, then Run.
+
+```run
+# Live cell — tests are the referee, automated: assert invariants, and catch a phase imposter.
+import numpy as np
+
+def ghz(n):
+    qc = QuantumCircuit(n); qc.h(0)
+    for k in range(n - 1): qc.cx(k, k + 1)
+    return qc
+
+probs = ghz(4).probabilities()                              # Tier-1 exact checks
+assert set(probs) == {"0000", "1111"}, probs                # only all-0 / all-1
+assert all(abs(p - 0.5) < 1e-9 for p in probs.values())     # 50/50
+print("GHZ invariants: PASS")
+
+good = QuantumCircuit(2); good.h(0); good.cx(0, 1)          # Phi+
+bad  = QuantumCircuit(2); bad.h(0);  bad.cx(0, 1); bad.z(0)  # Phi- imposter (stray Z)
+same_histogram = good.probabilities() == bad.probabilities()
+differ_in_state = not np.allclose(good.statevector(), bad.statevector())
+print("Phi+/Phi- same histogram:", same_histogram, "| statevector differs:", differ_in_state)
+print("-> a counts-only test would PASS the buggy circuit. Assert on the statevector.")
+```
+
+The GHZ assertions pass silently (the reward for correct code is nothing happening), and the imposter check prints `True | True`: identical histograms, different states. That's the whole philosophy of testing quantum code — *many exact, phase‑aware checks* catch the bugs histograms can't see, and they run themselves on every commit. The suite is your Module‑5 referee, hired full‑time.
+
+```quiz
+{"q":"A statistical test asserts counts['00']/shots > 0.49 at 1000 shots, unseeded, and fails ~once a week. The professional fix is:","options":["Rerun until green","Delete the test","Seed the simulator AND widen the tolerance to ~4-5 standard errors (or convert to an exact Statevector test)","Increase to 1 million shots"],"answer":2,"why":"0.49 sits ~0.6 SE from the true 0.5 — a coin-flip failure rate by design. Seeds make it deterministic; SE-based tolerances make it meaningful; exact mode sidesteps sampling entirely for logic checks."}
+```
 
 ## 3. Git — the lab notebook that can't lie
 
@@ -157,10 +197,6 @@ Real quantum-industry take-home format: *"Implement X (some 2–3 circuit task),
 
 ```quiz
 {"q":"Which test suite catches a preparer that emits Φ⁻ instead of Φ⁺?","options":["10,000-shot counts test asserting ~50/50 on '00'/'11'","Any test using measure_all()","A Statevector.equiv test against the explicit Φ⁺ target (or an X-basis correlation test)","A depth() regression test"],"answer":2,"why":"The two states share identical Z-histograms; only amplitude-level (phase-aware) comparison or a second-basis measurement separates them. Histogram tests are necessary, never sufficient — the recurring law, now in CI."}
-```
-
-```quiz
-{"q":"A statistical test asserts counts['00']/shots > 0.49 at 1000 shots, unseeded, and fails ~once a week. The professional fix is:","options":["Rerun until green","Delete the test","Seed the simulator AND widen the tolerance to ~4-5 standard errors (or convert to an exact Statevector test)","Increase to 1 million shots"],"answer":2,"why":"0.49 sits ~0.6 SE from the true 0.5 — a coin-flip failure rate by design. Seeds make it deterministic; SE-based tolerances make it meaningful; exact mode sidesteps sampling entirely for logic checks."}
 ```
 
 ## Exercises
@@ -258,3 +294,12 @@ Why TDD specifically here: the register-naming trap is *remembered pain* (real-h
 6. When it's genuinely exploratory narrative (a dated lab-diary entry) whose value is the *record of thinking*, not reusable machinery — and nothing downstream imports it.
 7. Model bullets: (1) circuits/analysis stay I/O-free — runtime imports only in runners; (2) every preparer lands with a Statevector.equiv test; (3) statistical tests: seeded + ≥4 SE tolerance, else exact-mode; (4) no credentials anywhere — token via save_account only, grep before push; (5) notebooks don't get imported — promote via the ritual; (6) every hardware submission through `run_hardware` (which writes the manifest); (7) results PRs include commit-hash + versions in the manifest; (8) pin direct deps with ranges, freeze per-result; (9) commit messages say *why*, imperative mood; (10) figures reference their generating tag. Ten fences, six gotchas covered with margin — and notice the list is really this lesson compressed to policy, which is what senior engineers *do* with lessons.
 ````
+
+## Mastery checklist — you are ready to move on when you can
+
+- ☐ Lay out a repo with a pure core (circuits, analysis) and dirty edges (runners).
+- ☐ Write exact, statistical, and contract tests, and say why exact ones dominate.
+- ☐ Run the live cell and explain why a counts test misses a phase imposter.
+- ☐ Use the daily Git loop and never commit credentials.
+- ☐ Attach six‑line provenance (commit, versions, seeds, backend, shots) to a result.
+- ☐ Run the promotion ritual: notebook → module + tests + benchmark + README + commit.

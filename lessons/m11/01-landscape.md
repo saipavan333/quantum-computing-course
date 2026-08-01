@@ -2,6 +2,12 @@
 
 You've learned to program quantum computers and reason about their future. Now the map of the actual industry: the competing hardware technologies (with real 2026 numbers), the major players, and how to evaluate the claims you'll encounter daily. This isn't trivia — quantum roles expect you to know the landscape, discuss trade-offs between modalities, and assess vendor claims. This lesson makes you conversant in the industry you're joining, which matters in interviews as much as your Qiskit skills.
 
+## Start here — the intuition
+
+Three ideas make you conversant fast. **There are four qubit technologies, and none has won** — superconducting (fast, scalable fab, shorter coherence), trapped ions (best fidelity, all‑to‑all, but slow), neutral atoms (rising fast, 1000+ qubits), and photonic (room‑temperature, networking‑native, lossy) — each trading speed vs fidelity vs connectivity vs scalability differently. **The industry is more than hardware companies:** a software/services/cloud layer and end‑user quantum teams (pharma, finance) hire heavily and are often overlooked by candidates fixated on the chip makers. **Assessing claims is the real skill** — run every headline through one filter: physical vs logical qubits, demonstrated vs projected, advantage vs demonstration, which metric is emphasized, and the data‑in/answer‑out costs.
+
+Carry one reflex: **invert the hype ranking.** The least flashy headline — "below‑threshold logical qubit" — is usually the most significant, while "1,000 qubits!" and "100× faster!" are marketing‑inflected until proven otherwise. Valuing substance over spectacle is exactly the calibration employers pay for.
+
 ## 1. The four main qubit technologies
 
 Different physical systems can be qubits, each with distinct strengths. The four leading modalities in 2026:
@@ -37,7 +43,7 @@ The professional read: **there is no clear winner** — each modality trades spe
 
 **The end-users and explorers**: pharma (chemistry simulation), finance (optimization, Monte Carlo), materials, logistics — mostly in exploratory/proof-of-concept phase, building internal quantum teams (a hiring source often overlooked by candidates fixated on the hardware companies).
 
-**Investment climate 2026**: substantial and continuing — Quantinuum's ~20B USD-valuation IPO filing (Module 0), ongoing government programs (national quantum initiatives), and sustained VC interest, tempered by realistic timelines. The field is well-funded but past peak hype, entering a "show real progress" phase — which is good for people who can distinguish real progress from marketing.
+**Investment climate 2026**: substantial and continuing — Quantinuum's ~15.6B USD Nasdaq IPO (Module 0), ongoing government programs (national quantum initiatives), and sustained VC interest, tempered by realistic timelines. The field is well-funded but past peak hype, entering a "show real progress" phase — which is good for people who can distinguish real progress from marketing.
 
 ## 4. How to evaluate claims — your professional filter
 
@@ -81,7 +87,7 @@ A peer with your new skills asks: "IBM, a neutral-atom startup, or a pharma comp
 - Four main modalities: superconducting (fast, scalable fab, shorter coherence — IBM/Google), trapped ion (best fidelity, slow, all-to-all — Quantinuum/IonQ), neutral atom (rising, 1000+ qubits — QuEra/Pasqal), photonic (room-temp, networking, lossy — PsiQuantum).
 - No clear winner: each trades speed vs fidelity vs connectivity vs scalability; "best" depends on metric, application, and fault-tolerance economics — the trade-off framing is the literate answer.
 - Ecosystem layers: hardware/full-stack, software/services/cloud aggregators, and end-user quantum teams (pharma/finance) — the latter two hire accessibly and are often overlooked.
-- 2026 climate: well-funded (Quantinuum ~20B USD IPO filing, government programs), past peak hype, entering a "show real progress" phase — favorable for those who distinguish progress from marketing.
+- 2026 climate: well-funded (Quantinuum's ~15.6B USD Nasdaq IPO, government programs), past peak hype, entering a "show real progress" phase — favorable for those who distinguish progress from marketing.
 - The professional filter for claims: physical-vs-logical, demonstrated-vs-projected, advantage-vs-demonstration, which-metric, and I/O costs — run every headline through it.
 - The least flashy result (below-threshold) often matters most; inverting the hype ranking is the calibrated judgment employers value.
 
@@ -148,3 +154,12 @@ Why this specific artifact is valuable: it directly demonstrates the single most
 6. Count without fidelity is nearly meaningless — a large count of poor qubits can't error-correct (Module 10's threshold), so below-threshold operation and fidelity matter more than raw numbers; headlines emphasizing count often omit the fidelity that would contextualize it.
 7. Model dashboard: TRACK — per-company latest verified specs (qubit count, 2q fidelity, below-threshold status), roadmap milestones with dates and demonstrated-vs-projected flags, key papers (with the one-line "what's actually new"), and funding/market events. SIGNAL VS NOISE — weight demonstrated results (papers) over announcements, track fidelity/below-threshold over raw counts, note when claims survive scrutiny (the filter), and flag repeated-vs-new claims. PORTFOLIO/NETWORKING VALUE — make it public (a maintained page/newsletter), add your own brief assessment to each entry (your voice, your judgment — the credibility artifact), and it becomes both a reason to reach out to people ("I track the field, here's my take on your announcement") and evidence of engaged expertise. What makes it USEFUL not a link-list: the *assessment layer* — your calibrated one-line verdict on each item, applying the filter, so it's a curated-with-judgment view rather than aggregation. That judgment is the value-add, the same way this entire course's payoff is judgment over rote knowledge. A dashboard that shows you can separate signal from noise, maintained over time, is a standing demonstration of exactly the expertise quantum employers struggle to find — and it grows more valuable the longer you keep it.
 ````
+
+## Mastery checklist — you are ready to move on when you can
+
+- ☐ Name the four qubit modalities and a distinctive strength and weakness of each.
+- ☐ Explain why "which qubit is best?" is not well‑posed, in trade‑off terms.
+- ☐ Name the non‑hardware industry layers that hire (software/services, cloud, end‑users).
+- ☐ Run a headline through the claim filter (physical/logical, demonstrated/projected, advantage/demonstration, metric, I/O).
+- ☐ Invert a hype ranking and justify why below‑threshold outranks a qubit‑count record.
+- ☐ Connect modality trade‑offs to fault‑tolerance economics (fidelity vs speed vs count).

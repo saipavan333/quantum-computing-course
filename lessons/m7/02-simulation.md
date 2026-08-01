@@ -2,6 +2,12 @@
 
 Simulators are where quantum programs are *developed* — free, instant, noiseless (or noisy on demand), and equipped with a superpower no real QPU has: you can inspect the full quantum state mid-circuit. Professionals do 95% of their work here and spend QPU budget only on validated circuits. This lesson: the two simulation modes (exact vs sampled), the memory wall that defines their limits, and the systematic debugging workflow that separates engineers from guess-and-check hobbyists.
 
+## Start here — the intuition
+
+Three ideas run this lesson. **There are two simulation modes for two jobs:** `Statevector` is a *glass box* — it hands you the exact amplitudes (phases and all), perfect for verifying logic — while `AerSimulator` is a *flight simulator* that returns shot‑based counts like a real QPU and can even add realistic noise. **The wall is memory, not time:** a statevector is $2^n$ complex numbers at 16 bytes each, so every added qubit *doubles* the RAM — laptops die near 30 qubits, and no patience saves a state that doesn't fit. **Histograms can't see phase:** the two Bell states $\Phi^+$ and $\Phi^-$ give *identical* counts, so a counts‑only test passes a circuit with a sign bug — only amplitude‑level checks certify a state.
+
+Carry one workflow: **debug on the free simulator, spend QPU only on validated circuits** — exact logic first, then ideal sampling, then a noisy fake‑backend rehearsal, and only then real hardware.
+
 ## 1. Exact simulation — `Statevector`, the glass-box mode
 
 `Statevector` computes the *complete amplitude vector* — the full $2^n$ complex entries — by multiplying your gates into the state exactly (the kron-and-matmul machinery you built by hand, industrialized):
@@ -88,6 +94,31 @@ print(job.result().get_counts())           # {'00': 1902, '11': 1846, '01': 133,
 
 Those `01`/`10` counts — forbidden by the math, delivered by the noise — are your first honest preview of Module 9. Fake backends (calibration snapshots of real IBM devices) make "will this survive hardware?" answerable for free, *before* spending QPU minutes.
 
+@@widget
+
+## Predict, then run — why sampling can't see a phase bug
+
+Real Qiskit above; the in‑browser cell uses the course's lightweight simulator (`.sample(shots)` for counts, `.statevector()` for the glass box). We build $\Phi^+$ and a version with a stray Z ($\Phi^-$), sample both, then peek at the amplitudes.
+
+**Predict first.** $\Phi^+ = (\ket{00}+\ket{11})/\sqrt2$ and $\Phi^- = (\ket{00}-\ket{11})/\sqrt2$ differ only by a sign. Will their 2,000‑shot histograms look the same or different? And will their statevectors? Guess, then Run.
+
+```run
+# Live cell — sampling shows only magnitudes; a phase bug hides in an identical histogram.
+import numpy as np
+good = QuantumCircuit(2); good.h(0); good.cx(0, 1)             # Phi+ = (|00>+|11>)/sqrt2
+bug  = QuantumCircuit(2); bug.h(0);  bug.cx(0, 1);  bug.z(0)   # Phi- = (|00>-|11>)/sqrt2  (a stray Z)
+print("Phi+ 2000 shots:", good.sample(2000, seed=1))
+print("Phi- 2000 shots:", bug.sample(2000, seed=1))           # IDENTICAL histogram
+print("Phi+ statevector:", np.round(good.statevector(), 3))
+print("Phi- statevector:", np.round(bug.statevector(), 3))    # only the glass box sees the sign
+```
+
+The two histograms are *identical* — both ~50/50 on `00` and `11` — so every counts‑based test passes the buggy circuit. The statevectors differ only in the sign of the `11` amplitude, and that sign is exactly what a downstream X‑basis measurement or a teleportation using this pair would get wrong. The rule this burns in: **counts certify magnitudes; only amplitude‑level (or multi‑basis) tests certify states** — every state‑preparation function deserves one `Statevector.equiv` test against an explicit target.
+
+```quiz
+{"q":"Your circuit produces Φ⁻ instead of Φ⁺ (a stray Z). Which test catches it?","options":["Counts test: {'00': ~2000, '11': ~2000} at 4000 shots","Any histogram in the computational basis","Statevector(qc).equiv(target) — or an X-basis correlation check","Checking qc.depth()"],"answer":2,"why":"Both Bell states give identical Z-basis histograms — the sign lives in phase. Amplitude-level equality (or a second-basis measurement) is required. Counts tests are necessary, never sufficient."}
+```
+
 ## 4. The debugging workflow — bisection with a glass box
 
 When a circuit's output is wrong, amateurs re-read code; professionals **bisect state**. The protocol:
@@ -156,10 +187,6 @@ Friday demo on real hardware; Thursday you run the professional pre-flight: (1) 
 - The pre-hardware ladder: exact → ideal sampled → fake-backend noisy → (only then) QPU. Debugging on the QPU is burning money to read print statements.
 
 ## Check yourself
-
-```quiz
-{"q":"Your circuit produces Φ⁻ instead of Φ⁺ (a stray Z). Which test catches it?","options":["Counts test: {'00': ~2000, '11': ~2000} at 4000 shots","Any histogram in the computational basis","Statevector(qc).equiv(target) — or an X-basis correlation check","Checking qc.depth()"],"answer":2,"why":"Both Bell states give identical Z-basis histograms — the sign lives in phase. Amplitude-level equality (or a second-basis measurement) is required. Counts tests are necessary, never sufficient."}
-```
 
 ```quiz
 {"q":"A teammate plans to 'simulate the 45-qubit version overnight on the lab server (256 GB RAM)'. Your assessment:","options":["Fine — overnight is plenty of time","Impossible as planned: 2⁴⁵ × 16 bytes ≈ 560 TB; time isn't the constraint, memory is — by ~3 orders of magnitude","Possible with more shots","Only possible on Windows"],"answer":1,"why":"The wall is exponential memory: 2⁴⁵ amplitudes ≈ 3.5×10¹³ × 16 B ≈ 0.56 PB. No amount of patience helps a statevector that doesn't fit. Options: shrink the circuit, exploit structure (Clifford/MPS), or use real hardware."}
@@ -264,3 +291,12 @@ Typical laptop results: ~ms at n=10 rising roughly 2× per qubit through ~1–5 
 6. Clifford circuits → `method="stabilizer"`; low-entanglement circuits → `method="matrix_product_state"`.
 7. Model pyramid: **per-commit (90 s)**: all 10 preparers × `Statevector.equiv` at their smallest meaningful n (≤ 12 qubits — milliseconds each); 3 critical preparers × ideal-sampled smoke test (1000 shots, seeded, 3SE assertions — ~seconds); 1 end-to-end fake-backend run of the flagship circuit at reduced shots (500) with a loose threshold — the canary. **Nightly**: full noisy matrix (all preparers × 2 fake backends × 4000 shots), the n-scaling timing sweep (watching for perf regressions against the wall), and any n > 20 exact checks (GB-scale RAM, minutes each). Justification: exact tests are cheap and catch phase bugs (highest value/second); sampled tests need shots enough that 3SE < the tolerance you assert (1000 shots → ±4.7% — fine for smoke, not for certification, hence nightly's 4000); noisy runs are the slowest and flakiest so they get the fewest per-commit slots but full nightly coverage. Budget arithmetic on display is the point — CI design IS Module 3 + the wall, applied.
 ````
+
+## Mastery checklist — you are ready to move on when you can
+
+- ☐ Choose `Statevector` (exact logic) vs `AerSimulator` (sampled counts, noise) for the job at hand.
+- ☐ Compute statevector RAM as $16\times2^n$ bytes and name where the wall bites (~30 qubits).
+- ☐ Run the live cell and explain why $\Phi^+$ and $\Phi^-$ share a histogram but not a statevector.
+- ☐ Debug by state bisection: seed, expected state per stage, first mismatch is the bug.
+- ☐ Add a noisy fake‑backend rehearsal before spending any QPU time.
+- ☐ Name the two circuit families (Clifford, low‑entanglement) that escape the wall.

@@ -6,6 +6,10 @@ You do **not** need to understand the code you'll type today. This lesson is pur
 
 @@diagram:setup-flow|The five installs, in dependency order. Green boxes are checkpoints — don't pass one until it works.
 
+## Start here — the intuition
+
+One mental model makes this whole lesson calm. **You're stacking five things in dependency order** — Python, then an editor, then a private environment, then Qiskit, then your IBM account — and each has a *checkpoint* you must pass before moving on. Don't debug layer three while layer one is silently broken. And the single most valuable habit you'll build today: **when something "breaks," ask which Python is running before assuming anything is wrong.** Nearly every beginner failure — the dreaded `ModuleNotFoundError: qiskit` — is not a broken install but a terminal or editor pointed at the wrong Python. The `(.venv)` prefix in your prompt is the dashboard light that answers that question at a glance.
+
 ## 1. Install Python 3.12
 
 Python is the language of quantum software (Module 4 teaches it from zero). Qiskit 2.x requires Python 3.10 or newer; install **3.12** — new enough for everything, old enough that every library supports it.
@@ -91,7 +95,7 @@ What each piece is (you'll meet them all properly later):
 python -c "import qiskit; print(qiskit.__version__)"
 ```
 
-Expect `2.x.y` (2.4 or newer as of mid-2026). Any `2.x` is fine for this course. If you see `1.x`, your pip cached something ancient: run `pip install --upgrade qiskit`.
+Expect `2.x.y` (2.5 or newer as of mid-2026). Any `2.x` is fine for this course. If you see `1.x`, your pip cached something ancient: run `pip install --upgrade qiskit`.
 
 ## 5. First launch of Jupyter
 
@@ -237,3 +241,12 @@ Typical output includes machines like `ibm_kingston` (156 qubits, Heron r2) and 
 6. Ctrl+Shift+P → "Python: Select Interpreter" → choose the project's `.venv` interpreter.
 7. Strong answers order by dependency and verify each layer, e.g.: (1) install Python 3.12 + PATH box → `python --version`; (2) install VS Code + Python/Jupyter extensions → extensions listed; (3) `mkdir quantum-work; python -m venv .venv; activate` → `(.venv)` prefix; (4) `pip install qiskit[...] etc.` → import-version check; (5) Jupyter smoke test → `2+2`; (6) IBM account + `save_account` → backend list. Bonus points for including the PowerShell execution-policy fix and "Select Interpreter" as pre-listed remedies — a checklist that anticipates the two most common failures is a professional's checklist.
 ````
+
+## Mastery checklist — you are ready to move on when you can
+
+- ☐ Run `python --version` and see Python 3.12 (Checkpoint 1).
+- ☐ Create and *activate* a `.venv`, and read the `(.venv)` prefix as your dashboard light.
+- ☐ Install Qiskit 2.x and confirm the version import (Checkpoint 2).
+- ☐ Save your IBM token with `save_account` and list real backends (Checkpoint 3).
+- ☐ Run the one-qubit smoke test and get `{'0': 0.5, '1': 0.5}`.
+- ☐ Diagnose a `ModuleNotFoundError` by checking which Python is running first.

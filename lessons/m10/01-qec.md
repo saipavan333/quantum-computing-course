@@ -1,225 +1,141 @@
 # From repetition codes to stabilizers
 
-Everything in Modules 8–9 hit the same wall: real circuits decohere before finishing anything useful. Quantum error correction (QEC) is the escape — the technology that turns noisy physical qubits into near-perfect *logical* qubits, enabling the deep algorithms (Shor, precise QPE) that NISQ can't run. This lesson builds QEC from the ground up: why quantum errors seem impossible to correct, the trick that makes it possible (measure the error without measuring the data), the 3-qubit codes, and the stabilizer formalism that describes every real code. This is the physics underlying every "fault-tolerant quantum computing" roadmap — and understanding it is what QEC-scientist roles pay for.
+Everything in Modules 8–9 hit the same wall: real circuits decohere before finishing anything useful. Quantum error correction (QEC) is the escape — the technology that turns noisy physical qubits into near‑perfect *logical* qubits, enabling the deep algorithms (Shor, precise QPE) that NISQ can't run. This lesson builds QEC from the ground up: why quantum errors seem impossible to correct, the trick that makes it possible, the 3‑qubit codes, and the stabilizer language every real code speaks. This is the physics under every "fault‑tolerant quantum computing" roadmap — and understanding it is what QEC‑scientist roles pay for.
 
-## 1. Why quantum errors seem impossible — and the escape
+## Start here — the intuition
 
-Classical error correction is easy: copy the bit three times (000 or 111), and if noise flips one (010), majority-vote it back. Quantum faces three apparent showstoppers:
+Quantum errors look impossible to fix for three reasons, and one idea dissolves all three. You can't copy a qubit (no‑cloning), you can't look at it to check (measurement destroys superposition), and its errors are *continuous* (a tiny unwanted rotation, not a clean flip). The escape: **don't copy — spread** one logical qubit across several physical ones via entanglement ($\alpha\ket0+\beta\ket1 \to \alpha\ket{000}+\beta\ket{111}$, which is *not* three copies); **don't measure the data — measure the parity between qubits** through ancillas, which reveals *whether an error happened* without revealing $\alpha$ or $\beta$; and that same parity measurement **digitizes** the continuous error, snapping a tiny rotation into either "no error" or "a full, exactly‑correctable flip."
 
-1. **No-cloning** (Module 6): you can't copy an unknown qubit, so the classical repetition trick seems dead on arrival.
-2. **Measurement destroys** (Module 5): reading a qubit to check for errors collapses its superposition — you'd destroy the data you're protecting.
-3. **Continuous errors**: unlike bit flips, quantum errors are continuous (a tiny over-rotation by angle $\epsilon$), seemingly requiring infinite precision to correct.
+Hold that middle idea above all — **you check for errors without ever reading the data** — because it is the move that makes the entire field possible, and it's just Module 6's ancilla‑parity trick wearing a cape.
 
-The escape, and it's beautiful, dissolves all three:
+## The escape, concretely: the 3-qubit bit-flip code
 
-- Instead of copying the qubit, **spread its information across entanglement** — $\alpha\ket0 + \beta\ket1 \to \alpha\ket{000} + \beta\ket{111}$ is NOT three copies (measuring one gives no info about $\alpha,\beta$); it's one logical qubit encoded in three physical ones. No-cloning intact.
-- Measure the **parity between qubits** (Module 6's ancilla parity trick), not the qubits themselves — "did qubits 1 and 2 differ?" reveals an *error* without revealing the *data*. Superposition survives.
-- Measuring parity **discretizes** continuous errors: the measurement projects a tiny $\epsilon$-rotation into either "no error" (probability $1-\epsilon^2$) or "full bit flip" (probability $\epsilon^2$), which you then correct exactly. Continuous errors become discrete ones — the deepest and most surprising idea in QEC.
+Encode $\ket{0_L}=\ket{000}, \ket{1_L}=\ket{111}$ (two CNOTs from the data qubit — entangling, not cloning, since we copy *basis states*). To detect an X (bit‑flip) error, measure two parities with ancillas: $Z_1Z_2$ ("do qubits 1 and 2 agree?") and $Z_2Z_3$. The pair of parity results is the **syndrome**, and it names the flipped qubit — $(-1,+1)\to$ qubit 1, $(-1,-1)\to$ qubit 2, $(+1,-1)\to$ qubit 3, $(+1,+1)\to$ no error — *without ever learning $\alpha,\beta$*, because those parities are identical for $\ket{000}$, $\ket{111}$, and every superposition.
 
 @@diagram:qec-concept|QEC's escape: encode one logical qubit across many physical ones (not copies — entanglement), measure PARITY via ancillas (error without data), and the measurement discretizes continuous errors into correctable discrete ones.
 
-## 2. The 3-qubit bit-flip code
+@@widget
 
-Protect against X (bit-flip) errors. Encode: $\ket{0_L} = \ket{000}$, $\ket{1_L} = \ket{111}$, so $\alpha\ket0 + \beta\ket1 \to \alpha\ket{000} + \beta\ket{111}$ (via two CNOTs from the data qubit — Module 6's basis-copy, which works here because we copy *basis states*, entangling not cloning).
+## Predict, then run — the syndrome IS Pauli anticommutation
 
-**Detect** with two parity ancillas measuring $Z_1Z_2$ and $Z_2Z_3$ (do qubits 1&2 agree? 2&3?):
+Here is the scalable version of that table. A stabilizer (like $Z_1Z_2$, the Pauli string `ZZI`) is *flipped* by an error exactly when the two **anticommute** — and on a single qubit, two Paulis anticommute iff both are non‑identity and different (Module 6). So the whole syndrome is computable with one tiny function, no simulator needed. The cell also prints the coding payoff: logical error $\approx3p^2-2p^3$ vs. physical $p$.
 
-| $Z_1Z_2$ | $Z_2Z_3$ | Diagnosis (syndrome) | Fix |
-|---|---|---|---|
-| +1 | +1 | no error | none |
-| −1 | +1 | qubit 1 flipped | X on qubit 1 |
-| −1 | −1 | qubit 2 flipped | X on qubit 2 |
-| +1 | −1 | qubit 3 flipped | X on qubit 3 |
+**Predict first.** A `Z` error (phase flip) on qubit 0 — will the *bit‑flip* code's Z‑parity checks see it, or is it invisible (syndrome `[0,0]`)? And two X errors on qubits 0 and 1 — will their syndrome look like a *different single* error? Guess, then Run.
 
-The two parity bits (the **syndrome**) uniquely identify which qubit erred *without measuring $\alpha$ or $\beta$* — the parities are the same whether the state is $\ket{000}$ or $\ket{111}$ or their superposition. Apply the indicated X, and the logical state is restored, superposition intact.
+```run
+# Live cell — the syndrome is Pauli anticommutation; coding buys quadratic error suppression.
+def anticommute(a, b):               # single-qubit Paulis: anticommute iff both non-I and different
+    return a != 'I' and b != 'I' and a != b
 
-```python
-from qiskit import QuantumCircuit
-def bit_flip_encode():
-    qc = QuantumCircuit(3, name="encode")
-    qc.cx(0, 1); qc.cx(0, 2)              # |ψ⟩|00⟩ → α|000⟩ + β|111⟩
-    return qc
+def syndrome(error):                 # error like 'XII'; stabilizers Z0Z1, Z1Z2 = "ZZI","IZZ"
+    return [sum(anticommute(s[i], error[i]) for i in range(3)) % 2 for s in ("ZZI", "IZZ")]
 
-def syndrome_extract():
-    qc = QuantumCircuit(5, 2)             # 3 data + 2 ancilla
-    qc.cx(0, 3); qc.cx(1, 3)             # ancilla 3 = parity Z0Z1
-    qc.cx(1, 4); qc.cx(2, 4)             # ancilla 4 = parity Z1Z2
-    qc.measure(3, 0); qc.measure(4, 1)
-    return qc
+for name, err in [("no error","III"), ("X q0","XII"), ("X q1","IXI"),
+                  ("X q2","IIX"), ("Z q0","ZII"), ("XX q0,q1","XXI")]:
+    print(f"{name:9} {err} -> syndrome {syndrome(err)}")
+
+print("\nphysical p -> logical (3p^2 - 2p^3):  coding helps when logical < p")
+for p in (0.5, 0.1, 0.01):
+    print(f"  p={p:<5} logical={3*p*p - 2*p**3:.4f}")
 ```
 
-## 3. Phase errors and the full picture
+The three single‑X errors give three *distinct* syndromes (`[1,0]`, `[1,1]`, `[0,1]`) — each uniquely correctable. But `Z q0` gives `[0,0]`: **invisible**, because Z commutes with the Z‑parity stabilizers — the bit‑flip code is phase‑blind. And `XX q0,q1` gives `[0,1]`, *identical to a single X on q2* — so a naive decoder "fixes" q2, adding a third error: the distance‑3 code corrects one error but is fooled by two. The suppression numbers show the point of it all: at $p=0.1$, logical error $\approx0.028$ (2.8× better); at $p=0.01$, $\approx0.0003$ (30× better) — coding turns $p$ into $\sim3p^2$, and that quadratic gap only opens up *below* a threshold.
 
-The bit-flip code is blind to Z (phase) errors — a $Z$ on any qubit is invisible to Z-parity checks. But recall Module 6: $HZH = X$. So the **phase-flip code** is the bit-flip code conjugated by Hadamards — encode as $\ket{+++}$/$\ket{---}$, check X-parities. Phase errors become bit errors in the Hadamard basis, correctable identically.
-
-To protect against *both* X and Z (and hence any error — since any single-qubit error is a combination of I, X, Z, Y=iXZ, the Pauli basis from Module 6), concatenate: the **9-qubit Shor code** nests a phase-flip code around three bit-flip codes, correcting any single-qubit error. Its existence proved QEC is possible (Shor, 1995) — but 9 physical qubits per logical qubit is expensive, motivating better codes (the surface code, next lesson).
-
-The general principle — **correcting the discrete set {I, X, Y, Z} corrects ALL single-qubit errors** — is QEC's linchpin. Because measurement discretizes continuous errors into this Pauli set, a code handling those four handles everything. This is why the whole field speaks in Paulis (Module 6's foresight paying its final dividend).
-
-## 4. The stabilizer formalism — the language of all real codes
-
-Listing syndrome tables doesn't scale. The **stabilizer formalism** describes codes compactly: a code is defined by a set of commuting Pauli operators (**stabilizers**) whose +1 eigenspace IS the space of valid logical states.
-
-For the 3-qubit bit-flip code, the stabilizers are $Z_1Z_2$ and $Z_2Z_3$ — the parity checks. Valid codewords ($\ket{000}, \ket{111}$, superpositions) are +1 eigenstates of both; an error moves the state to a −1 eigenstate of some stabilizers, and **the pattern of ±1 eigenvalues is the syndrome**. Measuring the stabilizers (via ancillas) extracts the syndrome without disturbing the logical state (stabilizer measurements commute with logical operators — the formal version of "parity reveals error not data").
-
-Why this formalism dominates: stabilizers are Paulis, so their algebra (commuting? Module 6's anticommutation) determines everything — which errors are detectable, correctable, and how to decode. Every real code — surface, color, qLDPC (next lessons) — is specified by its stabilizer generators. Learning to think in stabilizers is learning the working language of QEC research.
-
-```python
-# the stabilizers as Pauli strings (Qiskit's Pauli / StabilizerState tools)
-from qiskit.quantum_info import Pauli
-stabilizers = [Pauli("ZZI"), Pauli("IZZ")]     # Z0Z1, Z1Z2
-# a valid codeword is +1 eigenstate of BOTH; an X error flips relevant signs → syndrome
-for name, err in [("no error","III"), ("X on q0","XII"), ("X on q1","IXI")]:
-    synd = [int(s.anticommutes(Pauli(err))) for s in stabilizers]   # 1 = flipped
-    print(f"{name:10} syndrome {synd}")
-# no error → [0,0];  X on q0 → [1,0];  X on q1 → [1,1]  — matches the table!
+```quiz
+{"q":"How does QEC check for an error WITHOUT destroying the encoded superposition?","options":["By copying the qubit and comparing","By measuring the data qubits directly and voting","By measuring PARITY between qubits (stabilizers) via ancillas — the parity is identical for |000⟩, |111⟩, and their superpositions, so it reveals the error pattern while α and β are never disturbed","By invoking the no-cloning theorem"],"answer":2,"why":"Stabilizer (parity) measurements commute with the logical information: Z₁Z₂ returns the same value for any logical state, so it detects errors without collapsing the superposition. Measuring the data qubits directly WOULD destroy it — the exact mistake QEC is built to avoid."}
 ```
 
-That `anticommutes` check IS the syndrome mechanism: an error is detected by a stabilizer exactly when they anticommute (Module 6's Pauli algebra), flipping that stabilizer's measured eigenvalue. The entire theory of which codes catch which errors reduces to Pauli commutation — computable, scalable, and the reason stabilizer codes are the field's foundation.
+## Level up — the discretization miracle
 
-## Worked example — correcting a continuous error, watching discretization happen
+Apply a tiny *continuous* over‑rotation $R_x(\epsilon)$ to one encoded qubit — a realistic coherent error. The state becomes a superposition of "no error" (amplitude $\cos(\epsilon/2)$) and "full bit‑flip" (amplitude $\sin(\epsilon/2)$). Now measure the syndrome: it **projects** that superposition onto one branch — "no error" with probability $\cos^2(\epsilon/2)$ (the tiny rotation is collapsed *away*, gone, not merely detected) or "full flip" with probability $\sin^2(\epsilon/2)$ (which you undo with a full X). Either way, after correction the state is *exactly* right with no residual $\epsilon$. You never have to correct a "20% rotation" — measurement converts continuous errors into discrete, exactly‑correctable Paulis. This is the single fact that makes fault tolerance possible.
 
-*The most illuminating QEC demonstration: apply a tiny over-rotation (a realistic coherent error), run syndrome extraction, and watch the continuous error snap to discrete.*
+## Level up — phase errors, the Shor code, and stabilizers
 
-Encode $\ket{+_L}$, then apply $R_x(\epsilon)$ with small $\epsilon = 0.2$ to qubit 1 (a slight unwanted rotation — the coherent error from Module 9). The state is now a superposition of "no error" and "bit-flip on qubit 1" with amplitudes $\cos(\epsilon/2)$ and $\sin(\epsilon/2)$.
+The bit‑flip code is blind to Z, but Module 6 gives the fix free: $HZH=X$, so the **phase‑flip code** is the same code conjugated by Hadamards (encode $\ket{+++}/\ket{---}$, check X‑parities). To catch *both* — and hence *any* single‑qubit error, since $\{I,X,Y,Z\}$ span them — concatenate into the **9‑qubit Shor code** (a phase code wrapped around three bit‑flip codes). Its existence *proved* QEC is possible (Shor, 1995). The compact language for all of this is the **stabilizer formalism**: a code is a set of commuting Pauli operators whose $+1$ eigenspace *is* the logical space; an error flips the eigenvalue of exactly the stabilizers it anticommutes with, and that $\pm1$ pattern is the syndrome. Every real code — surface, color, qLDPC — is specified this way, which is why the whole field thinks in Paulis.
 
-```python
-import numpy as np
-from qiskit import QuantumCircuit
-from qiskit.quantum_info import Statevector
+## Level up — gotchas the pros watch for
 
-qc = QuantumCircuit(5, 2)
-qc.cx(0,1); qc.cx(0,2)                    # encode (data q0 starts |0⟩ → |000⟩)
-qc.rx(0.2, 1)                             # CONTINUOUS error: tiny rotation on q1
-qc.cx(0,3); qc.cx(1,3)                    # syndrome ancilla 3 = Z0Z1
-qc.cx(1,4); qc.cx(2,4)                    # ancilla 4 = Z1Z2
-# measuring the ancillas PROJECTS the continuous error into discrete outcomes:
-sv = Statevector(qc)
-print(sv.probabilities_dict([3,4]))       # {'00': ~0.99, '11': ~0.01}
-```
+- **"The code copies the qubit."** No — measuring any single physical qubit of $\alpha\ket{000}+\beta\ket{111}$ gives 50/50 and reveals nothing; the information lives in the correlations. No‑cloning is respected.
+- **Measuring data instead of parity.** The entire trick is measuring stabilizers via ancillas; touching a data qubit collapses the logical state.
+- **Forgetting phase errors.** A bit‑flip‑only demo protects against half the error types; real protection needs both bases.
+- **Stale ancillas.** Syndrome ancillas must be reset each round or they carry old information into the next.
+- **Exceeding the code distance.** The 3‑qubit code corrects one flip; two are mis‑diagnosed. Distance bounds what's correctable.
+- **Syndrome ≠ a lookup for big codes.** For real codes, decoding syndrome→correction is a nontrivial algorithm (next lesson), not a table.
 
-The measurement outcomes: syndrome `00` (no error) with probability $\cos^2(0.1) \approx 0.99$, and syndrome `11` (bit-flip on qubit 1, since Qiskit's ancilla ordering maps this) with probability $\sin^2(0.1) \approx 0.01$. **The continuous $\epsilon$-rotation became a discrete coin flip** — either the syndrome says "no error" (and the projection collapsed the tiny rotation away — the error is *gone*, not just detected) or it says "full bit flip" (which you correct with a full X). Either way, after correction the state is *exactly* right, with no residual $\epsilon$. This is the miracle that makes QEC work: you never need to correct a "20% rotation" — measurement converts it into "no error 99% of the time, full error 1% of the time," both exactly correctable. Watching those probabilities ($0.99, 0.01 = \cos^2, \sin^2$ of half the rotation) is watching the theorem that continuous errors are digitizable — arguably the single most important fact in all of quantum computing's future.
+## Level up — the demo that taught the whole team
 
-## Gotchas
-
-- **Thinking the code copies the qubit.** $\alpha\ket{000} + \beta\ket{111}$ is one logical qubit spread across three physical ones — measuring any single physical qubit gives 50/50, revealing nothing about $\alpha,\beta$. No-cloning is respected; "copy" is the wrong mental model.
-- **Measuring data instead of parity.** The entire trick is measuring stabilizers (parities) via ancillas, never the data qubits. Measuring a data qubit collapses the logical state — the mistake QEC exists to avoid.
-- **Forgetting phase errors.** The 3-qubit bit-flip code catches only X errors; Z errors pass invisibly. Real protection needs both (9-qubit Shor code, or surface code) — a bit-flip-only "QEC" demo protects against half the error types.
-- **Ancilla reuse without reset.** Syndrome ancillas must be reset (or fresh) between rounds — a stale ancilla carries old syndrome information and corrupts the next measurement. Real QEC re-extracts syndromes every cycle with clean ancillas.
-- **Correcting more errors than the code can handle.** The 3-qubit code corrects ONE bit-flip; two simultaneous flips are mis-diagnosed (majority vote fails). Codes have a distance (next lesson) bounding correctable errors — exceed it and correction makes things worse.
-- **Syndrome ≠ error location naively.** The syndrome identifies an error *class* via stabilizer anticommutation, decoded through the code's structure. For larger codes, decoding (syndrome → correction) is a nontrivial algorithm (next lesson) — not a lookup table.
-
-## Scenario — the QEC demo that taught the whole team
-
-You're asked to build a "does error correction actually work?" demo for a skeptical engineering team. Your design, this lesson: encode a known logical state, inject a *controlled* single-qubit error (X on a random qubit), extract the syndrome, apply the correction, and decode — showing the recovered state matches the original with fidelity 1.0, while the *uncorrected* version is corrupted. Then the convincer: sweep the physical error rate and plot logical error rate with vs without correction. Below a threshold, correction wins (logical error < physical error); the curves cross at the code's **break-even point**. The team sees, quantitatively, that QEC isn't magic — it's a trade (more qubits + syndrome overhead) that pays off *only when physical errors are below threshold* (the reason hardware fidelity milestones like Google's "below threshold" matter — Module 0's news, now understood). The demo's punchline — QEC helps only past a fidelity threshold, and that threshold is why the whole industry chases gate fidelity — is the single most important strategic fact about the field's timeline, and you just made it visible.
+Asked to prove "does QEC actually work?" to skeptics: encode a known state, inject a *controlled* single‑qubit X, extract the syndrome, correct, and show fidelity 1.0 while the uncorrected copy is corrupted. Then sweep the physical error rate and plot logical vs physical — the curves cross at the **break‑even threshold**. Below it, correction wins; above it, the extra qubits and syndrome overhead make things *worse*. That single picture teaches the strategic fact of the field: QEC isn't magic, it's a trade that pays only once physical fidelity is below threshold — which is exactly why "below threshold" (Google Willow, Module 0) was landmark news and why the whole industry races gate fidelity.
 
 ## Key points
 
-- QEC escapes no-cloning (spread info via entanglement, not copies), measurement-destruction (measure parity/stabilizers via ancillas, not data), and continuous errors (measurement discretizes them into correctable Paulis).
-- 3-qubit bit-flip code: encode $\ket{000}/\ket{111}$, measure $Z_1Z_2, Z_2Z_3$ parities → syndrome identifies the flipped qubit without revealing the data.
-- Phase errors: the same code Hadamard-conjugated ($HZH=X$); full single-error protection needs both (9-qubit Shor code); correcting {I,X,Y,Z} corrects ALL single-qubit errors.
-- Stabilizer formalism: a code = commuting Pauli stabilizers whose +1 eigenspace is the logical space; errors flip stabilizer eigenvalues (via anticommutation), and the ±1 pattern is the syndrome. All real codes are stabilizer codes.
-- Continuous errors are digitized by syndrome measurement — a tiny rotation projects to "no error" or "full Pauli error," both exactly correctable. The linchpin of fault tolerance.
-- QEC pays off only below a physical-error threshold — the strategic fact driving the industry's fidelity race.
+- QEC escapes no‑cloning (spread via entanglement), measurement‑destruction (measure parity/stabilizers, not data), and continuous errors (measurement digitizes them into Paulis).
+- 3‑qubit bit‑flip code: encode $\ket{000}/\ket{111}$, measure $Z_1Z_2, Z_2Z_3$ → syndrome names the flipped qubit without revealing the data.
+- Phase errors: the same code Hadamard‑conjugated ($HZH=X$); full single‑error protection needs both (9‑qubit Shor); correcting $\{I,X,Y,Z\}$ corrects *all* single‑qubit errors.
+- Stabilizer formalism: a code = commuting Pauli stabilizers whose $+1$ eigenspace is the logical space; errors flip stabilizers they anticommute with, and the $\pm1$ pattern is the syndrome.
+- Syndrome measurement digitizes continuous errors — a tiny rotation projects to "no error" or "full Pauli," both exactly correctable. The linchpin of fault tolerance.
+- QEC pays off only below a physical‑error threshold — the strategic fact driving the fidelity race.
 
 ## Check yourself
 
 ```quiz
-{"q":"How does QEC measure whether an error occurred WITHOUT destroying the encoded superposition?","options":["By copying the qubit and comparing","By measuring the data qubits directly and voting","By measuring PARITY between qubits (stabilizers) via ancillas — parity reveals the error pattern but is identical for |000⟩, |111⟩, and their superpositions, so α and β are never disturbed","By using the no-cloning theorem"],"answer":2,"why":"Stabilizer (parity) measurements commute with the logical information: Z₁Z₂ gives the same result for any logical state, so it detects errors without collapsing the superposition. Measuring data qubits directly WOULD destroy it — the mistake QEC avoids."}
-```
-
-```quiz
-{"q":"A continuous coherent error rotates a qubit by a small angle ε. After syndrome measurement, what happens?","options":["The error remains a tiny ε-rotation that must be corrected with ε-precision","The measurement projects it into either 'no error' (prob ~cos²(ε/2)) or a 'full Pauli error' (prob ~sin²(ε/2)) — both EXACTLY correctable; the continuous error is digitized","The error doubles","Nothing — continuous errors can't be corrected"],"answer":1,"why":"Syndrome measurement discretizes: the superposition of 'no error' and 'full flip' collapses to one of them. You never correct a partial rotation — measurement converts it to a discrete, exactly-correctable Pauli. This digitization is why QEC is possible at all."}
+{"q":"A continuous coherent error rotates a qubit by a small angle ε. After syndrome measurement, what happens?","options":["The error stays a tiny ε-rotation needing ε-precision to fix","The measurement projects it into 'no error' (prob ~cos²(ε/2)) or a 'full Pauli error' (prob ~sin²(ε/2)) — both EXACTLY correctable; the continuous error is digitized","The error doubles","Nothing — continuous errors can't be corrected"],"answer":1,"why":"Syndrome measurement discretizes: the superposition of 'no error' and 'full flip' collapses to one branch. You never correct a partial rotation — measurement converts it to a discrete, exactly-correctable Pauli. This digitization is why QEC is possible at all."}
 ```
 
 ## Exercises
 
-**Exercise 1 — build and stress-test the 3-qubit code.** Implement encode → inject error → syndrome extract → correct → decode as a full pipeline. (a) Verify it perfectly corrects any single X error (test all 3 positions + no-error) using `Statevector` fidelity to the original logical state. (b) Show it FAILS for a Z error (invisible) and for two simultaneous X errors (mis-corrected). (c) Report the fidelity in each case.
+**Exercise 1 — extend the syndrome function.** Using the live cell's `anticommute`/`syndrome` pattern, add the phase‑flip code's stabilizers (`XXI`, `IXX`) and confirm it now *sees* a `Z` error and is blind to a lone `X`. What does that tell you about needing both codes?
+
+````solution
+```python
+def anticommute(a, b): return a != 'I' and b != 'I' and a != b
+def synd(error, stabs): return [sum(anticommute(s[i], error[i]) for i in range(3)) % 2 for s in stabs]
+for err in ("ZII", "XII"):
+    print(err, "bit-flip:", synd(err, ("ZZI","IZZ")), " phase-flip:", synd(err, ("XXI","IXX")))
+# ZII bit-flip [0,0] (blind)  phase-flip [1,0] (caught)
+# XII bit-flip [1,0] (caught) phase-flip [0,0] (blind)
+```
+Each code is blind to exactly the error type the other catches — perfectly complementary. Protecting against *both* is why you concatenate them into the 9‑qubit Shor code; catching $\{X,Z\}$ (and thus $Y=iXZ$) covers every single‑qubit error.
+````
+
+**Exercise 2 — the threshold curve.** Monte‑Carlo the 3‑qubit code: for $p$ from 0 to 0.5, estimate the logical error rate (majority‑vote fails when ≥2 of 3 flip) and compare to the analytic $3p^2-2p^3$; find where the code stops helping.
 
 ````solution
 ```python
 import numpy as np
-from qiskit import QuantumCircuit
-from qiskit.quantum_info import Statevector, state_fidelity, partial_trace, DensityMatrix
-
-def protected_run(error_gates, logical_theta=1.0):
-    qc = QuantumCircuit(5, 2)                      # 3 data + 2 ancilla
-    qc.ry(logical_theta, 0)                        # arbitrary logical state on q0
-    qc.cx(0,1); qc.cx(0,2)                         # encode
-    for (g, q) in error_gates:                     # inject error(s)
-        getattr(qc, g)(q)
-    qc.cx(0,3); qc.cx(1,3); qc.cx(1,4); qc.cx(2,4) # syndrome (unitary form)
-    return qc
-
-# reference: the ideal encoded state, no error
-ref = Statevector(protected_run([]))
-def data_dm(sv): return partial_trace(DensityMatrix(sv), [3,4])   # trace out ancillas
-
-for label, errs in [("none",[]), ("X q0",[("x",0)]), ("X q1",[("x",1)]),
-                    ("X q2",[("x",2)]), ("Z q0",[("z",0)]), ("XX q0,q1",[("x",0),("x",1)])]:
-    sv = Statevector(protected_run(errs))
-    # apply the CORRECTION implied by the syndrome (decode by measuring syndrome + fixing)
-    # for a clean fidelity check, compare the *correctable* data subspace:
-    fid = state_fidelity(data_dm(sv), data_dm(ref))
-    print(f"{label:10} data-fidelity to error-free encoding: {fid:.3f}")
-# none/X q0/X q1/X q2 → correctable (syndrome identifies; after fix fid=1.0)
-# Z q0 → invisible to Z-parity (fid unchanged BUT logical Z error uncorrected)
-# XX q0,q1 → syndrome mimics 'X q2' → mis-corrected → fid drops
+def analytic(p): return 3*p**2*(1-p) + p**3        # = 3p^2 - 2p^3
+def mc(p, trials=20000, rng=np.random.default_rng(0)):
+    return np.mean((rng.random((trials,3)) < p).sum(1) >= 2)
+for p in (0.1, 0.3, 0.5):
+    print(f"p={p}  analytic={analytic(p):.3f}  MC={mc(p):.3f}  helps={analytic(p) < p}")
 ```
-
-Findings, matching theory: single X errors on any position produce distinct syndromes ([1,0],[1,1],[0,1]) → correctable to fidelity 1.0 after the indicated fix. A **Z error** produces syndrome [0,0] (invisible — Z commutes with the Z-parity stabilizers) so it sails through uncorrected: the bit-flip code is phase-blind, demonstrating why you need BOTH codes. **Two X errors** (q0,q1) produce syndrome [0,1] — identical to a single X on q2! — so the decoder "corrects" q2, adding a THIRD error and landing on the wrong logical state (fidelity drops toward 0): the code's distance-3 limit means it corrects 1 error but is confused by 2. This pipeline, showing correct/invisible/mis-corrected cases, is a genuine QEC teaching artifact (the scenario's demo) and demonstrates you understand not just how codes work but precisely where they break — the distinction QEC-scientist interviews probe.
-````
-
-**Exercise 2 — the threshold curve.** Simulate the 3-qubit bit-flip code under random X errors: for physical error rate $p$ from 0 to 0.5, compute the LOGICAL error rate (probability the code fails, i.e., ≥2 physical errors mis-correct) both analytically ($3p^2 - 2p^3$ for majority-vote failure) and by Monte-Carlo simulation. Plot logical vs physical error rate, mark the break-even line (logical = physical), and find the threshold below which the code helps.
-
-````solution
-```python
-import numpy as np, matplotlib.pyplot as plt
-
-def logical_error_analytic(p):
-    # code fails if 2 or 3 of the 3 qubits flip (majority vote wrong)
-    return 3*p**2*(1-p) + p**3     # = 3p² - 2p³
-
-def logical_error_mc(p, trials=20000, rng=None):
-    rng = rng or np.random.default_rng(0)
-    flips = (rng.random((trials, 3)) < p).sum(axis=1)   # errors per trial
-    return np.mean(flips >= 2)                            # majority-vote failure
-
-ps = np.linspace(0, 0.5, 40)
-la = [logical_error_analytic(p) for p in ps]
-lm = [logical_error_mc(p) for p in ps]
-plt.plot(ps, la, label="logical (analytic 3p²−2p³)")
-plt.plot(ps, lm, "o", ms=3, label="logical (Monte-Carlo)")
-plt.plot(ps, ps, "k--", label="break-even (no coding)")
-plt.xlabel("physical error rate p"); plt.ylabel("logical error rate"); plt.legend(); plt.grid(alpha=0.3)
-plt.show()
-
-# threshold: where 3p²-2p³ = p  →  p = 1/2 for this simple code
-thr = 0.5
-print(f"break-even threshold: p = {thr}")
-print(f"at p=0.1: physical {0.1:.3f} vs logical {logical_error_analytic(0.1):.3f} (code HELPS)")
-print(f"at p=0.4: physical {0.4:.3f} vs logical {logical_error_analytic(0.4):.3f} (code HURTS)")
-```
-
-The curves cross at **p = 0.5** for this toy code: below it, the logical error rate ($3p^2$ for small p) is *quadratically smaller* than the physical rate — e.g. at p=0.1, logical ≈ 0.028 (2.8× better); the code helps. Above it, encoding makes things WORSE (more qubits, more failure modes). The key insights: (1) the quadratic suppression ($p \to \sim3p^2$) is QEC's power — halving physical error more-than-halves logical error, and *concatenating* codes suppresses it doubly-exponentially; (2) there's a hard **threshold** below which correction pays and above which it backfires. Real codes (surface code, next lesson) have thresholds around ~1%, and the entire hardware industry races to push physical error rates below that line — which is exactly what "below threshold" (Google Willow, Module 0) means and why it was Nobel-adjacent news. You've now derived, from a Monte-Carlo you wrote, the single most important curve in the quantum-computing roadmap.
+Break‑even at $p=0.5$ for this toy code: below it logical $\approx3p^2$ is quadratically smaller than $p$ (at $p=0.1$, 0.028 vs 0.1 — helps); above it, encoding hurts. Real codes (surface, next lesson) have thresholds ~1%, and the whole hardware industry races to get physical error below that line — literally what "below threshold" means.
 ````
 
 ## Practice questions
 
-1. Why doesn't encoding $\alpha\ket0+\beta\ket1 \to \alpha\ket{000}+\beta\ket{111}$ violate no-cloning?
+1. Why doesn't encoding $\alpha\ket0+\beta\ket1\to\alpha\ket{000}+\beta\ket{111}$ violate no‑cloning?
 2. What is a syndrome, and why does measuring it not destroy the logical superposition?
-3. How does measurement "discretize" a continuous error, and why is this essential?
-4. Why is the 3-qubit bit-flip code insufficient for real QEC, and what's the minimal fix for full single-error protection?
+3. How does measurement "discretize" a continuous error, and why is that essential?
+4. Why is the 3‑qubit bit‑flip code insufficient, and what's the minimal fix for full single‑error protection?
 5. Define a stabilizer code in terms of Pauli operators and eigenspaces.
-6. What is a code's threshold, and why does it drive hardware development priorities?
-7. **Design question:** you're designing syndrome extraction for a code that must run for thousands of rounds (a real computation). Address: ancilla management between rounds, what happens if a syndrome measurement itself errs, why you can't just measure once, and how error correction interacts with actually computing on the logical qubit. What makes this "fault-tolerant" rather than just "error-correcting"?
+6. What is a code's threshold, and why does it drive hardware priorities?
+7. **Design question:** for syndrome extraction that must run thousands of rounds, address ancilla management, what happens if a syndrome measurement itself errs, why one measurement is insufficient, and what makes the procedure *fault‑tolerant* rather than merely error‑correcting.
 
 ````solution
-1. It's not three copies — measuring any single physical qubit yields 50/50 with no information about $\alpha,\beta$; the logical information lives in the *correlations* (entanglement) across all three, which no-cloning permits (you can spread information you can't copy).
-2. The syndrome is the pattern of stabilizer (parity) measurement outcomes; it identifies the error class. Stabilizers commute with logical operators and give identical results for all logical states, so measuring them reveals errors without collapsing the encoded superposition.
-3. A continuous error (superposition of "no error" and "full error") is projected by syndrome measurement onto one branch — collapsing to either exactly no-error or exactly a full Pauli error, both correctable. Essential because you can't correct arbitrary continuous rotations, but you CAN correct the discrete Paulis they collapse into.
-4. It catches only X errors (Z errors are invisible to Z-parity checks); minimal full fix is the 9-qubit Shor code (bit-flip code concatenated inside a phase-flip code), correcting any single-qubit error since {I,X,Y,Z} spans all of them.
-5. A stabilizer code is defined by a set of commuting Pauli operators (stabilizers); the logical code space is their simultaneous +1 eigenspace, and errors are detected by which stabilizers they anticommute with (flipping those eigenvalues → the syndrome).
-6. The threshold is the physical error rate below which error correction reduces (rather than increases) the logical error rate; it drives hardware because QEC only pays off below it — so achieving below-threshold gate/qubit fidelity is the gating milestone for fault-tolerant quantum computing.
-7. Fault-tolerant syndrome extraction: (a) ancillas must be freshly reset each round (stale ancillas corrupt the next syndrome); (b) if a syndrome measurement itself errs, a SINGLE round gives wrong corrections — so you measure syndromes over *many rounds* and decode the space-time history (a faulty measurement shows as an isolated blip the decoder rejects); (c) one measurement is insufficient because measurement and gate errors during extraction are themselves errors — you need repeated rounds so the decoder can distinguish real data errors from measurement errors; (d) logical computation interleaves with syndrome rounds — logical gates must be implemented so they don't spread single errors into uncorrectable patterns (transversal gates, Module 10 next). "Fault-tolerant" (vs merely "error-correcting") means the *entire procedure* — including the error-correction circuitry itself — is designed so that a single physical fault anywhere (data, ancilla, gate, or measurement) cannot cause a logical error: the correction machinery must tolerate its own faults. That self-referential robustness — protecting the protection — is the deep design principle of the fault-tolerant era, and articulating it is exactly what separates a QEC-literate candidate from someone who's memorized the 3-qubit code.
+1. It's not three copies — any single physical qubit reads 50/50 with no info about $\alpha,\beta$; the information lives in the correlations, which no‑cloning permits.
+2. The syndrome is the pattern of stabilizer outcomes; stabilizers commute with logical operators and return identical values for all logical states, so they reveal errors without collapse.
+3. A continuous error (superposition of "no error"/"full error") is projected by the syndrome onto one branch — collapsing to an exactly‑correctable Pauli. Essential because arbitrary rotations aren't directly correctable but discrete Paulis are.
+4. It catches only X (Z is invisible); minimal full fix is the 9‑qubit Shor code, correcting any single‑qubit error since $\{I,X,Y,Z\}$ span them.
+5. A set of commuting Paulis (stabilizers) whose simultaneous $+1$ eigenspace is the logical space; errors are detected by which stabilizers they anticommute with.
+6. The physical error rate below which correction *reduces* logical error; below‑threshold fidelity is the gating milestone for fault tolerance, so hardware chases it.
+7. (a) Fresh‑reset ancillas each round; (b) a single faulty syndrome round gives wrong corrections, so you measure over many rounds and decode the space‑time history, rejecting isolated blips; (c) one measurement can't separate real data errors from measurement errors — repetition can; (d) *fault‑tolerant* means the entire procedure, including the correction circuitry, is built so a single physical fault anywhere (data, ancilla, gate, or measurement) can't cause a logical error — protecting the protection itself.
 ````
+
+## Mastery checklist — you are ready to move on when you can
+
+- ☐ State the three obstacles to QEC and the one idea that dissolves all three.
+- ☐ Encode the 3‑qubit code and read a syndrome to the flipped qubit.
+- ☐ Run the live cell and explain why a Z error is invisible and XX collides with a single X.
+- ☐ Explain the discretization miracle: continuous error → correctable Pauli.
+- ☐ Define a stabilizer code and connect syndromes to Pauli anticommutation.
+- ☐ Explain the threshold and why it drives the hardware fidelity race.
