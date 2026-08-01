@@ -9,8 +9,9 @@ __pycache__/
 *.pyc
 .pytest_cache/
 
-# owner-only, non-generated assistant config (created if you add the generative tier)
-assets/assistant-config.js
+# NOTE: assets/assistant-config.js IS committed deliberately — it holds only the
+# PUBLIC Cloudflare Worker proxy URL (no secret; the Gemini key lives inside the
+# Worker, server-side). It must ship so the generative assistant works on Pages.
 
 # NOTE: content/*.js ARE committed deliberately — they are the deployable runtime
 # (the static site loads them directly). Regenerate them with `node tools/build.js`

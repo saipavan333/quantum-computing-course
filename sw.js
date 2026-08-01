@@ -1,10 +1,11 @@
 /* Service worker — offline cache for the hosted (https) version.
    Bump VERSION when content changes to refresh caches. */
-const VERSION = "qcc-v2.5.0";
+const VERSION = "qcc-v2.6.0";
 const CORE = [
   ".", "index.html", "manifest.webmanifest",
   "assets/css/styles.css", "assets/css/features.css",
   "assets/js/app.js", "assets/js/site.js", "assets/js/features.js",
+  "assets/assistant-config.js",
   "assets/js/runner.js", "assets/js/assistant.js", "assets/js/widgets.js",
   "assets/js/labs.js", "assets/js/hero.js", "assets/js/effects.js", "assets/js/diagrams.js",
   "assets/vendor/three.min.js",

@@ -1,0 +1,4 @@
+# NOT USED — safe to delete.
+# The shared AI-assistant Worker is deployed via the Cloudflare dashboard (not
+# Wrangler). Its source is worker/assistant-proxy.js and it is already live at
+# https://gd-assistant-proxy.uekpavanharish.workers.dev
