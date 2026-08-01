@@ -1776,14 +1776,15 @@
     if (!ctx || ctx.view !== "lesson") return;
     var kind = WIDGETS[ctx.id]; if (!kind || !BUILDERS[kind]) return;
     var body = root.querySelector(".lesson-body"); if (!body || body.querySelector(".widget")) return;
+    var mount = body.querySelector(".widget-slot") || body;   // inline @@widget slot if the lesson placed one, else end of body
     var info = INFO[kind];
     if (info) {
       var infoHost = document.createElement("details"); infoHost.className = "info-toggle reveal"; infoHost.open = true;
       infoHost.innerHTML = "<summary>What is this widget? (what, why, how, where, when)</summary>" + renderInfoDL(info);
-      body.appendChild(infoHost);
+      mount.appendChild(infoHost);
     }
     var host = document.createElement("div"); host.className = "widget-host reveal";
-    body.appendChild(host); BUILDERS[kind](host);
+    mount.appendChild(host); BUILDERS[kind](host);
     var cap = CAPTIONS[kind];
     if (cap) {
       var widgetBox = host.querySelector(".widget");

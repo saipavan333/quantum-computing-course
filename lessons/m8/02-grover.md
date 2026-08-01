@@ -23,6 +23,8 @@ where $\ket w$ is the winner and $\ket{s'}$ is the even mix of all the losers. E
 
 The one warning baked into this picture: rotation **overshoots**. Past straight-up, the next round rotates you *away* from the winner. So "run a few extra rounds to be safe" is exactly wrong — this is the rare algorithm where more work makes the answer worse. You compute the right number of rounds and stop. The interactive widget below lets you spin the dial yourself and watch the probability rise and fall.
 
+@@widget
+
 ## Worked example — "inversion about the mean," every step
 
 The diffuser has a nickname, *inversion about the mean*, and the fastest way to trust it is to do it once by hand. Take the smallest interesting case: **4 boxes, box 4 is the winner**. Amplitudes start equal at $\tfrac12$, so each outcome has probability $\left(\tfrac12\right)^2 = \tfrac14$.

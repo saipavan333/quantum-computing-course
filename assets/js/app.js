@@ -138,6 +138,7 @@
       var caption = cap ? '<figcaption class="diagram-cap" id="' + capId + '">' + escapeHtml(cap) + "</figcaption>" : "";
       return stash('<figure class="diagram-wrap" data-cap="' + capId + '">' + body + caption + "</figure>", true);
     });
+    src = src.replace(/^@@widget\s*$/gm, function () { return stash('<div class="widget-slot"></div>', true); });
     src = src.replace(/^```([\w+-]*)[ \t]*\n([\s\S]*?)\n```[ \t]*$/gm, function (_, lang, code) {
       var html;
       if (lang && window.hljs && hljs.getLanguage(lang)) {
