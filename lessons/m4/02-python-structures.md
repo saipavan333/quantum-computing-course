@@ -1,287 +1,132 @@
 # Python II: collections, functions & errors
 
-One variable holds one value; real programs juggle thousands — 1,024 shot results, a dictionary of counts, a list of gate angles. Today: Python's containers (lists, tuples, dicts), the slicing syntax every quantum example uses, **functions** (the single biggest upgrade to your code), and how to read error messages without fear. This lesson is where your code starts looking like a professional's.
+One variable holds one value; real programs juggle thousands — 1,024 shot results, a dictionary of counts, a list of gate angles. Today: Python's containers (lists, tuples, dicts), the slicing syntax every quantum example uses, **functions** (the single biggest upgrade to your code), and how to read error messages without fear. This is where your code starts looking like a professional's.
 
-## 1. Lists — ordered, changeable sequences
+## Start here — the intuition
 
-```python
-angles = [0.0, 0.785, 1.571, 2.356]      # list literal
-angles.append(3.142)                      # grow at the end
-print(len(angles), angles[0], angles[-1]) # 5 0.0 3.142   ← -1 = last!
-angles[1] = 0.7854                        # replace by index
-```
+When you have more than one of something, you need a **container**. Three cover almost everything. A **list** is an ordered, changeable row of items (`[0.5, 0.3, 0.15]`) you index from 0 and *slice* with `[start:stop]`. A **dict** maps **keys to values** (`{"00": 2011, "11": 1191}`) — and that is *exactly* the shape of a quantum measurement result, a histogram of bitstrings to counts. A **tuple** is a frozen list, great for bundling a few things together.
 
-Indexing starts at **0** (like `range`, like qubit numbering, like $\Sigma_{k=0}$ — the whole ecosystem agrees). Negative indices count from the end: `[-1]` last, `[-2]` second-to-last.
+Then comes the biggest upgrade to your code: the **function** — a named recipe you write once and reuse forever. Functions are the unit of reuse, of testing, and of *thought*: a program built from ten well‑named functions reads like a paragraph. The lesson's live cell writes the one function every quantum notebook eventually contains — turning a counts dict into probabilities with error bars.
 
-**Slicing** — extract sub-lists with `[start:stop:step]` (stop exclusive, all parts optional):
+## Lists, dicts, tuples
 
-```python
-data = [10, 11, 12, 13, 14, 15]
-print(data[1:4])     # [11, 12, 13]
-print(data[:3])      # [10, 11, 12]      from the start
-print(data[3:])      # [13, 14, 15]      to the end
-print(data[::2])     # [10, 12, 14]      every second
-print(data[::-1])    # [15, 14, 13, 12, 11, 10]   reversed — the classic trick
-```
+**Lists** are 0‑indexed, negative‑from‑end, and sliced `[start:stop:step]` (stop exclusive): `data[::-1]` reverses — practically a Qiskit idiom because of qubit‑ordering. **Comprehensions** build a list in one line: `[p**2 for p in probs if p > 0.1]`. **Dicts** hold labeled data with `.keys()`, `.values()`, `.items()`, and `.get(key, default)` to survive missing keys; a *dict comprehension* converts counts→probs. **Tuples** are immutable and unpack cleanly (`q, r = divmod(17, 5)`) — Qiskit's V2 primitives take tuple "PUBs," so tuple literacy is on the job description.
 
 @@diagram:list-slicing|Slicing [start:stop]: indices label the FENCES between items, start-inclusive, stop-exclusive. Once you see the fences, off-by-ones disappear.
 
-Why you must be fluent: **bit-strings from quantum measurements are sliced constantly** — `bitstring[::-1]` (reverse) is practically a Qiskit idiom, because of a qubit-ordering convention you'll curse and then master in Module 6.
+## Functions and errors
 
-**Loop + list patterns**, including the beloved comprehension:
+Write a recipe with `def name(params):`, a `"""docstring"""`, and `return`. **Defaults and keyword arguments** are Qiskit's API style (`shots_needed(epsilon=0.03)`). **Scope**: names inside a function stay inside — data in through parameters, out through `return` (sealed pipes → testable code). **Errors** are diagnoses: read the traceback's *last line first* (the type and message), then walk up to your line. Catch the *specific* exception you can handle (`except KeyError:`), never a bare `except:` that swallows your own typos.
 
-```python
-probs = [0.5, 0.3, 0.15, 0.05]
-squared = [p**2 for p in probs]                    # list comprehension
-big = [p for p in probs if p > 0.1]                # with a filter
-total = sum(probs)                                  # built-in reducers
-print(squared, big, total, max(probs))
-# enumerate: index and value together — the professional loop
-for k, p in enumerate(probs):
-    print(f"outcome {k}: {p:.0%}")
-```
+## Predict, then run — the counts→probs converter
 
-A comprehension `[expression for item in seq if cond]` is a loop-that-builds-a-list in one readable line — Python's signature move, used in every Qiskit tutorial ever written.
+The live cell turns a measurement histogram into probabilities and ranks the outcomes.
 
-## 2. Tuples — frozen sequences (and multiple return values)
+**Predict first.** The counts are `{"00": 2011, "01": 396, "10": 402, "11": 1191}` over 4000 shots. Which two outcomes dominate, and roughly what probabilities? And what will `probs.get("111", 0)` return for an outcome that never occurred? Guess, then Run.
 
-A tuple is an immutable list: `point = (3, 4)`. Index and slice the same; you just can't modify it. Their superpower is **packing/unpacking**:
-
-```python
-x, y = (3, 4)                 # unpack
-theta, phi = 0.79, 1.57       # parens optional — tuple in disguise
-pair = divmod(17, 5)          # many functions return tuples
-q, r = divmod(17, 5)          # unpack directly: q=3, r=2
-```
-
-Qiskit's V2 primitives take **PUBs** — tuples like `(circuit, observables, params)` — so tuple literacy is directly on the job description (Module 7).
-
-## 3. Dictionaries — labeled data (your histogram's home)
-
-A `dict` maps **keys → values**. This is the exact shape of quantum measurement results:
-
-```python
+```run
+# Live cell — the counts dict IS a quantum histogram. Turn it into probabilities.
 counts = {"00": 2011, "01": 396, "10": 402, "11": 1191}
-print(counts["00"])               # 2011 — lookup by key
-counts["11"] += 9                 # update
-print(counts.get("111", 0))       # 0 — .get() with default: no crash on missing key
 
 shots = sum(counts.values())
-probs = {bits: c / shots for bits, c in counts.items()}   # dict comprehension!
-for bits, p in sorted(probs.items()):
-    print(f"|{bits}⟩: {p:.4f}")
+probs = {bits: c / shots for bits, c in counts.items()}        # dict comprehension
+
+ranked = sorted(probs.items(), key=lambda kv: kv[1], reverse=True)   # by probability, high first
+print(f"{shots} shots, {len(counts)} outcomes")
+for bits, p in ranked[:3]:
+    se = (p * (1 - p) / shots) ** 0.5
+    print(f"  |{bits}>  {p:.4f} +/- {2*se:.4f}")
+
+print("p('111') =", probs.get("111", 0.0))                    # .get survives a missing outcome
 ```
 
-The trio to memorize: `.keys()`, `.values()`, `.items()` (key-value pairs, perfect for loops). The counts→probs conversion above is *the* most common five lines in quantum notebooks — you'll type it (or a helper for it) hundreds of times.
-
-(Also exists: `set` — unordered unique items, great for "which outcomes appeared at all?" — `set(results)`. Nice to recognize, rarely central.)
-
-## 4. Functions — name your recipes
-
-You've been *using* functions all course (`print`, `math.sqrt`). Now write them:
-
-```python
-import math
-
-def standard_error(p_hat, n):
-    """Standard error of an estimated probability from n shots."""
-    return math.sqrt(p_hat * (1 - p_hat) / n)
-
-se = standard_error(0.3, 1024)
-print(f"±{2*se:.4f}")            # ±0.0286
-```
-
-Anatomy: `def name(parameters):`, an indented body, an optional `"""docstring"""` (one line saying what it does — professionals always write it), and `return` to send back a result. A function without `return` returns `None`.
-
-**Defaults and keyword arguments** — the API style Qiskit uses everywhere:
-
-```python
-def shots_needed(p_guess=0.5, epsilon=0.01):
-    return math.ceil(4 * p_guess * (1 - p_guess) / epsilon**2)
-
-print(shots_needed())                        # 10000  (all defaults)
-print(shots_needed(epsilon=0.03))            # 1112   (name the one you change)
-print(shots_needed(0.2, 0.01))               # 6400   (positional)
-```
-
-When you later read `SamplerV2(mode=backend)` or `qc.measure_all(inplace=True)`, that's keyword arguments — you already know the grammar.
-
-**Scope**: names created inside a function live only inside it. Data goes in through parameters and out through `return` — treating functions as sealed pipes (rather than reaching for global variables) is the habit that makes code testable, and testability is a hiring signal (Module 7 builds actual tests).
-
-**Why functions matter beyond tidiness**: they're the unit of *reuse* (write the counts→probs converter once, import it forever), the unit of *testing* (assert `standard_error(0.5, 100) == 0.05`), and the unit of *thought* — a program made of ten well-named functions can be read like a paragraph.
-
-## 5. Imports — standing on shoulders
-
-```python
-import math                      # full module: math.pi, math.sqrt
-from math import pi, sqrt        # cherry-pick names
-import numpy as np               # aliased import — universal conventions:
-# np (numpy), plt (matplotlib.pyplot) — use them; reviewers expect them
-```
-
-Your own `.py` files are modules too: put `standard_error` in `stats_utils.py`, then `from stats_utils import standard_error` in any notebook in the same folder. Congratulations — that's a library. Yours.
-
-## 6. Errors — read the traceback, bottom line first
-
-Errors are not failures; they're *diagnoses*. The reading order professionals use: **last line first** (the error type and message), then walk *up* to find the line of yours that triggered it.
-
-| Exception | Typical cause | First reflex |
-|---|---|---|
-| `SyntaxError` | typo, missing `:` or `)` | look at/before the caret |
-| `NameError` | undefined name / typo / cell not run | spelling; run earlier cells |
-| `TypeError` | wrong type (`"a" + 1`) | check each operand's type |
-| `IndexError` | index past the end | print `len()`; remember 0-index |
-| `KeyError` | dict key absent | `.get(key, default)`; print `.keys()` |
-| `ZeroDivisionError` | dividing by 0 | guard the denominator |
-
-**Handling** errors you expect — `try/except`:
-
-```python
-def prob_of(counts, bits):
-    """Probability of an outcome; 0.0 if it never occurred."""
-    try:
-        return counts[bits] / sum(counts.values())
-    except KeyError:
-        return 0.0
-```
-
-Two rules of professional exception style: catch the *specific* exception (`except KeyError:`, never bare `except:` which also swallows your typos), and only catch what you can genuinely handle — otherwise let it crash loudly, because silent wrong numbers are far worse than a traceback (in quantum work, *especially* so: a silently-empty histogram looks like physics).
-
-## Worked example — a real analysis helper, start to finish
-
-The function every quantum notebook eventually contains — written with everything from today:
-
-```python
-def summarize(counts, top=3):
-    """Print the top outcomes of a counts dict with probabilities ± 2SE."""
-    shots = sum(counts.values())
-    probs = {b: c / shots for b, c in counts.items()}
-    ranked = sorted(probs.items(), key=lambda kv: kv[1], reverse=True)
-    print(f"{shots} shots, {len(counts)} distinct outcomes")
-    for bits, p in ranked[:top]:
-        se = (p * (1 - p) / shots) ** 0.5
-        print(f"  |{bits}⟩  {p:.4f} ± {2*se:.4f}")
-
-counts = {"00": 2011, "01": 396, "10": 402, "11": 1191}
-summarize(counts)
-# 4000 shots, 4 distinct outcomes
-#   |00⟩  0.5027 ± 0.0158
-#   |11⟩  0.2977 ± 0.0145
-#   |10⟩  0.1005 ± 0.0095
-```
-
-New piece: `sorted(..., key=lambda kv: kv[1], reverse=True)` — `lambda` defines a tiny unnamed function ("given a pair, return its second element") telling `sorted` what to rank by. Lambdas are one-line function literals; you'll meet them as optimizer callbacks in Module 9. Everything else — dict comprehension, slicing `[:top]`, f-strings, the SE formula — is your own toolkit, composed. *This function goes in your `stats_utils.py` today and gets imported in Module 7 for real hardware results.*
-
-## Gotchas
-
-- **Mutating while iterating.** Removing items from a list inside `for item in mylist:` skips elements silently. Build a new list (comprehension with a filter) instead.
-- **Copy vs alias.** `b = a` makes both names point at the *same* list — `b.append(9)` changes "both". True copy: `b = a.copy()` (or `a[:]`). This bites everyone exactly once; let yours be today, in a two-line experiment.
-- **`counts["101"]` KeyError on clean data.** Outcomes with zero counts simply aren't in the dict (Module 3's "zero observed ≠ impossible", now as an exception). Use `.get(bits, 0)` in every analysis function.
-- **Shadowing modules.** Naming your file `math.py` or a variable `np` breaks imports in confusing ways. Check filenames when imports misbehave.
-- **Default-argument mutables.** `def f(x, log=[])` shares ONE list across all calls — a famous trap. Use `log=None` then `if log is None: log = []`. (Recognize it now; understand it deeply when classes arrive.)
-- **Bare `except:`.** Swallows `NameError`s and typos along with the error you meant, turning bugs into ghosts. Always name the exception.
-
-## Scenario — the traceback that wasn't scary
-
-First week on a project, you run a teammate's analysis script against your data and get a 40-line traceback. Old you closes the laptop. Trained you reads the last line: `KeyError: '0110'` — then walks up to the highest line in *the project's* code (not library internals): `p_target = counts["0110"] / shots`. Diagnosis in 60 seconds: your test run used fewer shots and the target outcome never occurred; the script assumed it always would. Fix: `counts.get("0110", 0)`, plus a printed warning when it's absent. You push the one-line patch with a note; the teammate thanks you because the same crash had been randomly killing their overnight batch runs for a month (it only triggered on low-shot smoke tests — of course). Reading tracebacks bottom-up isn't a survival skill; it's a *reputation* skill.
-
-## Key points
-
-- Lists: 0-indexed, negative-from-end, sliced `[start:stop:step]` (stop-exclusive); `[::-1]` reverses — a quantum-bitstring daily special.
-- Dicts hold labeled data — measurement counts live here; `.items()` to loop, `.get(k, 0)` to survive missing outcomes; comprehensions convert counts→probs in one line.
-- Tuples are immutable sequences whose unpacking (`q, r = divmod(...)`) and PUB-shape make them Qiskit's argument currency.
-- Functions: `def`, docstring, parameters (with defaults/keywords), `return`; sealed-pipe scope; they are the unit of reuse, testing, and thought.
-- Imports bring in modules (`import numpy as np` — learn the standard aliases); your own `.py` files import the same way.
-- Tracebacks read bottom-first; catch specific exceptions you can handle, let the rest crash loudly — silent wrong data is the real enemy.
-
-## Check yourself
-
-```quiz
-{"q":"data = [5, 6, 7, 8, 9]. What is data[1:3] + data[-1:]?","options":["[6, 7, 9]","[6, 7, 8, 9]","[5, 6, 9]","[6, 7] and an IndexError"],"answer":0,"why":"data[1:3] = [6, 7] (stop-exclusive); data[-1:] = [9] (slice from last). List + list concatenates: [6, 7, 9]."}
-```
+The `sorted(..., key=lambda kv: kv[1], reverse=True)` uses a `lambda` — a one‑line unnamed function ("given a pair, return its second element") — to rank by probability. Everything else is a dict comprehension, slicing `[:3]`, f‑strings, and the standard‑error formula, composed. And `probs.get("111", 0)` returns `0.0` instead of crashing, because zero‑count outcomes simply aren't keys — Module 3's "zero observed ≠ impossible," now as code.
 
 ```quiz
 {"q":"Your analysis crashes with KeyError: '011' on some runs but not others. The professional fix is:","options":["Wrap the whole script in try/except: pass","Use counts.get('011', 0) — outcomes with zero counts are absent from results dicts, which is expected behavior","Always run more shots so every outcome appears","Convert the dict to a list first"],"answer":1,"why":"Zero-count outcomes simply aren't keys. .get with a default handles the legitimate case; bare except hides real bugs; more shots only lowers (never zeroes) the chance."}
 ```
 
+## Level up — gotchas the pros watch for
+
+- **Mutating while iterating.** Removing items inside `for item in mylist:` skips elements — build a new list with a filtered comprehension.
+- **Copy vs alias.** `b = a` makes both names point at the *same* list; `b.append(9)` changes "both." True copy: `a.copy()` or `a[:]`.
+- **`counts["101"]` KeyError on clean data.** Zero‑count outcomes aren't keys — use `.get(bits, 0)` in every analysis function.
+- **Default‑argument mutables.** `def f(x, log=[])` shares one list across all calls; use `log=None` then `if log is None: log = []`.
+- **Bare `except:`.** Swallows `NameError`s and typos with the error you meant — always name the exception.
+
+## Level up — the traceback that wasn't scary
+
+Week one, you run a teammate's script on your data and get a 40‑line traceback. Read the last line: `KeyError: '0110'`, then walk up to *your project's* highest line: `p = counts["0110"] / shots`. Diagnosis in 60 seconds: your smoke test used fewer shots and that outcome never occurred; the script assumed it always would. Fix: `counts.get("0110", 0)` plus a warning. You push a one‑line patch and the teammate thanks you — the same crash had been randomly killing their overnight batches for a month. Reading tracebacks bottom‑up is a reputation skill.
+
+## Key points
+
+- Lists: 0‑indexed, negative‑from‑end, sliced `[start:stop:step]`; `[::-1]` reverses — a quantum‑bitstring daily special.
+- Dicts hold labeled data (measurement counts); `.items()` to loop, `.get(k, 0)` to survive missing outcomes; comprehensions convert counts→probs in one line.
+- Tuples are immutable; their unpacking and PUB‑shape make them Qiskit's argument currency.
+- Functions: `def`, docstring, parameters (defaults/keywords), `return`; sealed‑pipe scope; the unit of reuse, testing, and thought.
+- Imports bring in modules (`import numpy as np`); your own `.py` files import the same way.
+- Tracebacks read bottom‑first; catch specific exceptions you can handle, let the rest crash loudly.
+
+## Check yourself
+
+```quiz
+{"q":"data = [5, 6, 7, 8, 9]. What is data[1:3] + data[-1:]?","options":["[6, 7, 9]","[6, 7, 8, 9]","[5, 6, 9]","[6, 7] and an IndexError"],"answer":0,"why":"data[1:3] = [6, 7] (stop-exclusive); data[-1:] = [9] (slice from the last). List + list concatenates: [6, 7, 9]."}
+```
+
 ## Exercises
 
-**Exercise 1 — build `counts_to_probs` properly.** Write a function `counts_to_probs(counts)` that returns a probability dict, and a function `marginal(probs, position)` that returns the probability that the bit at `position` (0 = leftmost for now) equals `"1"`, summing over everything else. Test on `{"00": 2011, "01": 396, "10": 402, "11": 1191}`: marginal of position 0 should be ≈ 0.398.
+**Exercise 1 — build `marginal`.** In the live cell, add `marginal(probs, position)` returning the probability that the bit at `position` (0 = leftmost) is `"1"`, summing over the rest. Confirm `marginal(probs, 0)` ≈ 0.398 for the counts above.
 
 ````solution
 ```python
-def counts_to_probs(counts):
-    """Normalize a counts dict into probabilities."""
-    shots = sum(counts.values())
-    return {bits: c / shots for bits, c in counts.items()}
-
 def marginal(probs, position):
-    """P(bit at `position` == '1'), summing over all other bits."""
     return sum(p for bits, p in probs.items() if bits[position] == "1")
-
-counts = {"00": 2011, "01": 396, "10": 402, "11": 1191}
-probs = counts_to_probs(counts)
-print(round(marginal(probs, 0), 4))   # 0.3983  ✓ (10 and 11: (402+1191)/4000)
-print(round(marginal(probs, 1), 4))   # 0.3967      (01 and 11)
+print(round(marginal(probs, 0), 4))   # 0.3983  (10 and 11: (402+1191)/4000)
 ```
-
-Design notes: `marginal` uses a *generator expression* inside `sum` (a comprehension without brackets — same idea, no intermediate list); string indexing `bits[position]` treats the bitstring as a sequence, which it is. You've implemented Module 3's marginalization as reusable software — and yes, this exact pair of helpers appears (with a qubit-ordering twist) in Module 7.
+It uses a *generator expression* inside `sum` (a comprehension without brackets), and string indexing `bits[position]`. You've implemented Module 3's marginalization as reusable software.
 ````
 
-**Exercise 2 — defensive statistics.** Extend `summarize` from the Worked example into `compare(counts_a, counts_b, bits)`: it should print each run's probability ± 2SE for outcome `bits` (using `.get`!), the difference, the SE of the difference ($\sqrt{SE_a^2 + SE_b^2}$ — Module 3), and a verdict: `"distinguishable (≥2σ)"` or `"consistent (<2σ)"`. Test with `{"0": 520, "1": 480}` vs `{"0": 466, "1": 534}` on outcome `"0"`.
+**Exercise 2 — compare two runs.** Write `compare(counts_a, counts_b, bits)` printing each run's probability ± 2 SE for `bits` (using `.get`), the difference, its SE ($\sqrt{SE_a^2 + SE_b^2}$), and a verdict "distinguishable (≥2σ)" or "consistent (<2σ)". Test `{"0":520,"1":480}` vs `{"0":466,"1":534}` on `"0"`.
 
 ````solution
 ```python
 def prob_se(counts, bits):
-    """(probability, standard error) for one outcome, zero-safe."""
-    shots = sum(counts.values())
-    p = counts.get(bits, 0) / shots
-    se = (p * (1 - p) / shots) ** 0.5
-    return p, se
-
-def compare(counts_a, counts_b, bits):
-    pa, sa = prob_se(counts_a, bits)
-    pb, sb = prob_se(counts_b, bits)
-    diff = pa - pb
-    se_diff = (sa**2 + sb**2) ** 0.5
-    sigmas = abs(diff) / se_diff if se_diff > 0 else float("inf")
-    print(f"A: {pa:.4f} ± {2*sa:.4f}")
-    print(f"B: {pb:.4f} ± {2*sb:.4f}")
-    print(f"diff = {diff:+.4f}, {sigmas:.2f}σ →",
-          "distinguishable (≥2σ)" if sigmas >= 2 else "consistent (<2σ)")
-
-compare({"0": 520, "1": 480}, {"0": 466, "1": 534}, "0")
-# A: 0.5200 ± 0.0316
-# B: 0.4660 ± 0.0316
-# diff = +0.0540, 2.42σ → distinguishable (≥2σ)
+    shots = sum(counts.values()); p = counts.get(bits, 0) / shots
+    return p, (p*(1-p)/shots)**0.5
+def compare(a, b, bits):
+    pa, sa = prob_se(a, bits); pb, sb = prob_se(b, bits)
+    sig = abs(pa-pb) / (sa**2+sb**2)**0.5
+    print(f"diff={pa-pb:+.4f}, {sig:.2f} sigma ->", "distinguishable" if sig>=2 else "consistent")
+compare({"0":520,"1":480}, {"0":466,"1":534}, "0")   # ~2.42 sigma -> distinguishable
 ```
-
-Notice the architecture: a small pure helper (`prob_se`) reused twice, the guard against zero division, the `+` format flag showing the sign, and Module 3's exact comparison procedure now executable on demand. This function is not homework — it's the tool you'll use to decide whether error mitigation "actually helped" in Module 9, where that question is worth money.
+A small pure helper reused twice, zero‑safe `.get`, Module 3's comparison procedure — this is the tool you'll use to decide whether error mitigation "actually helped" in Module 9.
 ````
 
 ## Practice questions
 
-1. What do `nums[::2]`, `nums[1::2]`, and `nums[::-1]` produce for `nums = [0,1,2,3,4,5]`?
-2. Convert this loop to a comprehension: `out = []` / `for c in counts.values(): out.append(c/shots)`.
-3. Why does `b = a; b.append(5)` change `a` when `a` is a list, and what's the fix?
-4. Write the function signature (with defaults) for a `run_experiment(circuit, shots=1024, seed=None)` and call it changing only the seed.
-5. What's wrong with `except:` compared to `except KeyError:` — give the concrete failure mode.
-6. `sorted(probs.items(), key=lambda kv: kv[1], reverse=True)[:1]` — translate to English.
-7. **Design question:** design (signatures + docstrings + 3 sentences of rationale) a tiny `histogram_utils` module with 4 functions you'd want before Module 7. Consider what you've repeatedly needed: normalization, marginals, comparison, top-k.
+1. What do `nums[::2]`, `nums[1::2]`, `nums[::-1]` give for `[0,1,2,3,4,5]`?
+2. Convert to a comprehension: `out = []` / `for c in counts.values(): out.append(c/shots)`.
+3. Why does `b = a; b.append(5)` change `a` when `a` is a list, and the fix?
+4. Signature (with defaults) for `run_experiment(circuit, shots=1024, seed=None)`, called changing only the seed.
+5. Concrete failure mode of `except:` vs `except KeyError:`.
+6. Translate: `sorted(probs.items(), key=lambda kv: kv[1], reverse=True)[:1]`.
+7. **Design question:** sketch a `histogram_utils` module (signatures + docstrings) with 4 functions you'd want before Module 7.
 
 ````solution
 1. `[0,2,4]`, `[1,3,5]`, `[5,4,3,2,1,0]`.
 2. `out = [c / shots for c in counts.values()]`.
-3. Both names alias one list object (assignment copies the *label*, not the data); fix: `b = a.copy()`.
-4. `def run_experiment(circuit, shots=1024, seed=None): ...` — call: `run_experiment(qc, seed=7)`.
-5. Bare `except` also catches `NameError`/`TypeError` from your own typos, so bugs execute the fallback path silently — you debug "weird results" instead of an honest crash.
-6. "Sort the outcome-probability pairs by probability, largest first, and keep the single most likely one."
-7. Model module:
-```python
-def counts_to_probs(counts): """Counts → probability dict."""
-def top_k(probs, k=5): """k most likely (bits, prob) pairs, sorted."""
-def marginal(probs, position): """P(bit at position == '1')."""
-def compare_outcome(counts_a, counts_b, bits): """(diff, sigmas) for one outcome across two runs."""
-```
-Rationale: these four cover 90% of first-pass analysis (normalize → eyeball leaders → collapse to relevant qubits → decide if two runs differ); each is pure (dict in, data out — trivially testable); none depends on Qiskit, so they work on simulator and hardware output alike. A fifth worth arguing for: `expect_parity(probs)` (average ±1 parity), which becomes the expectation-value bridge in Module 9 — full credit for proposing it or any similarly forward-looking member.
+3. Both names alias one list object; fix: `b = a.copy()`.
+4. `def run_experiment(circuit, shots=1024, seed=None): ...`; call `run_experiment(qc, seed=7)`.
+5. Bare `except` also catches your typos' `NameError`/`TypeError`, so bugs run the fallback silently.
+6. "Sort the (bits, prob) pairs by probability, largest first, and keep the single most likely."
+7. `counts_to_probs(counts)`, `top_k(probs, k=5)`, `marginal(probs, position)`, `compare_outcome(a, b, bits)` — pure (dict in, data out), Qiskit‑independent so they work on sim and hardware alike; a fifth, `expect_parity(probs)`, previews Module 9's expectation values.
 ````
+
+## Mastery checklist — you are ready to move on when you can
+
+- ☐ Index and slice a list (including `[::-1]`) and build a comprehension.
+- ☐ Use a dict as a histogram: `.items()`, `.get(k, 0)`, and a counts→probs comprehension.
+- ☐ Write a function with a docstring, default/keyword arguments, and `return`.
+- ☐ Run the live cell and explain the `lambda` sort key and `.get` default.
+- ☐ Read a traceback bottom‑line first and catch a specific exception.
+- ☐ Explain copy vs alias and the mutable‑default trap.
