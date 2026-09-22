@@ -42,6 +42,7 @@
 
   /* ============ tool tiles (home) + sidebar links ============ */
   var TOOLS = [
+    { href: "#/roadmap", icon: "🧭", label: "Roadmap", desc: "Your path, zero to pro" },
     { href: "#/glossary", icon: "📖", label: "Glossary", desc: "Every term, defined" },
     { href: "#/flashcards", icon: "🃏", label: "Flashcards", desc: "Recall the key points" },
     { href: "#/review", icon: "🔁", label: "Review hub", desc: "Spaced repetition" },
@@ -49,6 +50,7 @@
     { href: "#/interview", icon: "💼", label: "Interview bank", desc: "Easy · medium · hard" },
     { href: "#/exam", icon: "🎓", label: "Readiness exam", desc: "Test yourself" },
     { href: "#/map", icon: "🗺️", label: "Concept map", desc: "The whole curriculum" },
+    { href: "#/capstones", icon: "🚀", label: "Capstones", desc: "Portfolio projects to deploy" },
     { href: "#/assistant", icon: "🤖", label: "AI assistant", desc: "Ask the course" }
   ];
   QCC.tools = TOOLS;
@@ -330,6 +332,108 @@
   /* ============ render hook: mark glossary terms in lessons ============ */
   QCC.onRender(function (root, ctx) { if (ctx && ctx.view === "lesson") markTerms(root); });
 
+  /* ============ roadmap (staged journey with live progress) ============ */
+  function viewRoadmap() {
+    var mods = COURSE.modules, p = QCC.progress();
+    var firstIncomplete = -1;
+    var rows = mods.map(function (m, i) {
+      var done = m.lessons.filter(function (l) { return p[l.id]; }).length;
+      var complete = done === m.lessons.length;
+      if (!complete && firstIncomplete < 0) firstIncomplete = i;
+      return { m: m, i: i, done: done, total: m.lessons.length, complete: complete };
+    });
+    var totalDone = rows.reduce(function (s, r) { return s + r.done; }, 0);
+    var totalAll = rows.reduce(function (s, r) { return s + r.total; }, 0);
+    var overall = totalAll ? Math.round(100 * totalDone / totalAll) : 0;
+    var html = head("Your roadmap", "The whole journey from zero to professional — one stage per module, with your live progress. Pick up wherever you left off.");
+    html += '<div class="rm-overall"><div class="mc-bar"><div class="mc-fill" style="width:' + overall + '%"></div></div>' +
+      '<span>' + overall + '% complete · ' + totalDone + ' / ' + totalAll + ' lessons</span></div>';
+    html += '<div class="roadmap">';
+    rows.forEach(function (r) {
+      var m = r.m, pct = r.total ? Math.round(100 * r.done / r.total) : 0;
+      var here = r.i === firstIncomplete;
+      var state = r.complete ? "done" : here ? "here" : "todo";
+      var next = m.lessons.filter(function (l) { return !p[l.id]; })[0] || m.lessons[0];
+      var cta = r.complete
+        ? '<a class="btn" href="#/l/' + m.lessons[0].id + '">Review ↺</a>'
+        : '<a class="btn primary" href="#/l/' + next.id + '">' + (r.done ? "Continue" : "Start") + ' →</a>';
+      html += '<div class="rm-stage ' + state + '">' +
+        '<div class="rm-marker" aria-hidden="true">' + (r.complete ? "✓" : here ? "◆" : String(r.i + 1)) + '</div>' +
+        '<div class="rm-card"><div class="rm-head"><span class="rm-ic" aria-hidden="true">' + m.icon + '</span>' +
+        '<h3>' + esc(m.title) + '</h3>' + (here ? '<span class="rm-badge">you are here</span>' : '') +
+        '<span class="rm-frac">' + r.done + '/' + r.total + '</span></div>' +
+        '<div class="rm-blurb">' + m.blurb + '</div>' +
+        '<div class="mc-bar"><div class="mc-fill" style="width:' + pct + '%"></div></div>' +
+        '<div class="rm-cta">' + cta + '</div></div></div>';
+    });
+    html += "</div>";
+    QCC.setContent(page(html), "Roadmap", { view: "roadmap" });
+  }
+
+  /* ============ capstones / portfolio ============ */
+  var CAPSTONES = [
+    {
+      icon: "🖥️", title: "Quantum Circuit Studio", tag: "An in-browser circuit builder + exact statevector simulator you deploy as a live web app.",
+      skills: ["quantum gates & measurement", "statevector simulation", "front-end JS / Canvas", "static deployment"],
+      stack: "Plain HTML/CSS/JS (or React) + a small hand-written complex-number statevector simulator. No backend.",
+      build: [
+        "Model state as a 2ⁿ array of complex amplitudes; implement single-qubit gates (H, X, Y, Z, S, T) and CNOT as array updates (you already did the math in the Circuit Builder lab).",
+        "Build a click-to-place gate grid, run the circuit, and render measurement-probability bars.",
+        "Add presets (Bell, GHZ, Grover-1) and a shareable URL that encodes the circuit."
+      ],
+      deploy: [
+        "Put the project in a public GitHub repo with an <code>index.html</code> at the root.",
+        "Repo → <b>Settings → Pages → Deploy from branch → main → / (root)</b>.",
+        "Your app is live at <code>https://&lt;you&gt;.github.io/&lt;repo&gt;/</code> — free, no server."
+      ],
+      why: "It proves you understand what a quantum computer actually does (not just Qiskit calls) and can ship a polished, self-contained tool — exactly the “build something real” signal interviewers want."
+    },
+    {
+      icon: "🧪", title: "VQE Molecular Ground-State Explorer", tag: "Compute a molecule's ground-state energy across bond lengths and plot the curve, as an interactive app.",
+      skills: ["VQE & the variational method", "quantum chemistry basics", "Qiskit / Aer", "data visualization"],
+      stack: "Python + Qiskit (Aer simulator) + Streamlit for the UI + Matplotlib/Plotly for the plot.",
+      build: [
+        "Use a small molecule (H₂, then LiH) with a minimal basis; build the qubit Hamiltonian.",
+        "Run VQE with a hardware-efficient ansatz and a classical optimizer (COBYLA/SPSA) to find the minimum energy (the Module 9 VQE lesson + the VQE lab are your blueprint).",
+        "Sweep the bond length and plot energy vs. distance — the dissociation curve — with the equilibrium point marked."
+      ],
+      deploy: [
+        "Push a repo with <code>app.py</code> and a <code>requirements.txt</code> (qiskit, qiskit-aer, streamlit, matplotlib).",
+        "Go to <b>streamlit.io/cloud</b>, connect the GitHub repo, point it at <code>app.py</code> — free hosting, public URL.",
+        "Alternative: a Hugging Face <b>Space</b> (Streamlit or Gradio SDK) deploys the same repo for free."
+      ],
+      why: "Quantum chemistry is the clearest near-term value story (Module 9). A working dissociation curve you computed yourself is a standout portfolio piece and a great interview talking point."
+    },
+    {
+      icon: "🧩", title: "QAOA Max-Cut Optimizer API", tag: "A tested web service that takes a graph, runs QAOA, and returns the best partition — quantum software engineering, end to end.",
+      skills: ["QAOA & combinatorial optimization", "API design", "testing & Git hygiene", "quantum-SWE practices"],
+      stack: "Python + Qiskit + FastAPI, with pytest tests and a clean repo (the Module 7 “quantum software engineering” lesson is the standard).",
+      build: [
+        "Implement p-layer QAOA for Max-Cut on an arbitrary input graph (the QAOA lab shows the circuit and the angle search).",
+        "Expose <code>POST /maxcut</code> that accepts a graph (nodes + edges), runs QAOA, and returns the best cut, its value, and the probability distribution.",
+        "Write pytest tests (known small graphs with known optimal cuts) and a short README with example requests."
+      ],
+      deploy: [
+        "Containerize with a minimal <code>Dockerfile</code> (or use the platform's Python buildpack).",
+        "Deploy free on a Hugging Face <b>Space</b> (Docker SDK) or <b>Render</b>'s free web-service tier; both give a public HTTPS URL.",
+        "Add a tiny front-end page (or a Swagger UI link) so reviewers can try it without curl."
+      ],
+      why: "It demonstrates the whole engineering loop — algorithm, API, tests, deployment — which is what quantum-software roles actually hire for, beyond notebook demos."
+    }
+  ];
+  function viewCapstones() {
+    var html = head("Capstone portfolio projects", "Three build-and-deploy projects that turn what you learned into interview-winning artifacts. Each is scoped to what this course taught, with free hosting.");
+    html += '<div class="capstones">' + CAPSTONES.map(function (c) {
+      return '<div class="cap-card"><div class="cap-head"><span class="cap-ic" aria-hidden="true">' + c.icon + '</span><div><h3>' + esc(c.title) + '</h3><p class="cap-tag">' + esc(c.tag) + '</p></div></div>' +
+        '<div class="cap-meta"><span class="cap-label">Skills shown</span><div class="cap-chips">' + c.skills.map(function (s) { return '<span class="cap-chip">' + esc(s) + "</span>"; }).join("") + "</div></div>" +
+        '<div class="cap-meta"><span class="cap-label">Stack</span><p>' + c.stack + "</p></div>" +
+        '<div class="cap-cols"><div class="cap-col"><span class="cap-label">Build it</span><ol>' + c.build.map(function (s) { return "<li>" + s + "</li>"; }).join("") + "</ol></div>" +
+        '<div class="cap-col"><span class="cap-label">Ship it (free)</span><ol>' + c.deploy.map(function (s) { return "<li>" + s + "</li>"; }).join("") + "</ol></div></div>" +
+        '<div class="cap-why"><b>Why it gets interviews:</b> ' + c.why + "</div></div>";
+    }).join("") + "</div>";
+    QCC.setContent(page(html), "Capstones", { view: "capstones" });
+  }
+
   /* ============ routes ============ */
   QCC.registerRoute(function (h) {
     var m;
@@ -343,6 +447,8 @@
     if (h === "#/interview") { viewInterview(null); return true; }
     if (h === "#/exam") { viewExam(); return true; }
     if (h === "#/map") { viewMap(); return true; }
+    if (h === "#/roadmap") { viewRoadmap(); return true; }
+    if (h === "#/capstones") { viewCapstones(); return true; }
     return false;
   });
 });

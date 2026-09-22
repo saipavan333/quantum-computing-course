@@ -1306,7 +1306,8 @@
     host.innerHTML =
       '<div class="widget"><div class="widget-title">Max-Cut — split the nodes to cut the most edges</div>' +
       '<canvas class="widget-canvas" width="440" height="220" aria-label="A graph whose nodes you assign to two sets, with cut edges highlighted"></canvas>' +
-      '<div class="widget-controls"><span class="widget-hint">Click a node to flip its set.</span>' +
+      '<div class="widget-controls"><span class="widget-hint">Click a node, or use the flip buttons:</span>' +
+      [0, 1, 2, 3, 4].map(function (i) { return '<button class="wbtn nflip" data-n="' + i + '" type="button" aria-label="Flip node ' + i + ' to the other set">flip ' + i + "</button>"; }).join("") +
       '<button class="wbtn" data-act="best" type="button">Show max cut</button>' +
       '<button class="wbtn reset" data-act="reset" type="button">Reset</button></div>' +
       '<div class="widget-read" aria-live="polite"></div></div>';
@@ -1336,6 +1337,7 @@
       nodes.forEach(function (p, i) { if ((mx - p[0]) * (mx - p[0]) + (my - p[1]) * (my - p[1]) < 22 * 22) { set[i] = 1 - set[i]; } });
       draw();
     });
+    host.querySelectorAll(".nflip").forEach(function (b) { b.onclick = function () { var i = +b.dataset.n; set[i] = 1 - set[i]; draw(); }; });
     host.querySelector('[data-act="best"]').onclick = function () { set = maxCut().s.slice(); draw(); };
     host.querySelector('[data-act="reset"]').onclick = function () { set = [0, 0, 0, 0, 0]; draw(); };
     draw();
@@ -1378,7 +1380,8 @@
     host.innerHTML =
       '<div class="widget"><div class="widget-title">Surface code — flip a data qubit, watch the stabilizers fire</div>' +
       '<canvas class="widget-canvas" width="440" height="240" aria-label="A surface-code lattice where flipping a data qubit lights up the neighboring stabilizers"></canvas>' +
-      '<div class="widget-controls"><span class="widget-hint">Click a circular data qubit to inject an error.</span>' +
+      '<div class="widget-controls"><span class="widget-hint">Click a data qubit, or use the flip buttons:</span>' +
+      [0, 1, 2].map(function (r) { return [0, 1, 2].map(function (c) { return '<button class="wbtn qflip" data-k="' + r + ',' + c + '" type="button" aria-label="Flip the data qubit at row ' + (r + 1) + ', column ' + (c + 1) + '">q' + (r * 3 + c + 1) + "</button>"; }).join(""); }).join("") +
       '<button class="wbtn reset" data-act="reset" type="button">Clear errors</button></div>' +
       '<div class="widget-read" aria-live="polite"></div></div>';
     var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
@@ -1413,6 +1416,7 @@
       for (var r = 0; r < D; r++) for (var c = 0; c < D; c++) { var p = dpos(r, c); if ((mx - p[0]) * (mx - p[0]) + (my - p[1]) * (my - p[1]) < 16 * 16) { var k = r + "," + c; err[k] = !err[k]; } }
       draw();
     });
+    host.querySelectorAll(".qflip").forEach(function (b) { b.onclick = function () { var k = b.dataset.k; err[k] = !err[k]; draw(); }; });
     host.querySelector('[data-act="reset"]').onclick = function () { err = {}; draw(); };
     draw();
   }
