@@ -18,7 +18,7 @@
     numbers: "numbers", algebra: "algebra", matrices: "matrices", "vector-spaces": "vectorspaces",
     dirac: "dirac", "quantum-world": "measure", "qiskit-circuits": "qiskitcirc", simulation: "shots",
     transpilation: "transpile", "real-hardware": "hardware", qaoa: "qaoa", qml: "qml",
-    "surface-code": "surface", ftqc: "threshold"
+    "surface-code": "surface", ftqc: "threshold", landscape: "landscape"
   };
 
   /* ---------- shared bar-chart helper ---------- */
@@ -1457,6 +1457,64 @@
     slide.addEventListener("input", draw); draw();
   }
 
+  /* ---------- hardware landscape: modality radar comparison ---------- */
+  function landscapeWidget(host) {
+    // axes and 0..1 scores (illustrative, consistent with the lesson's 2026 table)
+    var AXES = ["2-qubit fidelity", "Gate speed", "Coherence", "Qubit count", "Connectivity"];
+    var MOD = {
+      Superconducting: { color: "#22d3ee", s: [0.60, 1.00, 0.35, 0.60, 0.40], backer: "IBM, Google", note: "Fast gates (ns) and mature chip fab lead deployment; shorter coherence (~100–300 µs) and nearest-neighbor (heavy-hex) connectivity. 150+ qubits, 2-qubit error ~0.5–1%." },
+      "Trapped ion": { color: "#7c5cff", s: [1.00, 0.20, 1.00, 0.35, 1.00], backer: "Quantinuum, IonQ", note: "Best-in-class fidelity (2-qubit error <0.1%), seconds of coherence, all-to-all connectivity — but gates are ~1000× slower (µs) and counts stay ~50–100." },
+      "Neutral atom": { color: "#34d399", s: [0.75, 0.55, 0.90, 1.00, 0.80], backer: "QuEra, Pasqal", note: "Surging modality: 1000+ atoms via optical tweezers, reconfigurable connectivity, good coherence. Gate speed and fidelity improving fast." },
+      Photonic: { color: "#fbbf24", s: [0.45, 0.85, 0.50, 0.40, 0.90], backer: "PsiQuantum, Xanadu", note: "Photons: room-temperature and networking-native, a distinct fault-tolerant bet — but probabilistic gates and photon loss are the core challenges." }
+    };
+    var names = Object.keys(MOD);
+    host.innerHTML =
+      '<div class="widget"><div class="widget-title">The four qubit technologies — no single winner, just different shapes</div>' +
+      '<canvas class="widget-canvas" width="440" height="300" aria-label="Radar chart comparing superconducting, trapped-ion, neutral-atom, and photonic qubits across five metrics"></canvas>' +
+      '<div class="widget-controls"><button class="wbtn msel" data-m="All" type="button">All</button>' +
+      names.map(function (n) { return '<button class="wbtn msel" data-m="' + n + '" type="button">' + n + "</button>"; }).join("") +
+      '</div><div class="widget-read" aria-live="polite"></div></div>';
+    var cv = host.querySelector("canvas"), ctx = cv.getContext("2d"), read = host.querySelector(".widget-read");
+    if (!ctx) { read.textContent = "(interactive canvas unavailable in this browser)"; return; }
+    var sel = "All";
+    function setActive() { host.querySelectorAll(".msel").forEach(function (b) { b.classList.toggle("active", b.dataset.m === sel); }); }
+    function pt(cx, cy, R, i, v) { var a = -Math.PI / 2 + i / AXES.length * 2 * Math.PI; return [cx + R * v * Math.cos(a), cy + R * v * Math.sin(a)]; }
+    function draw() {
+      ctx.clearRect(0, 0, 440, 300);
+      var cx = 200, cy = 150, R = 110;
+      // grid rings + spokes
+      ctx.strokeStyle = "#232a3a"; ctx.lineWidth = 1;
+      for (var g = 1; g <= 4; g++) {
+        ctx.beginPath();
+        for (var i = 0; i <= AXES.length; i++) { var p = pt(cx, cy, R, i % AXES.length, g / 4); if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]); }
+        ctx.stroke();
+      }
+      ctx.strokeStyle = "#2b3448";
+      for (i = 0; i < AXES.length; i++) { var e = pt(cx, cy, R, i, 1); ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(e[0], e[1]); ctx.stroke(); }
+      // axis labels
+      ctx.fillStyle = "#9aa4bb"; ctx.font = "10px Segoe UI, sans-serif";
+      for (i = 0; i < AXES.length; i++) { var lp = pt(cx, cy, R + 20, i, 1); ctx.textAlign = lp[0] < cx - 10 ? "right" : lp[0] > cx + 10 ? "left" : "center"; ctx.fillText(AXES[i], lp[0], lp[1] + 3); }
+      // polygons
+      names.forEach(function (n) {
+        var m = MOD[n], on = (sel === "All" || sel === n);
+        ctx.strokeStyle = m.color; ctx.lineWidth = on ? 2.4 : 1; ctx.globalAlpha = on ? 1 : 0.18;
+        ctx.beginPath();
+        for (var i = 0; i <= AXES.length; i++) { var p = pt(cx, cy, R, i % AXES.length, m.s[i % AXES.length]); if (i === 0) ctx.moveTo(p[0], p[1]); else ctx.lineTo(p[0], p[1]); }
+        ctx.stroke();
+        if (sel === n) { ctx.globalAlpha = 0.14; ctx.fillStyle = m.color; ctx.fill(); }
+        ctx.globalAlpha = 1;
+      });
+      if (sel === "All") {
+        read.innerHTML = "Each modality carves out a different shape — none fills every axis. Superconducting spikes on <b>speed</b>, trapped ions on <b>fidelity &amp; coherence</b>, neutral atoms on <b>qubit count</b>, photonics on <b>connectivity</b>. Click one to read its trade-off; the honest interview answer is “it depends on the metric.”";
+      } else {
+        var m = MOD[sel];
+        read.innerHTML = "<b style=\"color:" + m.color + "\">" + sel + "</b> (backers: " + m.backer + ") — " + m.note;
+      }
+    }
+    host.querySelectorAll(".msel").forEach(function (b) { b.onclick = function () { sel = b.dataset.m; setActive(); draw(); }; });
+    setActive(); draw();
+  }
+
   var BUILDERS = {
     bloch: blochWidget, interference: interferenceWidget, entangle: entanglementWidget,
     twoqubit: twoQubitWidget, grover: groverWidget, qft: qftWidget, decoherence: decoherenceWidget,
@@ -1467,7 +1525,7 @@
     numbers: numbersWidget, algebra: algebraWidget, matrices: matricesWidget, vectorspaces: vectorSpacesWidget,
     dirac: diracWidget, measure: measureWidget, qiskitcirc: qiskitCircWidget, shots: shotsWidget,
     transpile: transpileWidget, hardware: hardwareWidget, qaoa: qaoaWidget, qml: qmlWidget,
-    surface: surfaceWidget, threshold: thresholdWidget
+    surface: surfaceWidget, threshold: thresholdWidget, landscape: landscapeWidget
   };
 
   /* ---------- what/why/how/where/when, one entry per widget kind ---------- */
@@ -1723,6 +1781,13 @@
       how: "Drag the physical-error slider; the gold marker's side of the dashed threshold tells you whether bigger codes (d=3,5,7) help or hurt.",
       where: "Visualizes this lesson's fault-tolerance and threshold argument.",
       when: "Return to it whenever a claim about 'below threshold' hardware comes up."
+    },
+    landscape: {
+      what: "A radar comparison of the four 2026 qubit technologies — superconducting, trapped-ion, neutral-atom, and photonic — across fidelity, gate speed, coherence, qubit count, and connectivity.",
+      why: "“Walk me through the hardware landscape” is a near-universal quantum interview question, and the literate answer is that no modality wins every axis — this widget makes that trade-off shape impossible to miss.",
+      how: "Start on “All” to see the four overlaid shapes, then click a modality to highlight it and read its specific trade-offs and backers.",
+      where: "Backs this lesson's four-modality comparison table and its “no single winner” thesis.",
+      when: "Use it to rehearse the trade-off framing before interviews, or whenever a vendor claims their qubit is simply “the best.”"
     }
   };
   function renderInfoDL(info) {
@@ -1768,7 +1833,8 @@
     qaoa: "Each node is colored by which set it is in; green edges are cut (endpoints in different sets). The readout compares your cut to the graph's best possible.",
     qml: "The two colors are two data classes and the white line is the decision boundary; drag it to separate them and watch the accuracy in the readout.",
     surface: "Circles are data qubits (gold = flipped) and squares are stabilizer checks; only checks next to an error turn red, and that red pattern is the syndrome.",
-    threshold: "Each colored curve is a code distance d; below the dashed threshold, higher d means lower logical error, so the gold marker's side tells you whether adding qubits helps."
+    threshold: "Each colored curve is a code distance d; below the dashed threshold, higher d means lower logical error, so the gold marker's side tells you whether adding qubits helps.",
+    landscape: "Each colored polygon is one qubit technology; the further a corner reaches, the stronger it is on that metric. Notice no shape fills every axis — click one to read its trade-off."
   };
 
   /* inject after the lesson body on relevant lessons */
