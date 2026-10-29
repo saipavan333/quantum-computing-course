@@ -74,3 +74,7 @@ No framework and no build tooling required to *run* it — plain HTML/CSS/JS wit
 ---
 
 *Built as a mentor-guided path: the goal was never "a correct explanation" but "could someone who worked through this do the job and defend their choices under interview questioning?" Start at Module 0 and go in order — every lesson stands on the ones before it.*
+
+## Licence
+
+© 2026 Sai Pavan UE. Free to read and share with credit, not for commercial use: [CC BY-NC 4.0](LICENSE).
