@@ -59,7 +59,7 @@ The surface code's $2d^2$ overhead is generous with qubits. The frontier is **qu
 
 ## Level up — reading the 2026 roadmaps, and one T gate's true cost
 
-Assess the players with earned skepticism. **IBM Starling** (~2029): ~200 logical qubits, ~100M gates, betting on qLDPC to cut overhead — articulated and aggressive, with the qLDPC bet the key uncertainty. **Google**: below‑threshold demonstrated (Willow), surface‑code path toward a pre‑2030 machine. **Quantinuum**: trapped‑ion, highest fidelities (>99.9%), demonstrated low‑error logical qubits — slower but cleaner. To feel the cost, trace *one* logical T on a distance‑25 qubit: ~1,250 physical qubits to store it, ~225 raw magic states distilled through ~2 rounds (each state itself encoded), inside a factory occupying thousands of qubits for many cycles — so Shor's $10^{10}$ T gates become millions of qubits running hours‑to‑days. The honest synthesis: below‑threshold is proven, small logical qubits exist, but *useful* machines (thousands of logical qubits, billions of gates) are credibly ~2029–2035+ — neither imminent nor impossible.
+Assess the players with earned skepticism. **IBM Starling** (~2029): ~200 logical qubits, ~100M gates, betting on qLDPC to cut overhead — articulated and aggressive, with the qLDPC bet the key uncertainty. **Google**: below‑threshold demonstrated (Willow), surface‑code path toward a pre‑2030 machine. **Quantinuum**: trapped‑ion Helios (98 qubits, 99.921% two‑qubit fidelity reported), demonstrated low‑error logical qubits — slower but cleaner. **Resource estimates are moving too:** RSA‑2048 went from ~20M physical qubits (2019) to under 1M (Gidney 2025), so a footprint you computed last year may already be stale. To feel the cost, trace *one* logical T on a distance‑25 qubit: ~1,250 physical qubits to store it, ~225 raw magic states distilled through ~2 rounds (each state itself encoded), inside a factory occupying thousands of qubits for many cycles — so Shor's $10^{10}$ T gates become millions of qubits running hours‑to‑days. The honest synthesis: below‑threshold is proven, small logical qubits exist, but *useful* machines (thousands of logical qubits, billions of gates) are credibly ~2029–2035+ — neither imminent nor impossible.
 
 ## Level up — gotchas the pros watch for
 
@@ -90,7 +90,7 @@ Assess the players with earned skepticism. **IBM Starling** (~2029): ~200 logica
 **Exercise 1 — the fault‑tolerant resource estimator.** Extend the live cell's `ft_footprint` to also report the wall‑clock intuition: if factories produce magic states at a fixed rate, $10^{10}$ T gates take far longer than $10^8$. Estimate footprints for a 100‑logical chemistry run ($10^8$ T) and Shor ($10^{10}$ T) at 0.1% and 0.5% error, and say what dominates.
 
 ````solution
-Using the live cell's `ft_footprint`: at 0.1% error, chemistry ≈ 106k memory / ~190k total (d=23); Shor ≈ 5.8M memory / ~10.5M total (d=27). At 0.5% error both roughly *decuple* (chemistry ~1.2M memory, Shor ~69M) because $d$ jumps as you near threshold. What dominates: the **magic‑state factories** (the +80%) and the **T‑count‑driven distance** — Shor's $10^{10}$ T gates force both a larger $d$ (each T must succeed) and enormous factory throughput, and throughput sets wall‑clock (T‑count ÷ factory rate = time, i.e. hours‑to‑days). Order‑of‑magnitude agreement with published estimates (Gidney–Ekerå put RSA‑2048 near ~20M qubits under different assumptions). Halving physical error quarters the total via $d^2$ — the fidelity lever once more.
+Using the live cell's `ft_footprint`: at 0.1% error, chemistry ≈ 106k memory / ~190k total (d=23); Shor ≈ 5.8M memory / ~10.5M total (d=27). At 0.5% error both roughly *decuple* (chemistry ~1.2M memory, Shor ~69M) because $d$ jumps as you near threshold. What dominates: the **magic‑state factories** (the +80%) and the **T‑count‑driven distance** — Shor's $10^{10}$ T gates force both a larger $d$ (each T must succeed) and enormous factory throughput, and throughput sets wall‑clock (T‑count ÷ factory rate = time, i.e. hours‑to‑days). Order‑of‑magnitude agreement with published estimates (Gidney–Ekerå 2019 put RSA‑2048 near ~20M qubits and 8 hours; Gidney 2025, arXiv:2505.15917, brought it under 1M qubits and under a week by trading time for space). Halving physical error quarters the total via $d^2$ — the fidelity lever once more.
 ````
 
 **Exercise 2 — the roadmap fact‑check.** Research one 2026 roadmap claim (IBM/Google/Quantinuum blog or paper) and write a one‑page critical assessment: demonstrated vs projected, the physical‑to‑logical translation, the key unsolved dependencies, and your calibrated timeline read — framed as a decision‑maker briefing.
@@ -118,6 +118,16 @@ A strong assessment: (1) quote the claim precisely, separating demonstrated resu
 6. "Below‑threshold is demonstrated and small logical qubits exist, but useful machines are credibly ~2029–2035+, gated by qubit overhead, distillation, and real‑time decoding — science proven, scale an engineering marathon, no honest single date."
 7. Shor RSA‑2048 → ~4000 logical qubits (Module 8) → distance ~27 (from target $10^{-15}$ over $10^{10}$ gates via below‑threshold suppression) → ~$2d^2\approx1500$ physical/logical → ~5.8M memory → + magic‑state factories for $10^{10}$ T gates (~80–100%) → ~10–20M total → hours‑to‑days wall‑clock (T‑count ÷ factory throughput) → with a decoder beating the ~1 μs cycle across all qubits. Biggest levers: physical error rate (quadratic on qubit count — PHYSICS: materials/control), T‑count reduction (ENGINEERING/math: compilers), code efficiency (qLDPC vs surface — ENGINEERING), distillation efficiency (ENGINEERING). Progress needs both better hardware and better software — which is why the field employs both physicists and computer scientists.
 ````
+
+## Sources
+
+Checked 3 November 2026. Roadmap items are company *targets*, not results.
+
+- IBM Quantum roadmap, 2026 milestones (Nighthawk, Loon, Kookaburra; Starling by 2029), page updated March 2026: https://www.ibm.com/roadmaps/quantum/2026
+- Google Quantum AI, "Quantum error correction below the surface code threshold", *Nature* 638, 920–926 (2025), arXiv:2408.13687 (distance 3→5→7, suppression factor Λ = 2.14)
+- Quantinuum, "Introducing Helios" (5 Nov 2025; 98 barium-ion qubits, 99.921% two-qubit fidelity, 48 error-corrected logical qubits claimed): https://quantinuum.com/blog/introducing-helios-the-most-accurate-quantum-computer-in-the-world
+- C. Gidney, "How to factor 2048 bit RSA integers with less than a million noisy qubits", arXiv:2505.15917 (May 2025): under 1M qubits, under a week, 0.1% gate error, 1 μs cycle
+- C. Gidney and M. Ekerå, "How to factor 2048 bit RSA integers in 8 hours using 20 million noisy qubits", *Quantum* 5, 433 (2021), arXiv:1905.09749
 
 ## Mastery checklist — you are ready to move on when you can
 

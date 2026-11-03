@@ -94,8 +94,10 @@ The quantum contribution was *one number* (the period $6$). Everything else — 
 | Logical qubits | ~4,000–6,000 | ~$2n$ system + counting + arithmetic ancillas |
 | Toffoli/T gates | ~$10^9$–$10^{10}$ | modular exponentiation dominates |
 | Circuit depth | ~$10^9$+ | sequential modular arithmetic |
-| **Physical qubits (fault-tolerant)** | **~1–20 million** | logical × surface-code overhead (Module 10) |
-| Runtime estimate | hours to days | on a machine that does not yet exist |
+| **Physical qubits (fault-tolerant)** | **under 1 million (2025) to ~20 million (2019)** | Gidney 2025 (arXiv:2505.15917) vs Gidney–Ekerå 2019; both assume 0.1% gate error, 1 μs cycle |
+| Runtime estimate | ~8 hours (2019, 20M qubits) to under a week (2025, <1M qubits) | on a machine that does not yet exist |
+
+The 2025 estimate is the one to quote today. Gidney cut the qubit count about 20× by trading time for space: approximate residue arithmetic (fewer logical qubits), "yoked" surface codes for idle qubits, and magic-state cultivation instead of big distillation factories. The *logical-qubit* row above is the older textbook layout; the 2025 design uses fewer. The lesson for you: resource estimates move, and they mostly move down. Re-check them before you brief anyone.
 
 2026 reality: the largest numbers factored by *pure* Shor on real hardware are tiny (15, 21, and contested larger cases riddled with shortcuts). The gap to RSA-2048 is ~six orders of magnitude in qubit count and needs fault tolerance (Module 10) not yet demonstrated at scale. The honest timeline: **cryptographically relevant Shor is likely 2035–2040+, not imminent** — but "harvest now, decrypt later" (adversaries storing encrypted traffic to crack later) makes migration urgent *today*, which is why NIST finalized post-quantum standards (ML-KEM, ML-DSA — lattice-based, Shor-resistant). Holding both truths — *not soon* AND *migrate now* — marks someone who actually understands the threat model.
 
@@ -117,7 +119,7 @@ A bank's security chief asks: *"Do we need to panic about Shor?"* The five-sente
 - Shor = classical reduction (factoring → period-finding) + quantum period-finding (QPE on $U_a: \ket y \to \ket{ay \bmod N}$) + classical cleanup (continued fractions, gcd). Quantum does ONE job.
 - The period lives in $U_a$'s eigenphases (multiples of $1/r$); feed $\ket1$ (no eigenstate prep), implement controlled powers via classically-precomputed repeated squaring (never loop $2^k$ multiplies).
 - Continued fractions recover $r$ from the noisy phase; retries handle odd/degenerate periods — Shor is probabilistic, $O(1)$ expected repetitions.
-- Modular exponentiation is ~90% of the circuit; the QFT is cheap. RSA-2048: ~few thousand logical / ~millions physical qubits, ~$10^9$–$10^{10}$ Toffolis — a machine ~2035+.
+- Modular exponentiation is ~90% of the circuit; the QFT is cheap. RSA-2048: about a million physical qubits for under a week (Gidney 2025), down from ~20 million for 8 hours (2019) — still far beyond any 2026 machine: the largest have hundreds to a few thousand physical qubits, without full error correction.
 - Threat model: Shor exponentially breaks public-key (migrate to NIST post-quantum now, for harvest-now-decrypt-later); Grover only quadratically dents symmetric (bigger keys).
 - "Explain Shor" = the assembly narrative (reduction → QPE → cleanup) + the honest timeline + the logical-vs-physical distinction.
 
@@ -182,6 +184,14 @@ RSA-2048 lands at ~4,000 logical / ~6 million physical qubits and $10^7$–$10^9
 6. Small-$N$ demos typically compile using foreknowledge of the answer or special structure, and omit fault-tolerant overhead; they don't scale to 2048-bit $N$ (millions of physical qubits). "Does it scale without knowing the answer?" is the filter.
 7. Classify each asset by (crypto type × key size × secrecy-lifetime). URGENT: public-key protecting data whose secrecy must outlast ~2035 minus migration time (harvest-now-decrypt-later starts the clock now); prioritize by (secrecy-lifetime − years-to-CRQC + migration-effort). SAFE-ish: symmetric ≥ 256-bit; short-lived secrets. Compute a risk score = P(exposed before secrecy expires) from a *distribution* over CRQC-arrival (with uncertainty bands, not a point estimate), and output "migrate now / plan / monitor" tiers. The honest deliverable is a hedged decision, not false precision — this is a real product category (post-quantum readiness assessment).
 ````
+
+## Sources
+
+Checked 3 November 2026. Roadmap items are company *targets*, not results.
+
+- C. Gidney, "How to factor 2048 bit RSA integers with less than a million noisy qubits", arXiv:2505.15917 (May 2025): under 1M qubits, under a week, 0.1% gate error, 1 μs cycle
+- C. Gidney and M. Ekerå, "How to factor 2048 bit RSA integers in 8 hours using 20 million noisy qubits", *Quantum* 5, 433 (2021), arXiv:1905.09749
+- NIST FIPS 203 (ML-KEM) and FIPS 204 (ML-DSA), August 2024: https://csrc.nist.gov/pubs/fips/203/final
 
 ## Mastery checklist — you are ready to move on when you can
 

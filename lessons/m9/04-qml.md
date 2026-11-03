@@ -66,6 +66,23 @@ That matrix is exactly what you'd hand to a classical SVM (`kernel="precomputed"
 - **Classical competition.** Deep learning is staggeringly effective and mature. QML must beat the *best* classical models on the same task — and hasn't, on natural data. Several proposed quantum-ML speedups were even "de-quantized" (matched by classical algorithms).
 - **No clear advantage on real data.** The provable QML advantages are on contrived datasets engineered to favor quantum methods. On images, tabular data, or language, classical wins decisively.
 
+## Real vs hype — what the evidence actually says
+
+Every line below is a published, peer-reviewed or widely cited result. Read the claims at the strength the papers make them, no stronger.
+
+| Claim you will hear | What the evidence says | Source |
+|---|---|---|
+| "Quantum ML gives exponential speedups for recommendation systems / linear algebra on classical data." | Several of these were **dequantized**: a classical algorithm with the same sampling access matches them up to polynomial factors. | Tang, STOC 2019 (arXiv:1807.04271) |
+| "Just train a bigger quantum neural network." | For many random parameterized circuits, gradients vanish **exponentially** with qubit count (barren plateaus). | McClean et al., *Nat. Commun.* 9, 4812 (2018) |
+| "Then design circuits with no barren plateau." | Circuits that provably avoid barren plateaus often turn out to be **classically simulable**, so the fix can remove the quantum edge. | Cerezo et al., *Nat. Commun.* 16, 7907 (2025), arXiv:2312.09121 |
+| "Quantum classifiers beat classical ones on benchmarks." | A large benchmark (12 quantum models, 160 datasets) found standard classical models **generally won**, and removing entanglement often did not hurt the quantum models. | Bowles, Ahmed, Schuld (2024), arXiv:2403.07059 |
+| "There is no provable QML advantage at all." | Wrong too. There is a **rigorous** speedup for a quantum-kernel classifier, on a dataset built from the discrete-log problem, assuming a fault-tolerant machine. Real, but contrived. | Liu, Arunachalam, Temme, *Nat. Phys.* (2021), doi:10.1038/s41567-021-01287-z, arXiv:2010.02174 |
+| "QML is useless." | Learning from **quantum data** (states coming out of a quantum experiment) can need exponentially fewer experiments, shown on up to 40 superconducting qubits. This is the strongest current case. | Huang et al., *Science* 376, 1182 (2022), arXiv:2112.00778 |
+
+**The calibrated one-liner (2026):** QML on classical data has no demonstrated practical advantage; provable advantages exist on engineered problems or on quantum data; and the main obstacles (data loading, barren plateaus, strong classical baselines) are known and studied, not solved.
+
+> **School-kid version of the evidence:** a new kind of sorting hat has been invented. On a few puzzles that were *designed* for it, it is provably faster. On ordinary school tests, the old hats still score better. Where the new hat clearly shines is sorting things that came from another magic hat.
+
 ## Level up — a quantum kernel that "works" (and what that means)
 
 Build a quantum-kernel SVM on a small dataset and it will classify above chance. But a classical RBF kernel typically matches or beats it on natural data, and runs in microseconds versus the quantum kernel's $O(\text{samples}^2)$ overlap evaluations. "It works" and "it's advantageous" are entirely different claims, and the control experiment — a classical baseline on identical data — is what separates them. Every QML result needs that control; its absence is the tell of hype. The genuinely interesting demos are the rare cases where a quantum kernel beats *all* classical kernels on a dataset with the right structure (e.g. an XOR/parity rule matching a $ZZ$-entangling feature map) — and even those are mostly engineered rather than natural.
@@ -147,6 +164,17 @@ At large $n$, gradients are exponentially close to zero *everywhere* — the opt
 6. QML must beat mature classical ML, not chance; without the classical score on identical data (usually higher), the number can't establish advantage.
 7. Ask: (a) data loading — cost per sample? (skeptical if hand-waved/$O(N)$); (b) baseline — head-to-head vs the client's XGBoost? (skeptical if absent); (c) barren plateaus — does training stall as it scales? (skeptical if deep generic ansätze); (d) hardware — NISQ-runnable or needs fault tolerance? (skeptical if nonexistent hardware); (e) framing — demonstrated advantage or research prototype? The meta-answer: honest hedged claims *increase* credibility; confident advantage claims on classical data *decrease* it — the inverse of naive due diligence.
 ````
+
+## Sources
+
+Checked 3 November 2026. Roadmap items are company *targets*, not results.
+
+- E. Tang, "A quantum-inspired classical algorithm for recommendation systems", STOC 2019, arXiv:1807.04271
+- J. McClean et al., "Barren plateaus in quantum neural network training landscapes", *Nat. Commun.* 9, 4812 (2018), arXiv:1803.11173
+- M. Cerezo et al., "Does provable absence of barren plateaus imply classical simulability?", *Nat. Commun.* 16, 7907 (2025), arXiv:2312.09121
+- J. Bowles, S. Ahmed, M. Schuld, "Better than classical? The subtle art of benchmarking quantum machine learning models" (2024), arXiv:2403.07059
+- Y. Liu, S. Arunachalam, K. Temme, "A rigorous and robust quantum speed-up in supervised machine learning", *Nat. Phys.* (2021), doi:10.1038/s41567-021-01287-z, arXiv:2010.02174
+- H.-Y. Huang et al., "Quantum advantage in learning from experiments", *Science* 376, 1182–1186 (2022), arXiv:2112.00778
 
 ## Mastery checklist — you are ready to move on when you can
 

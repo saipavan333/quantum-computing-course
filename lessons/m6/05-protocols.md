@@ -50,7 +50,7 @@ rho2 = np.einsum('abc,dbc->ad', sv, sv.conj())      # trace out q0, q1 -> Bob's 
 q2  = [round(float(np.real(np.trace(rho2 @ M))), 3) for M in (X, Y, Z)]
 inp = [round(np.sin(theta), 3), 0.0, round(np.cos(theta), 3)]
 print("teleported qubit 2 Bloch:", q2)
-print("original input     Bloch:", inp)
+print("original input     Bloch:", [round(float(v), 3) for v in inp])
 print("match (fidelity 1)      :", np.allclose(q2, inp, atol=1e-6))
 ```
 

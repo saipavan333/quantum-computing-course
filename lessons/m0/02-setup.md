@@ -12,7 +12,7 @@ One mental model makes this whole lesson calm. **You're stacking five things in 
 
 ## 1. Install Python 3.12
 
-Python is the language of quantum software (Module 4 teaches it from zero). Qiskit 2.x requires Python 3.10 or newer; install **3.12** — new enough for everything, old enough that every library supports it.
+Python is the language of quantum software (Module 4 teaches it from zero). Qiskit 2.x requires Python 3.10 or newer (the latest release on 3 Nov 2026 is **2.6.1**, from 22 Oct 2026, per PyPI); install **3.12** — new enough for everything, old enough that every library supports it.
 
 **Windows** (your platform, if you're following on the machine this course lives on):
 
@@ -241,6 +241,13 @@ Typical output includes machines like `ibm_kingston` (156 qubits, Heron r2) and 
 6. Ctrl+Shift+P → "Python: Select Interpreter" → choose the project's `.venv` interpreter.
 7. Strong answers order by dependency and verify each layer, e.g.: (1) install Python 3.12 + PATH box → `python --version`; (2) install VS Code + Python/Jupyter extensions → extensions listed; (3) `mkdir quantum-work; python -m venv .venv; activate` → `(.venv)` prefix; (4) `pip install qiskit[...] etc.` → import-version check; (5) Jupyter smoke test → `2+2`; (6) IBM account + `save_account` → backend list. Bonus points for including the PowerShell execution-policy fix and "Select Interpreter" as pre-listed remedies — a checklist that anticipates the two most common failures is a professional's checklist.
 ````
+
+## Sources
+
+Checked 3 November 2026. Roadmap items are company *targets*, not results.
+
+- Qiskit on PyPI (release history; 2.6.1 released 22 Oct 2026, requires Python ≥ 3.10): https://pypi.org/project/qiskit/
+- IBM Quantum plans overview (Open Plan: up to 10 minutes per 28-day rolling window): https://quantum.cloud.ibm.com/docs/en/guides/plans-overview
 
 ## Mastery checklist — you are ready to move on when you can
 

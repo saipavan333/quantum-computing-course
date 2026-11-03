@@ -14,7 +14,7 @@ Different physical systems can be qubits, each with distinct strengths. The four
 
 **Superconducting** (IBM, Google, Rigetti). Tiny superconducting circuits at ~15 mK. Fast gates (~10–100 ns), mature fabrication (leverages chip industry), but shorter coherence (~100–300 μs) and nearest-neighbor connectivity (heavy-hex). The most-deployed technology; IBM's 156-qubit Herons and Google's Willow are superconducting. Two-qubit errors ~0.5–1%.
 
-**Trapped ions** (Quantinuum, IonQ). Individual ions held in electromagnetic traps, manipulated by lasers. Highest fidelities (2-qubit errors <0.1%, best in class), long coherence (seconds), and all-to-all connectivity within a trap — but slow gates (~10–100 μs, 1000× slower than superconducting) and harder to scale qubit count. Quantinuum's H-series leads on quality metrics.
+**Trapped ions** (Quantinuum, IonQ). Individual ions held in electromagnetic traps, manipulated by lasers. Highest fidelities (2-qubit errors <0.1%, best in class), long coherence (seconds), and all-to-all connectivity within a trap — but slow gates (~10–100 μs, 1000× slower than superconducting) and harder to scale qubit count. Quantinuum's Helios (98 qubits, launched November 2025, 99.921% average two-qubit fidelity reported) leads on quality metrics.
 
 **Neutral atoms** (QuERA, Pasqal, Atom Computing). Atoms trapped by optical tweezers, excited to Rydberg states for interactions. Rapidly rising: large qubit counts (1000+ demonstrated), reconfigurable connectivity, good coherence — a serious contender that surged in 2024–2026. Gate speeds and fidelities improving fast.
 
@@ -154,6 +154,15 @@ Why this specific artifact is valuable: it directly demonstrates the single most
 6. Count without fidelity is nearly meaningless — a large count of poor qubits can't error-correct (Module 10's threshold), so below-threshold operation and fidelity matter more than raw numbers; headlines emphasizing count often omit the fidelity that would contextualize it.
 7. Model dashboard: TRACK — per-company latest verified specs (qubit count, 2q fidelity, below-threshold status), roadmap milestones with dates and demonstrated-vs-projected flags, key papers (with the one-line "what's actually new"), and funding/market events. SIGNAL VS NOISE — weight demonstrated results (papers) over announcements, track fidelity/below-threshold over raw counts, note when claims survive scrutiny (the filter), and flag repeated-vs-new claims. PORTFOLIO/NETWORKING VALUE — make it public (a maintained page/newsletter), add your own brief assessment to each entry (your voice, your judgment — the credibility artifact), and it becomes both a reason to reach out to people ("I track the field, here's my take on your announcement") and evidence of engaged expertise. What makes it USEFUL not a link-list: the *assessment layer* — your calibrated one-line verdict on each item, applying the filter, so it's a curated-with-judgment view rather than aggregation. That judgment is the value-add, the same way this entire course's payoff is judgment over rote knowledge. A dashboard that shows you can separate signal from noise, maintained over time, is a standing demonstration of exactly the expertise quantum employers struggle to find — and it grows more valuable the longer you keep it.
 ````
+
+## Sources
+
+Checked 3 November 2026. Roadmap items are company *targets*, not results.
+
+- IBM Quantum roadmap, 2026 milestones (Nighthawk, Loon, Kookaburra; Starling by 2029), page updated March 2026: https://www.ibm.com/roadmaps/quantum/2026
+- Google Quantum AI, "Quantum error correction below the surface code threshold", *Nature* 638, 920–926 (2025), arXiv:2408.13687 (distance 3→5→7, suppression factor Λ = 2.14)
+- Quantinuum, "Introducing Helios" (5 Nov 2025; 98 barium-ion qubits, 99.921% two-qubit fidelity, 48 error-corrected logical qubits claimed): https://quantinuum.com/blog/introducing-helios-the-most-accurate-quantum-computer-in-the-world
+- Quantinuum IPO pricing (3 June 2026, 60 USD/share, about 1.68B USD raised): https://www.iposcoop.com/the-ipo-buzz-quantinuum-priced-upsized-ipo-at-60-5-above-range/ and Quantum Computing Report: https://quantumcomputingreport.com/quantinuum-completes-its-ipo-at-an-upscale-price-and-number-of-shares/
 
 ## Mastery checklist — you are ready to move on when you can
 

@@ -49,9 +49,11 @@ Three problem families drive the investment:
 
 You're joining at a genuinely interesting moment — the **NISQ era** (Noisy Intermediate-Scale Quantum) transitioning toward early fault tolerance:
 
-- IBM offers free public access to 156-qubit Heron processors; its roadmap targets **Starling**, a fault-tolerant machine with 200 *logical* qubits running 100 million gates, by 2029.
-- Google's Willow chip demonstrated **below-threshold error correction** — adding qubits now *reduces* logical error rates, the key milestone for scaling.
-- Quantinuum's trapped-ion machines hold record fidelities (two-qubit gates above 99.9%) and demonstrated 12 logical qubits; the company went public on Nasdaq in June 2026 (ticker QNT), raising about 1.68 billion USD at a valuation near 15.6 billion USD — a marker of how much capital is flowing into the field.
+*(Status checked 3 November 2026; sources at the end of this lesson.)*
+
+- IBM offers free public access to 156-qubit Heron processors and, since November 2025, the 120-qubit **Nighthawk** (square lattice, aimed at 7,500-gate circuits in 2026). Its roadmap's 2026 goals are first examples of quantum advantage and a first fault-tolerant module (**Kookaburra**); **Starling**, a fault-tolerant machine with 200 *logical* qubits running 100 million gates, is targeted for 2029. None of the 2026 goals is marked achieved on IBM's roadmap page yet.
+- Google's Willow chip (105 qubits) demonstrated **below-threshold error correction** in December 2024: adding qubits now *reduces* logical error rates, the key milestone for scaling. In October 2025 Google reported a "verifiable quantum advantage" on Willow (the Quantum Echoes experiment, published in *Nature*): about 13,000× faster than its best classical estimate on one physics measurement. That is a scientific task, not a commercial one.
+- Quantinuum's **Helios** (launched November 2025, 98 trapped-ion qubits) reports 99.921% average two-qubit gate fidelity, among the best published for a commercial machine. Its logical-qubit headlines mix error-*detected* (94) and error-*corrected* (48) results, so read them carefully. The company went public on Nasdaq in June 2026 (ticker QNT), raising about 1.68 billion USD at a valuation near 15.6 billion USD, a marker of how much capital is flowing into the field.
 - Nobody has yet demonstrated a commercially valuable problem solved better by a quantum computer than by classical methods. Anyone who tells you otherwise is selling something.
 
 That last point is not discouraging — it's *why there are jobs*. The industry is hiring people to close that gap.
@@ -169,6 +171,16 @@ There's no single right answer, but strong contracts share these properties:
 6. Google's Willow chip demonstrated below-threshold surface-code operation: enlarging the code *reduced* logical error rates — the precondition for scaling to fault tolerance.
 7. A strong plan: weeks 1–2 M0+M1, 3–4 M2, 5 M3, 6–7 M4, 8–9 M5, 10–11 M6, 12–13 M7, 14 M8 (first half), 15 buffer, 16 M8 finish — deliberately deferring M9–M11 to a "season 2" rather than rushing. The right module to let slip is a *later* one (e.g., QML in M9), never a foundation: everything compounds on M1–M5. Justification matters more than the exact layout: foundations are load-bearing; applications can be re-sequenced.
 ````
+
+## Sources
+
+Checked 3 November 2026. Roadmap items are company *targets*, not results.
+
+- IBM Quantum roadmap, 2026 milestones (Nighthawk, Loon, Kookaburra; Starling by 2029), page updated March 2026: https://www.ibm.com/roadmaps/quantum/2026
+- Google Quantum AI, "Quantum error correction below the surface code threshold", *Nature* 638, 920–926 (2025), arXiv:2408.13687 (distance 3→5→7, suppression factor Λ = 2.14)
+- Google Research, "A verifiable quantum advantage" (Quantum Echoes on Willow, Oct 2025): https://research.google/blog/a-verifiable-quantum-advantage/
+- Quantinuum, "Introducing Helios" (5 Nov 2025; 98 barium-ion qubits, 99.921% two-qubit fidelity, 48 error-corrected logical qubits claimed): https://quantinuum.com/blog/introducing-helios-the-most-accurate-quantum-computer-in-the-world
+- Quantinuum IPO pricing (3 June 2026, 60 USD/share, about 1.68B USD raised): https://www.iposcoop.com/the-ipo-buzz-quantinuum-priced-upsized-ipo-at-60-5-above-range/ and Quantum Computing Report: https://quantumcomputingreport.com/quantinuum-completes-its-ipo-at-an-upscale-price-and-number-of-shares/
 
 ## Mastery checklist — you are ready to move on when you can
 

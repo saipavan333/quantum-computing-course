@@ -57,7 +57,7 @@ Turning lit defects into a correction is the **decoding** problem, and it runs l
 
 ## Level up — reading roadmaps and sizing Shor
 
-Now the headlines decode themselves. "1000 physical qubits" ÷ hundreds‑to‑thousands per logical ≈ a *handful* of logical qubits at best. "Below threshold" (Willow) means growing $d$ finally *reduces* logical error — the precondition for scaling, achieved, still far from scale. "Fault‑tolerant by 2029" (IBM Starling) targets ~200 logical qubits and needs the overhead arithmetic to become manufacturable. The Shor sizing from the live cell — $4000\times2(27)^2\approx5.8$M physical, doubled by distillation to ~10M — matches Module 8's sober table, and its levers are explicit: better fidelity → smaller $d$ → quadratically fewer qubits. Converting "physical qubit" headlines into "logical qubit" reality *is* the literacy that makes you useful in strategy and investment conversations.
+Now the headlines decode themselves. "1000 physical qubits" ÷ hundreds‑to‑thousands per logical ≈ a *handful* of logical qubits at best. "Below threshold" (Willow) means growing $d$ finally *reduces* logical error — the precondition for scaling, achieved, still far from scale. "Fault‑tolerant by 2029" (IBM Starling) targets ~200 logical qubits and needs the overhead arithmetic to become manufacturable. The Shor sizing from the live cell — $4000\times2(27)^2\approx5.8$M physical, doubled by distillation to ~10M — is the *textbook* layout. The best published estimate (Gidney 2025, arXiv:2505.15917) brings RSA-2048 under **1 million** noisy qubits, at the same 0.1% error, by storing idle qubits in denser "yoked" surface codes and replacing big distillation factories with magic-state cultivation. Your simple formula overcounts, and knowing *why* it overcounts is the senior-level point. Its levers are explicit: better fidelity → smaller $d$ → quadratically fewer qubits. Converting "physical qubit" headlines into "logical qubit" reality *is* the literacy that makes you useful in strategy and investment conversations.
 
 ## Level up — gotchas the pros watch for
 
@@ -139,6 +139,15 @@ Below the crossing, $d=5$ beats $d=3$ (bigger code = better — exponential supp
 6. It means growing $d$ now *reduces* logical error — the precondition for scaling; without it, more qubits don't help. It turns "more qubits" into "better qubits."
 7. A (0.3%, slow) sits well below threshold → small $d$ (~11) → ~240 physical/logical and a relaxed 10 μs decoder deadline, but a slow logical clock. B (0.8%, fast) is near threshold → large $d$ → thousands per logical and a sub‑0.1 μs decoder deadline (brutal). Bet **A**: near‑threshold operation risks being un‑buildable at scale (overhead diverges) and imposes an unsolved decoder‑latency problem; solidly below threshold beats gate speed when the goal is *reaching* fault tolerance. Demand: B's true threshold under real noise, both technologies' *scaling* fidelity, achievable decoder latency, and connectivity/yield at scale.
 ````
+
+## Sources
+
+Checked 3 November 2026. Roadmap items are company *targets*, not results.
+
+- Google Quantum AI, "Quantum error correction below the surface code threshold", *Nature* 638, 920–926 (2025), arXiv:2408.13687 (distance 3→5→7, suppression factor Λ = 2.14)
+- C. Gidney, "How to factor 2048 bit RSA integers with less than a million noisy qubits", arXiv:2505.15917 (May 2025): under 1M qubits, under a week, 0.1% gate error, 1 μs cycle
+- C. Gidney and M. Ekerå, "How to factor 2048 bit RSA integers in 8 hours using 20 million noisy qubits", *Quantum* 5, 433 (2021), arXiv:1905.09749
+- IBM Quantum roadmap, 2026 milestones (Nighthawk, Loon, Kookaburra; Starling by 2029), page updated March 2026: https://www.ibm.com/roadmaps/quantum/2026
 
 ## Mastery checklist — you are ready to move on when you can
 
