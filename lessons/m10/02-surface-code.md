@@ -149,7 +149,8 @@ Checked 3 November 2026. Roadmap items are company *targets*, not results.
 - Google Quantum AI, "Quantum error correction below the surface code threshold", *Nature* 638, 920–926 (2025), arXiv:2408.13687 (distance 3→5→7, suppression factor Λ = 2.14)
 - C. Gidney, "How to factor 2048 bit RSA integers with less than a million noisy qubits", arXiv:2505.15917 (May 2025): under 1M qubits, under a week, 0.1% gate error, 1 μs cycle
 - C. Gidney and M. Ekerå, "How to factor 2048 bit RSA integers in 8 hours using 20 million noisy qubits", *Quantum* 5, 433 (2021), arXiv:1905.09749
-- IBM Quantum roadmap, 2026 milestones (Nighthawk, Loon, Kookaburra; Starling by 2029), page updated March 2026: https://www.ibm.com/roadmaps/quantum/2026
+- IBM Quantum roadmap, 2026 milestones (Nighthawk, Loon, Kookaburra), page updated March 2026: https://www.ibm.com/roadmaps/quantum/2026
+- IBM Quantum roadmap overview, Starling "planned for 2029" to "run 100 million quantum gates on 200 logical qubits" (announced June 2025): https://www.ibm.com/quantum-computing/roadmap
 
 ## Mastery checklist — you are ready to move on when you can
 

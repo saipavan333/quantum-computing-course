@@ -14,9 +14,9 @@ Carry one reflex: **invert the hype ranking.** The least flashy headline — "be
 
 Different physical systems can be qubits, each with distinct strengths. The four leading modalities in 2026:
 
-**Superconducting** (IBM, Google, Rigetti). Tiny superconducting circuits at ~15 mK. Fast gates (~10–100 ns), mature fabrication (leverages chip industry), but shorter coherence (~100–300 μs) and nearest-neighbor connectivity (heavy-hex). The most-deployed technology; IBM's 156-qubit Herons and Google's Willow are superconducting. Two-qubit errors ~0.5–1%.
+**Superconducting** (IBM, Google, Rigetti). Tiny superconducting circuits at ~15 mK. Fast gates (~10–100 ns), mature fabrication (leverages chip industry), but shorter coherence (~100–300 μs) and nearest-neighbor connectivity (heavy-hex on IBM Heron, square grid on IBM Nighthawk and Google Willow). The most-deployed technology; IBM's 156-qubit Herons and Google's Willow are superconducting. Two-qubit errors are now ~0.2–0.5% on leading chips: IBM's ibm_kingston (Heron r2) shows a median two-qubit error near 2×10⁻³ on IBM's live device table, and Google's Willow spec sheet lists a 0.33% mean CZ error.
 
-**Trapped ions** (Quantinuum, IonQ). Individual ions held in electromagnetic traps, manipulated by lasers. Highest fidelities (2-qubit errors <0.1%, best in class), long coherence (seconds), and all-to-all connectivity within a trap — but slow gates (~10–100 μs, 1000× slower than superconducting) and harder to scale qubit count. Quantinuum's Helios (98 qubits, launched November 2025, 99.921% average two-qubit fidelity reported) leads on quality metrics.
+**Trapped ions** (Quantinuum, IonQ). Individual ions held in electromagnetic traps, manipulated by lasers. Highest fidelities (2-qubit errors <0.1%, best in class), long coherence (seconds), and all-to-all connectivity within a trap — but slow gates (~10–100 μs, 1000× slower than superconducting) and harder to scale qubit count. Quantinuum's Helios (98 qubits, launched November 2025, 99.921% average two-qubit fidelity reported) is among the leaders on quality metrics. IonQ has also claimed 99.99% on a test chip (October 2025), so expect competing claims and compare like with like.
 
 **Neutral atoms** (QuERA, Pasqal, Atom Computing). Atoms trapped by optical tweezers, excited to Rydberg states for interactions. Rapidly rising: large qubit counts (1000+ demonstrated), reconfigurable connectivity, good coherence — a serious contender that surged in 2024–2026. Gate speeds and fidelities improving fast.
 
@@ -28,7 +28,7 @@ Different physical systems can be qubits, each with distinct strengths. The four
 
 | Metric | Superconducting | Trapped ion | Neutral atom | Photonic |
 |---|---|---|---|---|
-| 2-qubit fidelity | ~99.0–99.5% | **>99.9%** | ~99.5% | improving |
+| 2-qubit fidelity | ~99.5–99.8% | **>99.9%** | ~99.5% | improving |
 | Gate speed | **fast (ns)** | slow (μs) | medium | fast |
 | Coherence | ~100–300 μs | **seconds** | ~seconds | N/A (flying) |
 | Connectivity | nearest-neighbor | **all-to-all** | reconfigurable | networked |
@@ -161,9 +161,12 @@ Why this specific artifact is valuable: it directly demonstrates the single most
 
 Checked 3 November 2026. Roadmap items are company *targets*, not results.
 
-- IBM Quantum roadmap, 2026 milestones (Nighthawk, Loon, Kookaburra; Starling by 2029), page updated March 2026: https://www.ibm.com/roadmaps/quantum/2026
+- IBM Quantum roadmap, 2026 milestones (Nighthawk, Loon, Kookaburra), page updated March 2026: https://www.ibm.com/roadmaps/quantum/2026
+- IBM Quantum roadmap overview, Starling "planned for 2029" to "run 100 million quantum gates on 200 logical qubits" (announced June 2025): https://www.ibm.com/quantum-computing/roadmap
 - Google Quantum AI, "Quantum error correction below the surface code threshold", *Nature* 638, 920–926 (2025), arXiv:2408.13687 (distance 3→5→7, suppression factor Λ = 2.14)
 - Quantinuum, "Introducing Helios" (5 Nov 2025; 98 barium-ion qubits, 99.921% two-qubit fidelity, 48 error-corrected logical qubits claimed): https://quantinuum.com/blog/introducing-helios-the-most-accurate-quantum-computer-in-the-world
+- IBM Quantum compute resources table (ibm_kingston median 2Q error; live, values change): https://quantum.cloud.ibm.com/computers?view=table
+- Google Quantum AI, Willow spec sheet (Dec 2024; 0.33% mean simultaneous CZ error, QEC chip): https://quantumai.google/static/site-assets/downloads/willow-spec-sheet.pdf
 - Quantinuum IPO pricing (3 June 2026, 60 USD/share, about 1.68B USD raised): https://www.iposcoop.com/the-ipo-buzz-quantinuum-priced-upsized-ipo-at-60-5-above-range/ and Quantum Computing Report: https://quantumcomputingreport.com/quantinuum-completes-its-ipo-at-an-upscale-price-and-number-of-shares/
 
 ## Mastery checklist — you are ready to move on when you can

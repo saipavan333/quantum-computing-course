@@ -6,9 +6,9 @@ You now understand how to *store* a logical qubit (surface code). But storing is
 
 Three ideas finish the course. **Fault tolerance means protecting the protection:** a single physical fault *anywhere* — data, ancilla, gate, or even the error‑correction circuitry itself — must not cause a logical error, which is harder than just storing qubits because gates can *spread* one error into many. **Cheap gates can't be universal:** the "transversal" gates that don't spread errors (the Cliffords) are, by the Eastin–Knill theorem, never a universal set — and Cliffords alone are classically simulable, so they give no advantage. **So the cost of quantum computing lives in one gate:** the non‑Clifford **T gate**, which isn't transversal and must be built from expensive, distilled **magic states** — making *T‑count* the true currency of fault‑tolerant computing.
 
-Carry one synthesis: **the science is proven, the scale is an engineering marathon.** Below‑threshold correction is demonstrated and small logical qubits exist, but useful machines need millions of physical qubits — and anyone giving you a confident single date is selling something.
+Carry one synthesis: **the science is proven, the scale is an engineering marathon.** Below‑threshold correction is demonstrated and small logical qubits exist, but useful machines need roughly a million or more physical qubits — and anyone giving you a confident single date is selling something.
 
-> **School-kid analogy.** An assembly line where every tool can break, so every tool is checked by other tools. One tool (the T gate) is so delicate that it needs its own small factory just to make good parts for it (magic states).
+> **School-kid analogy.** An assembly line where every tool can break, so every tool is checked by other tools. One tool (the T gate) can't be built from the line's safe, self-checking parts at all, so a side factory makes special "magic" parts for it (magic states), and that factory is the expensive bit.
 
 ## What fault tolerance demands, and transversal gates
 
@@ -125,7 +125,8 @@ A strong assessment: (1) quote the claim precisely, separating demonstrated resu
 
 Checked 3 November 2026. Roadmap items are company *targets*, not results.
 
-- IBM Quantum roadmap, 2026 milestones (Nighthawk, Loon, Kookaburra; Starling by 2029), page updated March 2026: https://www.ibm.com/roadmaps/quantum/2026
+- IBM Quantum roadmap, 2026 milestones (Nighthawk, Loon, Kookaburra), page updated March 2026: https://www.ibm.com/roadmaps/quantum/2026
+- IBM Quantum roadmap overview, Starling "planned for 2029" to "run 100 million quantum gates on 200 logical qubits" (announced June 2025): https://www.ibm.com/quantum-computing/roadmap
 - Google Quantum AI, "Quantum error correction below the surface code threshold", *Nature* 638, 920–926 (2025), arXiv:2408.13687 (distance 3→5→7, suppression factor Λ = 2.14)
 - Quantinuum, "Introducing Helios" (5 Nov 2025; 98 barium-ion qubits, 99.921% two-qubit fidelity, 48 error-corrected logical qubits claimed): https://quantinuum.com/blog/introducing-helios-the-most-accurate-quantum-computer-in-the-world
 - C. Gidney, "How to factor 2048 bit RSA integers with less than a million noisy qubits", arXiv:2505.15917 (May 2025): under 1M qubits, under a week, 0.1% gate error, 1 μs cycle

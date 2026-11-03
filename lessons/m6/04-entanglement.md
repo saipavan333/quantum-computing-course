@@ -8,7 +8,7 @@ Two entangled qubits share a **single joint state**, so tightly linked that they
 
 Three facts fence in what this does and doesn't buy you. You **can't copy** a quantum state (no‑cloning) — which is exactly why quantum cryptography is secure. You **can't signal** faster than light with entanglement (no‑signaling) — measuring your half never changes what your partner sees. But you **can** produce correlations too strong for *any* "they secretly agreed in advance" story — that's Bell's theorem, and you'll watch a Bell pair beat the classical limit in a live cell.
 
-> **School-kid analogy.** Imagine two coins that always land the same way, however far apart. Trick coins glued in advance could do that for one kind of question. Entangled qubits also agree when you ask a different kind of question, which pre-agreed answers cannot do (that is Bell's theorem). Even so, neither coin can be used to send a message.
+> **School-kid analogy.** Two friends agree on a plan before leaving: a fixed answer for every question anyone might ask them. With a good plan they can match on *any* question decided in advance. Now each is asked one of two questions, picked at random, and they win if their answers fit a set rule. The best plan wins at most 75% of rounds. Friends sharing entangled qubits win about 85%. That gap in the statistics, not the matching itself, is Bell's theorem (CHSH). Even so, neither friend can use it to send a message.
 
 ## The four Bell states
 
