@@ -77,6 +77,10 @@ Module 3's shot‑sizing formula, productized: how many shots for ±ε precision
 {"q":"Why is  abs(p - 0.5) < 1e-9  preferred over  p == 0.5  when p came from arithmetic?","options":["It runs faster","Floating-point arithmetic carries ~16th-digit rounding, so exact equality fails for mathematically-equal values; tolerance comparison is robust","== is not valid Python for floats","abs() converts p to an integer"],"answer":1,"why":"0.1 + 0.2 ≠ 0.3 in float-land by ~1e-17. Any float produced by computation must be compared within a tolerance (or with math.isclose)."}
 ```
 
+```quiz
+{"q": "What does  print(0.1 + 0.2 == 0.3)  print in Python?", "options": ["True", "False", "0.3", "An error"], "answer": 1, "why": "Floats are stored in binary, and 0.1 and 0.2 have no exact binary form, so 0.1 + 0.2 is 0.30000000000000004. 'True' assumes exact decimal arithmetic. '0.3' confuses printing the sum with printing the comparison. Nothing errors; the comparison is legal, just unreliable. Compare floats with a tolerance, e.g. math.isclose(a, b)."}
+```
+
 ## Exercises
 
 **Exercise 1 — FizzBuzz, quantum edition.** In the live cell, loop `n` from 1 to 20 and print `n` with `"Z"` if divisible by 3, `"X"` if by 5, `"ZX"` if both. (Use two independent `if`s building a string, not `if/elif`.)
@@ -124,6 +128,24 @@ Answering "when does X exceed Y" by printing a table and looking — before reac
 6. Is the body indented under the `for`? Is the range empty (`range(10, 5)`)? Did an earlier cell fail so the kernel needs a restart?
 7. `if error_rate < 0.005 and queue_len < 50 and t_since_cal < 24: "submit"` / `elif error_rate < 0.01 and queue_len < 100: "submit with caution"` / `else: "wait"` — conditions ordered strictest to loosest, thresholds in comments.
 ````
+
+## Interview questions
+
+1. **(junior)** What is the difference between `=` and `==` in Python?
+2. **(mid)** Your sampling script gives slightly different counts every run, and a test that checks the counts is flaky. How do you fix it without weakening the test?
+3. **(senior)** A colleague wants to estimate a probability near 0.5 to within ±1% at about 95% confidence. How many shots, and how does the answer change for ±0.1%?
+
+````solution
+1. `=` assigns: `shots = 1000` stores 1000 under the name `shots`. `==` compares and returns `True` or `False`. Writing `if shots = 1000:` is a syntax error in Python, which is a feature: it stops a classic bug.
+2. Seed the random generator, for example `rng = np.random.default_rng(42)`, and pass `rng` into the sampling code so every run draws the same numbers. For tests that must use fresh randomness, assert within a statistical tolerance (for example within 4 standard errors of the expected probability) instead of exact counts.
+3. Standard error is $\sqrt{p(1-p)/n}$; for 95% use about 2 standard errors, so $n \ge 4p(1-p)/\varepsilon^2 = 4(0.25)/0.01^2 = 10{,}000$ shots. For ±0.1% it is $10^6$ shots: 10× the precision costs 100× the shots. On a cloud QPU with a monthly time budget, that square-root law decides which experiments are affordable.
+````
+
+## Sources
+
+- Python tutorial, floating-point arithmetic: https://docs.python.org/3/tutorial/floatingpoint.html
+- `math.isclose`: https://docs.python.org/3/library/math.html#math.isclose
+- NumPy random Generator (`default_rng`, seeding): https://numpy.org/doc/stable/reference/random/generator.html
 
 ## Mastery checklist — you are ready to move on when you can
 

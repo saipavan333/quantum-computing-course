@@ -88,6 +88,10 @@ Quantum‑hardware jobs often list RF/microwave engineering, because superconduc
 {"q":"Two qubit states have amplitude pairs (1/√2, 1/√2) and (1/√2, i/√2). Which statement is correct?","options":["They are the same state written differently","They give identical statistics if measured immediately, but are physically different states that later gates can distinguish","The second is invalid because amplitudes must be real","The second has probabilities summing to more than 1"],"answer":1,"why":"Both give 50/50 now (|i/√2|² = 1/2), but the relative phase i is real physical information — an interference experiment (Module 6) separates them cleanly."}
 ```
 
+```quiz
+{"q": "You multiply both amplitudes of a qubit state by i (a global phase). What happens to the measurement probabilities?", "options": ["They all multiply by i", "They all multiply by −1 (because i² = −1)", "Nothing — |i·z|² = |z|², so every probability is unchanged", "They swap between 0 and 1"], "answer": 2, "why": "|i·z|² = |i|²·|z|² = 1·|z|² — a global phase never changes any measurement. Probabilities are real and non-negative, so they can't become 'multiplied by i'. The −1 answer squares the phase instead of taking its modulus squared. Swapping outcomes needs an X gate, not a phase. Only *relative* phase (one amplitude multiplied, not both) is physical."}
+```
+
 ## Exercises
 
 **Exercise 1 — arithmetic workout.** In the live cell, with $z = 2 + i$ and $w = 1 - 3i$, compute $z + w^*$, $zw$, $|zw|$ (directly and via $|z||w|$), and $z/w$; check each against a hand calculation.
@@ -134,6 +138,23 @@ Norm$^2 = |1+i|^2 + 4 = 6$; $p(0) = \tfrac26 = \tfrac13$, $p(1) = \tfrac23$. The
 6. `**2` keeps phase and can go negative/complex; use `np.abs(psi[0])**2`. With $\psi_0 = i/\sqrt2$, `psi[0]**2 = -0.5` — a negative "probability."
 7. E.g. $\alpha = \tfrac{i}{2}$ ($|\alpha|^2 = \tfrac14$), $\beta = \tfrac{\sqrt3}{2}\cdot\tfrac{1+i}{\sqrt2}$ ($|\beta|^2 = \tfrac34$): sum 1, statistics 25/75, both amplitudes non‑real.
 ````
+
+## Interview questions
+
+1. **(junior)** Why is the probability $|z|^2$ and not $z^2$?
+2. **(mid)** Why does quantum mechanics need complex amplitudes at all? Give an example two real amplitudes cannot reproduce.
+3. **(senior)** Two paths reach a detector with amplitudes $\tfrac12$ and $\tfrac12 e^{i\varphi}$. Derive the detection probability and explain what a calibration drift in $\varphi$ does.
+
+````solution
+1. $z^2$ is a complex number in general (for $z = 3+4i$ it is $-7+24i$), so it cannot be a probability. $|z|^2 = z\bar z = a^2 + b^2$ is always real and non-negative. The conjugate is what removes the phase.
+2. Relative phases other than $\pm1$ matter. $\ket+ = (\ket0+\ket1)/\sqrt2$ and $\ket{+i} = (\ket0+i\ket1)/\sqrt2$ give identical 50/50 statistics in the $Z$ basis. In the $X$ basis $\ket+$ is certain and $\ket{+i}$ is 50/50; in the $Y$ basis it is the other way round. Real amplitudes cannot describe the $Y$ axis of the Bloch sphere, so you lose a third of the state space.
+3. $p = |\tfrac12 + \tfrac12 e^{i\varphi}|^2 = \tfrac14(2 + 2\cos\varphi) = \tfrac12(1+\cos\varphi) = \cos^2(\varphi/2)$. At $\varphi = 0$ the paths add ($p=1$), at $\varphi=\pi$ they cancel ($p=0$). A slow drift in $\varphi$ (for example a qubit frequency shift) shows up as fringes sliding over time, so phase-sensitive circuits like Ramsey experiments are how drifts get detected and recalibrated.
+````
+
+## Sources
+
+- M. A. Nielsen and I. L. Chuang, *Quantum Computation and Quantum Information*, 10th anniversary ed., Cambridge University Press (2010), §2.1 (complex vector spaces) and §1.2.
+- Python `complex` and `cmath` (abs, phase, polar): https://docs.python.org/3/library/cmath.html
 
 ## Mastery checklist — you are ready to move on when you can
 

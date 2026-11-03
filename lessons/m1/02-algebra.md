@@ -73,6 +73,10 @@ Quantum‑internship first round: "$\ket\psi$ has $p(0) = 3\,p(1)$. What are the
 {"q":"f(x) = x + 2 and g(x) = 3x. What is g(f(1)), and what does it illustrate?","options":["5 — composition order is irrelevant","9 — apply f first, then g; order matters since f(g(1)) = 5","9 — apply g first, then f","6 — multiply the two functions"],"answer":1,"why":"g(f(1)) = g(3) = 9, while f(g(1)) = f(3) = 5. Inner function first; swapping order changes the answer — exactly like quantum gates."}
 ```
 
+```quiz
+{"q": "Three outcomes have real amplitudes a, 2a and 2a. What is the probability of the first outcome?", "options": ["1/5", "1/9", "1/3", "1/√9"], "answer": 1, "why": "Normalization: a² + (2a)² + (2a)² = 9a² = 1, so a² = 1/9. 1/5 comes from adding the amplitudes (a + 2a + 2a = 5a) instead of their squares; 1/3 assumes all outcomes are equally likely; 1/√9 = 1/3 is the amplitude a, not the probability a²."}
+```
+
 ## Exercises
 
 **Exercise 1 — three‑outcome normalization.** In the live cell, a system has amplitudes $a, 2a, \sqrt3\,a$ (real, positive). Find each probability and confirm they sum to 1.
@@ -111,6 +115,23 @@ $a^2 + 4a^2 + 3a^2 = 8a^2 = 1$, so probabilities are $12.5\%, 50\%, 37.5\%$. The
 6. Quantum evolution can't destroy information (reversible), so a gate must have an inverse — one‑to‑one, never like $x^2$.
 7. Multipliers $b=\sqrt2 a, c=\sqrt3 a, d=2a$ give $10a^2 = 1$, $a^2 = 0.1$, and probabilities $0.1, 0.2, 0.3, 0.4$. Any $\sqrt{r_k}$ with ratios proportional to the target probabilities works.
 ````
+
+## Interview questions
+
+1. **(junior)** Why must every quantum gate be an invertible function?
+2. **(mid)** A state has two outcomes and the experiment says outcome 1 is three times as likely as outcome 0. Find real amplitudes that produce this.
+3. **(senior)** Function composition is not commutative. Give a concrete quantum example and explain why it matters to a compiler.
+
+````solution
+1. Quantum evolution is unitary, and unitary maps always have an inverse ($U^{-1} = U^\dagger$). Physically, closed quantum systems do not lose information. So a gate can never be like $x^2$, which sends $2$ and $-2$ to the same output. Measurement is the one non-invertible step, which is why it sits outside the gate model.
+2. Let $p_1 = 3p_0$ and $p_0 + p_1 = 1$, so $p_0 = 1/4$, $p_1 = 3/4$. Amplitudes $\alpha = 1/2$, $\beta = \sqrt3/2$ work, and so do any sign choices ($\pm$). Note we solved for probabilities first and only took square roots at the end, which avoids sign mistakes.
+3. $XZ = -ZX$, so applying $Z$ then $X$ is not the same operation as $X$ then $Z$ (they differ by a sign that becomes a relative phase when controlled or applied to part of a superposition). A transpiler may only reorder gates that commute (for example two $Z$-rotations, or gates on disjoint qubits). Reordering non-commuting gates to shorten a circuit silently changes the computation, which is why commutation analysis is its own optimization pass in Qiskit.
+````
+
+## Sources
+
+- M. A. Nielsen and I. L. Chuang, *Quantum Computation and Quantum Information*, 10th anniversary ed., Cambridge University Press (2010), §2.1 (linear algebra) and §2.2 (unitary evolution).
+- Qiskit transpiler passes (commutation analysis and cancellation): https://quantum.cloud.ibm.com/docs/en/api/qiskit/transpiler_passes
 
 ## Mastery checklist — you are ready to move on when you can
 

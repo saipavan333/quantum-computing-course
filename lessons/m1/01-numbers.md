@@ -57,6 +57,28 @@ $\tfrac{1}{\sqrt2}$ squares to $0.5$ (a 50% outcome); 30 qubits already exceed a
 
 You're choosing an IBM backend: median two‑qubit gate error $2.03\times10^{-3}$, and your circuit needs 40 two‑qubit gates. Each gate succeeds with probability $\approx 1 - 0.00203$; forty of them is $0.99797^{40}$. Estimate with logs: $40 \times \log(0.99797) \approx -0.081$, so success $\approx e^{-0.081} \approx 0.92$ — about **92%**, before readout errors. The defensible meeting sentence: "gate errors cost ~8% signal here; we're fine at this depth, but doubling depth would start to hurt." Every step was this lesson — scientific notation, exponents, logs, percentages.
 
+## Worked example at real scale — how much RAM does a quantum state need?
+
+A simulator stores one complex amplitude per basis state. In NumPy a `complex128` is 16 bytes (two 8-byte floats). So $n$ qubits need $2^n \times 16$ bytes. Let's size real machines, not toy ones: a 16 GB laptop, a 512 GB server node, and the 50-qubit headline.
+
+```run
+# expect: laptop (16 GB) holds 29 qubits
+GB = 1e9
+for n in (20, 29, 30, 34, 40, 50):
+    print(f"{n:2d} qubits -> {2**n * 16 / GB:>18,.3f} GB")
+
+def max_qubits(ram_bytes):
+    n = 0
+    while 2**(n + 1) * 16 <= ram_bytes:
+        n += 1
+    return n
+
+print("laptop (16 GB) holds", max_qubits(16 * GB), "qubits")
+print("server (512 GB) holds", max_qubits(512 * GB), "qubits")
+```
+
+**What to look for.** 30 qubits need about 17.2 GB, so a 16 GB laptop tops out at 29 (and in practice a bit less, because the operating system and the gate arithmetic need room too). A 512 GB node reaches 34. Fifty qubits need about 18 million GB (18 petabytes). Each extra qubit doubles the bill, which is why "just simulate it" stops working in the 30s and why Module 7 introduces tensor-network and sampling tricks.
+
 ## Key points
 
 - Probabilities are squared absolute values (never negative); amplitudes *can* be negative — that difference powers interference.
@@ -70,6 +92,10 @@ You're choosing an IBM backend: median two‑qubit gate error $2.03\times10^{-3}
 
 ```quiz
 {"q":"Your database has 4 billion (≈ 2³²) entries. Roughly how many qubits are needed to index every entry?","options":["4 billion","32","2 billion","64"],"answer":1,"why":"Indexing N items needs log₂N qubits: log₂(2³²) = 32. Each added qubit doubles the addressable states — that's the whole magic of exponential state space."}
+```
+
+```quiz
+{"q": "A two-qubit gate has error rate 2×10⁻³ (99.8% fidelity). Roughly what is the chance that a circuit with 100 such gates runs with no gate error at all?", "options": ["About 98%", "About 82%", "About 20%", "About 0.2%"], "answer": 1, "why": "Each gate succeeds with probability 0.998, so 100 in a row succeed with 0.998¹⁰⁰ ≈ 0.819. 98% is what you get if you subtract 100 × 0.0002 (wrong exponent); 20% is 100 × 0.002 = 0.2 read as the success chance instead of the expected number of errors; 0.2% is the single-gate error rate itself. Small per-gate errors compound by multiplication, not addition."}
 ```
 
 ## Exercises
@@ -109,6 +135,23 @@ Per‑gate success $0.995$; overall $\approx e^{-100\times0.005} = e^{-0.5} \app
 6. Computers store decimals in binary, and 0.1/0.2 have no exact binary form; the stored values are off by ~$10^{-17}$, so their sum misses 0.3 and `==` demands exactness.
 7. "Each qubit doubles the amplitudes we'd track, so 300 qubits means $2^{300} \approx 10^{90}$ numbers — more than the ~$10^{80}$ atoms in the observable universe. Storing one amplitude per atom, using every atom, still falls short by ten orders of magnitude. So past a few dozen qubits we don't simulate quantum computers — we build them."
 ````
+
+## Interview questions
+
+1. **(junior)** Why does adding one qubit double the memory a state-vector simulator needs?
+2. **(mid)** Your team has a 512 GB node. What is the largest exact state-vector simulation you can run, and what would you tell a manager who wants 40 qubits?
+3. **(senior)** A vendor quotes 99.9% two-qubit fidelity. Roughly how many two-qubit gates can a circuit have before the chance of an error-free run drops to one half? What does this ignore?
+
+````solution
+1. Because $n$ qubits have $2^n$ basis states and the simulator stores one complex amplitude per basis state. Going from $n$ to $n+1$ takes $2^n$ to $2^{n+1}$, exactly double. At 16 bytes per amplitude, 30 qubits is about 17 GB.
+2. $2^{34} \times 16 \approx 275$ GB fits; $2^{35} \times 16 \approx 550$ GB does not, so 34 qubits (a bit less in practice for workspace). 40 qubits need about 17.6 TB, 64× more. Options: distribute across many nodes, use a tensor-network or matrix-product-state simulator if the circuit has low entanglement, or sample with a stabilizer simulator if the circuit is mostly Clifford.
+3. Solve $0.999^k = 0.5$: $k = \ln 0.5 / \ln 0.999 \approx 693$. So a few hundred two-qubit gates is the practical budget without error correction. It ignores single-qubit and readout errors, crosstalk, idle decoherence during long circuits, and that errors are not all fatal to the answer (some cancel, some are mitigated), so treat it as an order-of-magnitude budget, not a hard wall.
+````
+
+## Sources
+
+- NumPy data types (complex128 = two double-precision floats, so 16 bytes; confirm with `np.dtype(np.complex128).itemsize`): https://numpy.org/doc/stable/user/basics.types.html
+- M. A. Nielsen and I. L. Chuang, *Quantum Computation and Quantum Information*, 10th anniversary ed., Cambridge University Press (2010), §1.2 (qubits and the $2^n$ state space).
 
 ## Mastery checklist — you are ready to move on when you can
 
