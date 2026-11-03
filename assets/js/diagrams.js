@@ -870,6 +870,27 @@
     return svg(168, b, "Shor algorithm pipeline");
   })();
 
+  // ---- M8: trotter-step (Hamiltonian simulation) ----
+  D["trotter-step"] = (() => {
+    let b = t(320, 22, "One first-order Trotter step for H = J·ΣZZ + h·ΣX", { bold: true, size: 13 });
+    const ys = [64, 112, 160];
+    ys.forEach((y, q) => { b += t(40, y + 4, "q" + q, { size: 11, a: "start", fill: C.dim }); b += wire(y, 70, 560); });
+    ys.forEach(y => b += gateBox(120, y, "Rx", C.acc));
+    b += t(120, 196, "exp(−i·h·dt·X)", { size: 10, fill: C.accT });
+    b += box(200, ys[0] - 18, 110, ys[1] - ys[0] + 36, { stroke: C.cyan, fill: C.cyanFill });
+    b += t(255, (ys[0] + ys[1]) / 2 - 2, "ZZ(J·dt)", { size: 12, fill: C.cyanT });
+    b += t(255, (ys[0] + ys[1]) / 2 + 14, "CX · Rz · CX", { size: 10, fill: C.cyanT });
+    b += box(330, ys[1] - 18, 110, ys[2] - ys[1] + 36, { stroke: C.cyan, fill: C.cyanFill });
+    b += t(385, (ys[1] + ys[2]) / 2 - 2, "ZZ(J·dt)", { size: 12, fill: C.cyanT });
+    b += t(385, (ys[1] + ys[2]) / 2 + 14, "CX · Rz · CX", { size: 10, fill: C.cyanT });
+    b += box(460, 40, 150, 144, { stroke: C.warn, fill: C.warnFill });
+    b += t(535, 100, "repeat r times", { size: 12, fill: C.warnT });
+    b += t(535, 120, "dt = t / r", { size: 11, fill: C.warnT });
+    b += t(535, 140, "error ~ t²/r · ‖[A,B]‖", { size: 10, fill: C.warnT });
+    b += t(320, 218, "Smaller steps track exp(−iHt) better, but every step costs 2(n−1) CNOTs.", { fill: C.faint, size: 11 });
+    return svg(232, b, "one Trotter step: X rotations then ZZ interactions, repeated r times");
+  })();
+
   // ---- shared circuit-ish diagrams referenced but simple ----
   // ---- M2: basis-change ----
   D["basis-change"] = (() => {

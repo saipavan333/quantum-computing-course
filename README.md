@@ -2,7 +2,7 @@
 
 A complete, self-contained course that takes you from **no math, no Python, no physics** all the way to **writing and defending quantum programs on real hardware** — built to a "would this make someone job-ready?" bar.
 
-- **12 modules · 47 deep lessons · ~85 hours of guided study**
+- **12 modules · 48 deep lessons · ~85 hours of guided study**
 - **94 interactive quizzes · 141 worked-solution exercises · 55 verified diagrams**
 - Full study platform: **glossary + hover definitions, flashcards, a spaced-repetition review hub, per-module cheat sheets, an interview question bank, a job-readiness exam, an interactive concept map, read-aloud, in-browser runnable code, live interactive widgets, and a free AI study assistant.**
 - Runs as a **website** (deploy anywhere) *and* an **offline desktop app** — same files, no build step, no internet required once opened.
