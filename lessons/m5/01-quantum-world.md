@@ -12,6 +12,8 @@ Here's the part that matters for computing. Those dark bands are places a partic
 
 You already own the math: two paths with amplitudes $a_1, a_2$ give total probability $|a_1 + a_2|^2 = |a_1|^2 + |a_2|^2 + 2\,\mathrm{Re}(a_1^* a_2)$, and that cross-term can be **negative** (dark fringe). Amplitudes first, square second. That single cross-term is the entire difference between classical and quantum — and quantum computing is the engineering discipline of that cross-term. (And if you add a detector at the slits to see which path each particle takes, the stripes vanish: *knowing the path destroys the interference.*)
 
+> **School-kid analogy.** In a bathtub, two waves that meet crest-to-crest make a bigger wave and crest-to-trough make flat water. Quantum amplitudes behave like these waves, not like marbles, and that is the whole difference between quantum and ordinary chance.
+
 ## The rules of the game
 
 Quantum mechanics, stripped to the four rules this course uses:

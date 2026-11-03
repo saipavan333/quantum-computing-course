@@ -8,6 +8,8 @@ A **vector space** is just any collection of things you can add together and sca
 
 Here's the plot twist that runs the whole field: **nothing makes the standard basis special.** The same physical state has *different coordinates in different bases*, and — remarkably — "definitely 0" is an *equal superposition* when written in another basis. So superposition isn't a property of a state; it's a *relationship between a state and a basis you chose*. Measurement devices come with a basis attached: measure $\ket0$ in the standard basis and you always get 0; measure that exact same $\ket0$ in the "±" basis and it's a coin flip. That gap between bases is what quantum cryptography weaponizes.
 
+> **School-kid analogy.** You can give directions to your house as "3 blocks east, 4 blocks north" or as "5 blocks along the diagonal avenue". Same house, different street grid. A basis is a choice of street grid, and quantum measurement depends on which grid you ask in.
+
 ## The arena, and the one sentence it can say
 
 A qubit lives in $\mathbb{C}^2$; two qubits in $\mathbb{C}^4$; $n$ qubits in $\mathbb{C}^{2^n}$ (adding a qubit *doubles* the dimension). The only sentence a vector space can say is the **linear combination** $a\vec u + b\vec v$ — and that's the sentence quantum mechanics never stops saying. A **basis** is a set of vectors that is linearly independent (no freeloaders — none is a combination of the others) and spans the space; then every vector has *unique* coordinates in that basis. The **standard (computational) basis** of $\mathbb{C}^2$ is $\ket0 = \binom10$, $\ket1 = \binom01$, and a qubit's coordinates in it are its amplitudes.

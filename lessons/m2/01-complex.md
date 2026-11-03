@@ -8,6 +8,8 @@ Picture an arrow in a plane. It has a **length** and a **direction (angle)**. Th
 
 One rule does almost all the work: to turn an amplitude into a **probability**, you take its magnitude and square it, written $|z|^2 = z\,z^*$ (the number times its "mirror image," the conjugate). This is *always* a non‑negative real number — exactly what a probability must be. And the single most common bug in all of quantum code is writing $z^2$ (which stays complex and can go negative) when you meant $|z|^2$.
 
+> **School-kid analogy.** Ordinary numbers live in a corridor: you can only go forward or back. Complex numbers live on a whole floor, so you can also go sideways. Multiplying by $i$ is just "turn left 90°". Do it twice and you face backwards, which is why $i^2 = -1$.
+
 ## The imaginary unit and the complex plane
 
 Define $i^2 = -1$. That's the whole invention; powers of $i$ cycle $i, -1, -i, 1$ (a four‑step rotation). A **complex number** $z = a + bi$ is the point $(a, b)$ — real part horizontal, imaginary part vertical.

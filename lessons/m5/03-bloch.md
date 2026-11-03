@@ -8,6 +8,8 @@ Picture a globe. The **north pole is $\ket0$**, the **south pole is $\ket1$**, a
 
 Three facts make the globe powerful. **Gates are rotations** of it — the X gate spins it half a turn about the x‑axis, and so on. **Measurement is a projection** onto an axis — a Z‑measurement asks "which hemisphere?" And the arrow's three coordinates are literally the three things you can measure: $\vec r = (\langle X\rangle, \langle Y\rangle, \langle Z\rangle)$. Learn to navigate this globe and you can predict what a gate does *faster than you can multiply the matrices*.
 
+> **School-kid analogy.** Think of a globe. Every possible qubit state is one spot on its surface: North Pole is $\ket0$, South Pole is $\ket1$, anywhere on the equator is 50/50, and the longitude is the phase, which a plain north/south look cannot see.
+
 ## The parametrization
 
 Spend the global phase to make $\alpha$ real and non‑negative, and write the two remaining parameters as angles:

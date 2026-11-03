@@ -8,6 +8,8 @@ Three ideas, and each is a quantum concept two modules early. **A vector has two
 
 The punchline lands early: a **unit vector** (length 1) has squared components that sum to 1 — which *is* "probabilities sum to 1." Quantum states are unit vectors, so normalization and geometry are the same statement.
 
+> **School-kid analogy.** A treasure-map step like "3 paces east, 2 paces north" is a vector. Adding vectors is doing one step and then the next. The dot product asks how much of your walk went along a given direction, like how much of a bike ride was with the wind.
+
 ## The two faces and the two operations
 
 A vector is a quantity with magnitude and direction. As an arrow, "3 right, 2 up." As algebra, the column $\begin{pmatrix} 3 \\ 2 \end{pmatrix}$ (we write columns — that pays off when matrices arrive next module). Only two operations exist: **addition** (tip‑to‑tail; add matching components) and **scaling** (stretch, or flip if negative). Their combination $a\vec u + b\vec v$ is the single most important construction in the course.

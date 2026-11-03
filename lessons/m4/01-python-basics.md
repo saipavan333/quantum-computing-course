@@ -8,6 +8,8 @@ Programming is just three ideas stacked together. **Variables** are labels you s
 
 The single most important habit to build today: the **accumulator loop** — start a running total, update it a little each time around, read it at the end. Counting measurement outcomes, summing a series, estimating an expectation value — they're all this one shape. And the best cell in this lesson builds a *qubit measurement simulator* from nothing but a loop and a coin flip.
 
+> **School-kid analogy.** Python is a recipe written for a very literal cook. It does exactly what each line says, top to bottom, and nothing else. A loop is "stir 10 times"; an `if` is "if the sauce is too thick, add water".
+
 ## Variables, types, and operators
 
 A variable is a label stuck on a value; `snake_case` names, created with `=` (which is assignment — comparison is `==`). Every value has a type, revealed by `type()`: `int` (unlimited size), `float` (~16 digits — Module 1's dust), `str`, `bool`, and native `complex` (`z.real`, `z.conjugate()`, `abs(z)` all just work). Number operators: `+ - *`, true division `/` (always float), floor division `//` and remainder `%` (parity checks, angle wrapping, and Shor's modular arithmetic), and power `**` (your $2^n$ key). **f‑strings** are how you format output: `f"p(00) = {p:.3f} ({p*100:.1f}%)"`.

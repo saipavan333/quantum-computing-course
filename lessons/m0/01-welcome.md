@@ -12,6 +12,8 @@ Before any math, hold four sentences and the rest of the course has somewhere to
 
 Everything below expands these four. You don't need to understand the worked example yet — you need to see the destination so the climb makes sense.
 
+> **School-kid analogy.** Drop two pebbles in a still pond. Where crest meets crest the water jumps higher; where crest meets trough it goes flat. A quantum computer is a machine for arranging those ripples so the wrong answers land on the flat spots and the right answer lands where the waves pile up. It does not "try every answer at once"; the skill is in the arranging.
+
 ## 1. What a quantum computer actually is
 
 A classical computer stores information in **bits**: each is 0 or 1, always, definitely. Every photo, program, and AI model is a gigantic pile of these definite 0s and 1s, flipped billions of times per second.

@@ -8,6 +8,8 @@ Three ideas turn effort into offers. **Demonstrated work beats credentials:** in
 
 Carry one counterintuitive move: **volunteer your project's limitations.** Writing "H₂ is classically trivial — this shows method fluency, not quantum advantage" builds the trust that gets offers, because in a hype‑prone field, the person who tells the truth about their own work is the rare one worth hiring.
 
+> **School-kid analogy.** At a science fair the winning project is rarely the flashiest. It is the one with a clear question, an experiment that works, and honest results the student can explain.
+
 ## The portfolio principles (before the projects)
 
 Every project must satisfy the standards you've built all course:

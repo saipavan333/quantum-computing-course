@@ -10,6 +10,8 @@ Three ideas make Qiskit click. **A circuit has two kinds of bits** — qubits ho
 
 Carry one habit above all: **quote depth, size, and `count_ops` whenever you discuss a circuit's cost.** Depth is the ruler for "will this run on real hardware?" — the question every other Module 7 lesson circles back to.
 
+> **School-kid analogy.** A circuit is sheet music. Each line is an instrument (a qubit), the notes are gates, and you read left to right. Measurement at the end is writing down which notes were played.
+
 ## 1. Circuits, registers, and the two kinds of bits
 
 ```python

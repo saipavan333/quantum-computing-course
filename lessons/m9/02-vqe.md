@@ -8,6 +8,8 @@ Imagine finding the lowest point in a dark, fog-filled valley. You can't see the
 
 VQE is exactly this. The "landscape" is every possible quantum state (exponentially huge). The "altitude" at a state is its **energy**, $\langle\psi|H|\psi\rangle$ — and a quantum computer is a very good altimeter for it. A **classical** optimizer plays the hiker, using altitude readings to adjust the circuit's knobs (angles) and walk downhill. The lowest altitude it reaches is the **ground-state energy** — for a molecule, its most stable configuration, the number chemists actually want. Quantum computer = altimeter; classical computer = hiker.
 
+> **School-kid analogy.** You are finding the lowest point of a dark valley with an altimeter. The quantum computer is the altimeter (it measures the energy), and an ordinary computer decides which way to step next.
+
 ## The variational principle — why downhill works
 
 Given a Hermitian operator $H$ (a Hamiltonian), find its smallest eigenvalue $E_0$. Classically that means diagonalizing a $2^n\times2^n$ matrix — hopeless past ~50 orbitals. VQE leans on the **variational principle** (provable in two lines from the eigen lesson): for *any* state,

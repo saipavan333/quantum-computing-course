@@ -8,6 +8,8 @@ You've used objects all along without noticing. A string carries data (`"hello"`
 
 Two things unlock reading any quantum code. First, `self` is not magic: it's just **the object itself**, handed to every method automatically — `run.prob("11")` is secretly `RunResult.prob(run, "11")`. That's the entire mystery. Second, and the real goal: you rarely need to *write* big classes, but you must **read** a library's objects fluently — `type(obj)`, `dir(obj)`, `help(obj)`, then learn the constructor and the three‑to‑five methods your task needs. Nobody learns all 100 methods; professionals learn entry points.
 
+> **School-kid analogy.** A class is a cookie cutter and objects are the cookies. Every cookie has the same shape (methods), but each can have its own sprinkles (attribute values).
+
 ## Writing a class
 
 `__init__` is the **constructor** (run automatically by `ClassName(...)`); it stores arguments as attributes with `self.name = ...`. Methods take `self` first. `@property` makes a *computed* attribute (read with no parentheses) so derived values can't drift from their source. `__repr__` controls how the object prints. Inheritance reads as "is‑a" (`HGate` is‑an `Instruction`), and `super().__init__(...)` chains to the parent's constructor — but prefer plain functions when in doubt; reading class trees matters more than writing them.

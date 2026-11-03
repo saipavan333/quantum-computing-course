@@ -11,6 +11,8 @@ Two everyday ideas do all the work:
 - A **check** — given a box, can you tell if it is the winner? In code this is a function $f(x)=1$ for the winner and $0$ otherwise. Grover calls it the *oracle*.
 - A **nudge** — a way to turn "the winner is marked" into "the winner is louder." This is the *diffuser*, and it is just a reflection. In a moment you will do it as plain arithmetic.
 
+> **School-kid analogy.** Picture a hidden marked card in a shuffled deck and a game where each round turns the marked card's volume up and all the others down. After about $\sqrt{N}$ rounds it is the loudest card. Keep going too long and it gets quieter again.
+
 ## The one picture: a dial you rotate
 
 Here is the mental model to keep for the whole lesson. Every state of the system is an arrow on a flat dial with two directions: **wrong answers** (horizontal) and **the winner** (vertical). The starting state — all boxes equally likely, $\ket s = H^{\otimes n}\ket{0^n}$ — sits just a hair above the horizontal, at a small angle $\theta$:

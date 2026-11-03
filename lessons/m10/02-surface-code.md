@@ -8,6 +8,8 @@ Three ideas carry this lesson. **The surface code won on engineering, not elegan
 
 Carry one translation above all: **physical qubits ÷ (hundreds to thousands) = logical qubits.** Every "1000‑qubit" headline must be divided down to the logical number that actually matters, and being the person who does that division is a genuinely paid skill.
 
+> **School-kid analogy.** A chessboard of guards, each checking only its four neighbors. A mistake shows up as a pair of guards raising the alarm. On a bigger board, a mistake has to form a much longer chain to fool everyone, which is why bigger codes are safer.
+
 ## Why it won, and how it's built
 
 The 9‑qubit Shor code works but needs awkward long‑range operations. The surface code instead lays physical qubits on a 2D checkerboard in two roles: **data qubits** hold the encoded information, and **measure/ancilla qubits** each read a 4‑qubit stabilizer of their neighbors. Two check types alternate — **Z‑checks** ($Z_1Z_2Z_3Z_4$, catch X errors) and **X‑checks** ($X_1X_2X_3X_4$, catch Z errors) — so together they catch everything (last lesson's "correct X and Z ⇒ correct all"). Every stabilizer is weight‑4 and local, so syndrome extraction is one small circuit tiled across the chip and repeated every cycle. A single error lights up a *pair* of syndrome defects, an error *chain* lights up defects only at its endpoints, and the decoder's job is to infer the chain from the lit endpoints.

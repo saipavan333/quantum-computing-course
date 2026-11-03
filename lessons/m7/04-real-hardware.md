@@ -8,6 +8,8 @@ Three ideas make hardware runs routine. **There are two primitives for two quest
 
 Carry one expectation: **real results have ~5% "forbidden" outcomes, and that's not failure — it's measurable physics** (readout + gate errors + decoherence), always reported with $\pm2\text{SE}$. It's Module 9's front door.
 
+> **School-kid analogy.** Booking the school telescope: you get a short time slot, there is a queue, and the picture comes out a little blurry. So you plan everything on paper first and use your slot carefully.
+
 ## 1. The service, the backends, the budget
 
 ```python

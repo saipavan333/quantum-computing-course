@@ -8,6 +8,8 @@ Three ideas finish the course. **Fault tolerance means protecting the protection
 
 Carry one synthesis: **the science is proven, the scale is an engineering marathon.** Below‑threshold correction is demonstrated and small logical qubits exist, but useful machines need millions of physical qubits — and anyone giving you a confident single date is selling something.
 
+> **School-kid analogy.** An assembly line where every tool can break, so every tool is checked by other tools. One tool (the T gate) is so delicate that it needs its own small factory just to make good parts for it (magic states).
+
 ## What fault tolerance demands, and transversal gates
 
 Error correction protects *stored* qubits, but every operation can introduce and *spread* errors — a CNOT propagates an X from control to target (Module 6), so one physical fault can become many data errors, exceeding the code's capacity and causing a logical error from a single fault. Fault tolerance is the design discipline that prevents this. The safest tool is a **transversal** gate: act on each physical qubit independently, so an error stays confined to one qubit per block. For the surface code the Cliffords (Paulis, H, S, CNOT) are transversal or cheap — but here's the deep constraint: **no code has a transversal set that is universal** (Eastin–Knill), and Cliffords alone are classically simulable (Gottesman–Knill, Module 6). You need at least one non‑Clifford gate — the **T gate** — and it is *not* transversal. That single fact drives the entire cost structure of FTQC.

@@ -8,6 +8,8 @@ Three truths make the last mile walkable. **Roughly half of quantum postings don
 
 Carry one line into every conversation: **demonstrated professional‑standard work beats credentials.** You built real capability from nothing — now prove it with artifacts, apply while still building, and let the community (Qiskit Slack, OSS, Stack Exchange) multiply your reach.
 
+> **School-kid analogy.** Getting picked for a sports team: show the games you have played (portfolio), know the rules cold (interview prep), and turn up to the club (community).
+
 ## 1. The job map — roles, requirements, salaries
 
 The 2026 landscape (from Module 0's research, now actionable):

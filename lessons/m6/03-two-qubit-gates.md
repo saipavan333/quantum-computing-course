@@ -8,6 +8,8 @@ A two-qubit gate lets one qubit's fate **depend on** another — a "quantum if�
 
 First, feed CNOT a **control in superposition** and it doesn't pick a branch — it does both at once and **manufactures entanglement**: $H$ then CNOT turns two independent qubits into a Bell pair that always agree. Second, and deeper: point a controlled gate at a target that happens to be an **eigenstate**, and the effect bounces *backward* onto the control as a phase — **phase kickback**, where the "if" edits the *asker*, not the asked. That backward trick is the engine of nearly every quantum algorithm.
 
+> **School-kid analogy.** CNOT is a buddy rule: "if your buddy's hand is up, flip your card over." One qubit's state decides what happens to the other.
+
 ## CNOT — the conditional flip
 
 $$\text{CNOT} = \ket0\bra0\otimes I + \ket1\bra1\otimes X: \quad \ket{00}\to\ket{00},\ \ket{01}\to\ket{01},\ \ket{10}\to\ket{11},\ \ket{11}\to\ket{10}$$

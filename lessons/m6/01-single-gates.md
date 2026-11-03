@@ -8,6 +8,8 @@ There are really only a handful of single-qubit gates worth memorizing, and ever
 
 One professional fact worth front-loading, because it flips between eras: on *today's* hardware, z-rotations (Z, S, T) are essentially **free** (done in software), while H costs a physical pulse. In the *fault-tolerant future* it reverses — H and S become cheap, and **T becomes the expensive one**. Knowing which regime you're optimizing for is the difference between a gate user and a quantum engineer.
 
+> **School-kid analogy.** Gates are moves of the spot on the globe: $X$ flips it from North to South Pole, $Z$ spins the globe about its axis, and $H$ swaps the North Pole with a point on the equator.
+
 ## The Pauli gates — X, Y, Z
 
 The three 180° rotations about the coordinate axes (both gate and observable):

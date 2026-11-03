@@ -10,6 +10,8 @@ Think of entanglement as a kind of **currency** you can spend to move informatio
 
 **Superdense coding** is the mirror: using a shared Bell pair, Alice packs **2 classical bits** into **1 qubit** she sends to Bob. Neither protocol makes capacity from nothing — each *converts* between qubits, classical bits, and entanglement at strict exchange rates. That ledger‑thinking is the founding move of quantum information.
 
+> **School-kid analogy.** Teleportation is like faxing a secret drawing where the original gets shredded in the process, and the copy stays scrambled until a phone call (two ordinary bits) tells the receiver how to unscramble it. Nothing arrives faster than that phone call.
+
 ## Teleportation, gate by gate
 
 Qubits: $q_0 = \ket\psi$ (Alice's mystery), $q_1$ = Alice's half of the pair, $q_2$ = Bob's half. Alice **Bell‑measures** $q_0, q_1$ (CNOT then H — the reverse Bell factory — then measure). Regrouping the terms by her outcome shows Bob's qubit already holds $\ket\psi$ *up to one known Pauli*:

@@ -10,6 +10,8 @@ Classically you are stuck checking coins one by one. Even after looking at nearl
 
 The quantum trick is not to look faster. It is to ask **one cleverly-phrased question of all the coins at once**, arranged so their answers *interfere* — reinforcing into a single unmistakable "all the same" signal, or cancelling out completely to say "half and half." One question, certain answer. The whole lesson is how that question is built, and the one move — **phase kickback** — that makes it work.
 
+> **School-kid analogy.** Someone hands you a sealed box that either always says the same answer or says "yes" for exactly half of all questions. Classically you might need many questions to be sure. The quantum trick asks a question in superposition and lets the answers interfere, so one question settles it.
+
 ## The one move you'll reuse everywhere: phase kickback
 
 First, what an "oracle" is: a black-box function $f: \{0,1\}^n \to \{0,1\}$ that you may *call* but not open. We count cost as the number of calls (queries). Counting queries is what makes speedups *provable* — no compiler tricks, no hardware quibbles — which is why the first quantum-advantage theorems live here.

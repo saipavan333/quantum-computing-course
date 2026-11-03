@@ -8,6 +8,8 @@ You're splitting a group of people into two teams, and you want to *maximize* th
 
 QAOA's move: put *all* splits into superposition at once, then **nudge** the good ones — stamp better splits with distinguishing phases (the "cost" step), let amplitude flow between splits (the "mix" step), and repeat. After a couple of rounds, measuring the register tends to hand you a *good* split. You then check a handful of the splits it returns and keep the best. It's a tunable machine that samples good solutions — not a magic box that spits out the perfect one, and (honestly, in 2026) not yet a winner against mature classical optimizers.
 
+> **School-kid analogy.** Split a class into two teams so that as many pairs of friends as possible end up on opposite teams. QAOA alternates two moves, "shuffle" and "reward good splits", and then you check the best splits it suggests.
+
 ## The problem class — combinatorial optimization
 
 Many valuable problems are "assign discrete choices (bits) to optimize a cost." **MaxCut** is the canonical example: split a graph's vertices into two groups to maximize the edges crossing between groups. It's NP-hard in general — the hoped-for quantum niche. Encode a cut as a bit per vertex ($0$ = group A, $1$ = group B); an edge $(i,j)$ is cut when its endpoints differ. Using $\pm1$ spins $z_i$, the cost to maximize is

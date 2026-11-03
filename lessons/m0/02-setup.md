@@ -10,6 +10,8 @@ You do **not** need to understand the code you'll type today. This lesson is pur
 
 One mental model makes this whole lesson calm. **You're stacking five things in dependency order** — Python, then an editor, then a private environment, then Qiskit, then your IBM account — and each has a *checkpoint* you must pass before moving on. Don't debug layer three while layer one is silently broken. And the single most valuable habit you'll build today: **when something "breaks," ask which Python is running before assuming anything is wrong.** Nearly every beginner failure — the dreaded `ModuleNotFoundError: qiskit` — is not a broken install but a terminal or editor pointed at the wrong Python. The `(.venv)` prefix in your prompt is the dashboard light that answers that question at a glance.
 
+> **School-kid analogy.** Setting up is packing your school bag the night before: the right books (Python 3.12), a pencil case (VS Code), and one labeled folder per subject (a virtual environment) so the math homework never gets mixed into the art folder.
+
 ## 1. Install Python 3.12
 
 Python is the language of quantum software (Module 4 teaches it from zero). Qiskit 2.x requires Python 3.10 or newer (the latest release on 3 Nov 2026 is **2.6.1**, from 22 Oct 2026, per PyPI); install **3.12** — new enough for everything, old enough that every library supports it.

@@ -8,6 +8,8 @@ When you have more than one of something, you need a **container**. Three cover 
 
 Then comes the biggest upgrade to your code: the **function** — a named recipe you write once and reuse forever. Functions are the unit of reuse, of testing, and of *thought*: a program built from ten well‑named functions reads like a paragraph. The lesson's live cell writes the one function every quantum notebook eventually contains — turning a counts dict into probabilities with error bars.
 
+> **School-kid analogy.** A list is a row of numbered lockers, a dict is a phone book (you look things up by name, not by position), and a tuple is a sealed envelope: you can read what is inside but not change it.
+
 ## Lists, dicts, tuples
 
 **Lists** are 0‑indexed, negative‑from‑end, and sliced `[start:stop:step]` (stop exclusive): `data[::-1]` reverses — practically a Qiskit idiom because of qubit‑ordering. **Comprehensions** build a list in one line: `[p**2 for p in probs if p > 0.1]`. **Dicts** hold labeled data with `.keys()`, `.values()`, `.items()`, and `.get(key, default)` to survive missing keys; a *dict comprehension* converts counts→probs. **Tuples** are immutable and unpack cleanly (`q, r = divmod(17, 5)`) — Qiskit's V2 primitives take tuple "PUBs," so tuple literacy is on the job description.

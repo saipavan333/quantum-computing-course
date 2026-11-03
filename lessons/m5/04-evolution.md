@@ -8,6 +8,8 @@ While no one is looking, the only moves a quantum state is allowed are **reversi
 
 The one subtlety that runs every algorithm is about **phase**, and it splits in two. A phase applied to the *whole* state — **global phase** — is completely invisible; no experiment can ever detect it. But a phase applied to *part* of the state — **relative phase** — is like invisible ink: a plain 0/1 measurement can't see it, yet an interference step (an $H$) *develops* it into a visible difference. Quantum algorithms live in that gap: spread amplitude out, write the answer in invisible phase‑ink, then interfere to make it appear. This lesson makes that precise.
 
+> **School-kid analogy.** Every twist of a Rubik's cube can be undone, and no stickers are lost. Quantum gates are like that (unitary). Turning the whole cube around in your hands does not change the puzzle at all, which is what a global phase is.
+
 ## Why evolution must be unitary
 
 Evolution is **linear** (it acts on superpositions component‑wise), so it's a matrix $U$: $\ket\psi \to U\ket\psi$. It must **preserve normalization** (probabilities stay summed to 1 for every state), and that single requirement forces $U^\dagger U = I$. **Unitary is not a design choice; it's conservation of probability wearing matrix clothes.** (Physically, $U = e^{-i\hat H t/\hbar}$ — a Hamiltonian shaped by microwave pulses; that's why gates take nanoseconds and have error rates: analog physics, digitally abstracted.)

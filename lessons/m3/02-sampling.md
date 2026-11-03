@@ -8,6 +8,8 @@ Three ideas, one law. **Expectation** is the long‑run average, $\mathbb{E}[X]=
 
 Read that last fact like a professional and one consequence dominates: **10× more precision costs 100× more shots.** The square‑root discount never improves — it's brutal, sublinear, and non‑negotiable, and it silently prices every quantum experiment you'll ever plan. The reflex it should install: never quote a probability without its $\pm$.
 
+> **School-kid analogy.** To check if the soup is salty you taste one spoonful. More spoonfuls make you surer, but to be twice as sure you need four times as many spoonfuls. Quantum shots work the same way: error shrinks like $1/\sqrt{n}$.
+
 ## Expectation, variance, and the standard error
 
 $\mathbb{E}[X]=\sum_k x_k p_k$ is the probability‑weighted average — a die gives $\tfrac{1+\cdots+6}{6}=3.5$, a value you can never roll (expectation is where averages *converge*, not a prediction of one draw). It's linear with *no* independence needed: $\mathbb{E}[aX+b]=a\mathbb{E}[X]+b$ and $\mathbb{E}[X+Y]=\mathbb{E}[X]+\mathbb{E}[Y]$ — free money. **Variance** $\mathrm{Var}(X)=\mathbb{E}[X^2]-(\mathbb{E}[X])^2$ measures spread; for a Bernoulli($p$) qubit measurement it is $p(1-p)$, and *for independent variables only*, variances add.

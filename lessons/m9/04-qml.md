@@ -8,6 +8,8 @@ Machine learning is mostly about **similarity**: things that are "close" in some
 
 The hope: the quantum state lives in an exponentially large space, so maybe patterns that were tangled become separable — a quantum version of the "kernel trick." The reality check, which is most of this lesson: getting classical data *into* that space is expensive, training big quantum models stalls (barren plateaus), and classical ML is a ferociously good competitor. So the honest 2026 answer is "elegant mechanisms, no demonstrated advantage on real data — and the most promising use is on data that is *already* quantum."
 
+> **School-kid analogy.** A sorting hat puts students into houses by how similar they are. Quantum machine learning builds that sense of similarity with a quantum circuit. Whether the quantum hat sorts better than a well-trained ordinary hat is the open question, and on everyday data the ordinary hat usually wins.
+
 ## The landscape — what "QML" actually refers to
 
 QML is an umbrella, and conflating its parts is the root of most confusion:

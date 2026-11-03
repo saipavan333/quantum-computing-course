@@ -8,6 +8,8 @@ A qubit is described by just **two numbers** — the amplitudes $\alpha$ and $\b
 
 Two things trip up every beginner, and both are worth front-loading. First, amplitudes are **complex** — but you always take the *magnitude* before squaring, so a phase like $i$ vanishes from the probability ($|i/2|^2 = 1/4$). Second, the plain "0 vs 1" measurement is **blind to phase** — two very different states can give identical 0/1 statistics, and you only tell them apart by *rotating first, then measuring*. Both facts you'll see live in a moment.
 
+> **School-kid analogy.** Picture a compass needle that can point in any direction, but every time you look you can only see "north" or "south". How close it pointed to north sets the odds. The popular "spinning coin" picture misses one thing this one keeps: the needle also has a direction around the dial (phase) that a single look cannot see.
+
 ## The state, precisely
 
 A **qubit** is any system with two distinguishable configurations. Physics packages them identically:

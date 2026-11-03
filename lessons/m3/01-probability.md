@@ -8,6 +8,8 @@ Only a handful of moves appear again and again, and each maps onto a daily quant
 
 Hold one contrast above all: **amplitudes interfere, probabilities don't.** Probabilities are non‑negative and only pile up; cancellation needs signed amplitudes, which live one squaring *before* probability. Square too early and you silently delete the quantum.
 
+> **School-kid analogy.** A bag holds 3 red marbles and 7 blue. The chance of red is 3 out of 10. Conditional probability is "given that the first marble I pulled was red, what is in the bag now?" Knowing one thing changes the odds of another.
+
 ## The rules, fast
 
 A random process has a **sample space** $\Omega$ of outcomes, each with $p(\omega)$ obeying $0 \le p(\omega) \le 1$ and $\sum p(\omega) = 1$. An **event** is a set of outcomes; its probability is the sum over them — "the left of two qubits reads 1" is $\{10,11\}$, probability $p(10)+p(11)$. That summing‑over‑what‑you‑ignore is **marginalization**, and you do it constantly.

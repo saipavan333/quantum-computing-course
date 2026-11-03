@@ -8,6 +8,8 @@ RSA's security rests on one fact: multiplying two big primes is easy, but *un*-m
 
 Pick any number $a$ and look at the sequence $a^1, a^2, a^3, \ldots$ all taken mod $N$. That sequence *always eventually cycles*, and the length of its cycle — its **period** $r$ — secretly encodes $N$'s factors (a little algebra pops them out with a gcd). Finding that period is the only hard step, and it is exactly the "hidden rhythm → sharp frequency spike" job you already watched the QFT do. So Shor is: hide the factoring problem inside a period, let quantum period-finding expose it, finish with grade-school number theory. The quantum computer does **one** thing — find a period. Everything else is classical arithmetic older than computers.
 
+> **School-kid analogy.** Keep multiplying 7 by itself and only keep the remainder after dividing by 15: 7, 4, 13, 1, 7, 4, 13, 1... The remainders repeat with a beat of 4. Finding that beat fast is the only quantum part. Turning the beat into the factors 3 and 5 is ordinary school math.
+
 ## The reduction — factoring becomes period-finding
 
 Pure classical number theory, no quantum yet. To factor $N$:

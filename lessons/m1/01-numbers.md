@@ -8,6 +8,8 @@ Quantum computing leans on just four number ideas. **$\tfrac{1}{\sqrt2} \approx 
 
 The one idea that powers the whole measurement rule: a **probability is a squared absolute value** — so it's never negative — while an **amplitude can be negative** (or complex), and *that* difference is what lets quantum outcomes cancel like waves. Hold onto "square the amplitude → get the probability"; it's the arithmetic shape of the Born rule you'll meet in Module 5.
 
+> **School-kid analogy.** Put one grain of rice on the first square of a chessboard, two on the next, four on the next, doubling each time. By square 31 you have over a billion grains on that one square. Every qubit you add is one more square: the number of states doubles each time.
+
 ## The essentials, fast
 
 **Absolute value** $|x|$ is distance from zero (sign ignored) — and $p = |a|^2$ is why probabilities are non‑negative. **Exponent laws:** $a^m a^n = a^{m+n}$, $a^0 = 1$, $a^{-n} = \tfrac{1}{a^n}$ (so $10^{-3} = 0.001$), $a^{1/2} = \sqrt a$. Key value: $\tfrac{1}{\sqrt2} = \tfrac{\sqrt2}{2} \approx 0.707$. **Scientific notation** $c \times 10^k$ (Python `2.03e-3`) writes specs; multiply the fronts and add exponents. **Logarithms** ask exponents backwards: $\log_2 8 = 3$ because $2^3 = 8$, and $\log(ab) = \log a + \log b$ — the trick behind estimating how errors compound.

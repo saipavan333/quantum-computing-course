@@ -8,6 +8,8 @@ NumPy is the tool that makes math *executable and checkable*. A quantum state is
 
 Three reflexes carry the whole lesson. **Vectorize:** operations apply to whole arrays at once (no loops) — `np.abs(psi)**2` gives all the probabilities in one stroke. **Use `@`, never `*`:** `@` is the matrix product (a gate acting on a state); `*` multiplies element‑by‑element and silently produces nonsense. And **`np.vdot` for overlaps** (it conjugates the first argument; `np.dot` doesn't). Get those three and you can check any quantum claim in the course.
 
+> **School-kid analogy.** Instead of one teacher marking 30 tests one after another, the whole class marks its own test at the same moment. NumPy applies one operation to every number in an array in one go, which is why it is so much faster than a Python loop.
+
 ## Arrays and the quantum verbs
 
 An array carries `.shape` and `.dtype`; quantum work is `complex128` (a stray missing `1j` shows up as `float64`). Builders: `np.zeros`, `np.eye` (identity = do‑nothing gate), `np.linspace(0, 2*np.pi, 50)` (the parameter‑sweep workhorse). The verbs, each from Module 2:

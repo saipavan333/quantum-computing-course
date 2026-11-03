@@ -8,6 +8,8 @@ Three ideas make you conversant fast. **There are four qubit technologies, and n
 
 Carry one reflex: **invert the hype ranking.** The least flashy headline — "below‑threshold logical qubit" — is usually the most significant, while "1,000 qubits!" and "100× faster!" are marketing‑inflected until proven otherwise. Valuing substance over spectacle is exactly the calibration employers pay for.
 
+> **School-kid analogy.** There are several ways to power a car: gasoline, battery, hydrogen. Each has strengths, none has clearly won, and you judge them by tested performance, not by the adverts. Qubit technologies are the same.
+
 ## 1. The four main qubit technologies
 
 Different physical systems can be qubits, each with distinct strengths. The four leading modalities in 2026:

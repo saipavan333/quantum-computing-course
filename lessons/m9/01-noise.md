@@ -8,6 +8,8 @@ A qubit is like a child's spinning top. Two ways it goes wrong on its own: it sl
 
 You can't stop the noise on today's machines. So the NISQ craft is twofold: **keep circuits short and cheap** (fewer, faster gates = less time to fall over), and **clean up the answer statistically** afterward — error *mitigation*, which recovers a truer number from noisy runs without adding a single qubit. (That's different from error *correction*, next module, which spends many extra qubits to actually remove errors.)
 
+> **School-kid analogy.** In the whispering game, every extra child in the line adds mistakes to the message. Every extra gate does the same to a quantum state, so short circuits win.
+
 ## The enemies: what corrupts a qubit
 
 - **$T_1$ — relaxation.** $\ket1$ decays to $\ket0$, leaking energy. Survival probability at time $t$ is $e^{-t/T_1}$ ($T_1 \approx 100$–$300\,\mu s$ on 2026 hardware). On the Bloch sphere: the vector sags toward the north pole.

@@ -10,6 +10,8 @@ A matrix is a **machine that eats a vector and returns a vector**. That's the wh
 
 **Linearity carries you the rest of the way.** Because a matrix respects sums and scaling, knowing what a gate does to $\ket0$ and $\ket1$ tells you what it does to *every* superposition — the amplitudes just tag along. That's the entire reason quantum mechanics is computable by hand. Two more facts to hold: **order matters** ($AB \neq BA$ — gate order is physics), and the "dagger" $M^\dagger$ (transpose *and* conjugate) is quantum's proper transpose.
 
+> **School-kid analogy.** A matrix is a machine on a factory line: an arrow goes in, and it comes out stretched, turned or flipped. Two machines in a row is matrix multiplication, and swapping the order of machines can give a different result.
+
 ## What a matrix does
 
 Each output entry is a **row dotted with the input**:

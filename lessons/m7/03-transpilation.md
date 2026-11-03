@@ -8,6 +8,8 @@ The compiler faces two hard walls, and everything follows. **The chip speaks onl
 
 Carry one number: **the post‑transpile two‑qubit gate count is your circuit's true price tag.** Log it, compare optimization levels, and seed the transpiler — because on hardware your circuit isn't what you wrote, it's what the transpiler emitted.
 
+> **School-kid analogy.** You have a recipe, but the kitchen only has a kettle and a microwave, and pans can only be passed to the burner next door. Transpiling rewrites the recipe using only those tools and plans where to move the pans (SWAPs).
+
 ## 1. The target: what a real device offers
 
 Interrogate any backend and two constraints define your world:

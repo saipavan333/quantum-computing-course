@@ -8,6 +8,8 @@ Quantum errors look impossible to fix for three reasons, and one idea dissolves 
 
 Hold that middle idea above all — **you check for errors without ever reading the data** — because it is the move that makes the entire field possible, and it's just Module 6's ancilla‑parity trick wearing a cape.
 
+> **School-kid analogy.** On a crackly phone line you say your number three times so the listener can take a majority vote. Quantum error correction has a twist: you are not allowed to look at the digits, so instead you check "do digits 1 and 2 match?" without learning what they are.
+
 ## The escape, concretely: the 3-qubit bit-flip code
 
 Encode $\ket{0_L}=\ket{000}, \ket{1_L}=\ket{111}$ (two CNOTs from the data qubit — entangling, not cloning, since we copy *basis states*). To detect an X (bit‑flip) error, measure two parities with ancillas: $Z_1Z_2$ ("do qubits 1 and 2 agree?") and $Z_2Z_3$. The pair of parity results is the **syndrome**, and it names the flipped qubit — $(-1,+1)\to$ qubit 1, $(-1,-1)\to$ qubit 2, $(+1,-1)\to$ qubit 3, $(+1,+1)\to$ no error — *without ever learning $\alpha,\beta$*, because those parities are identical for $\ket{000}$, $\ket{111}$, and every superposition.

@@ -8,6 +8,8 @@ Forget triangles. Stand on a circle of radius 1 at angle $\theta$ (counterclockw
 
 The payoff for quantum: since your point sits *on* the unit circle, $\cos^2\theta + \sin^2\theta = 1$ always — which is **normalization in disguise**. So $(\cos\tfrac\theta2, \sin\tfrac\theta2)$ is automatically a valid qubit amplitude pair, and a single angle $\theta$ sweeps every real qubit state. Two more things to carry: everything in code is **radians** (a full turn is $2\pi$, not 360), and to *aim* a qubit at a target probability you invert this — $\theta = 2\arccos\sqrt{p(0)}$ becomes one line of Qiskit.
 
+> **School-kid analogy.** Ride a Ferris wheel. Your height above the center is the sine, how far left or right you are is the cosine. Wherever your seat is, height² + sideways² = radius² (Pythagoras), which is why cos² + sin² is always 1, and why two probabilities built from them always add to 1.
+
 ## The circle, the values, the identity
 
 A full turn is $2\pi$ radians; convert with $\text{rad} = \text{deg}\times\tfrac{\pi}{180}$. The five values covering ~95% of usage — sine reads $\tfrac{\sqrt0}{2}, \tfrac{\sqrt1}{2}, \tfrac{\sqrt2}{2}, \tfrac{\sqrt3}{2}, \tfrac{\sqrt4}{2}$ across $0, \tfrac\pi6, \tfrac\pi4, \tfrac\pi3, \tfrac\pi2$, and cosine is that row reversed (our friend $\tfrac{1}{\sqrt2}$ sits at $45°$).

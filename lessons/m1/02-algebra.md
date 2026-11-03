@@ -8,6 +8,8 @@ Three algebra ideas carry the whole course. First, the one equation you'll solve
 
 Plus one piece of notation you must read fluently: **$\Sigma$ (sigma)**, compressed addition. A quantum state over $n$ qubits is a sum of $2^n$ pieces; nobody writes them out, so learn to read $\sum_k a_k \ket k$ as "a state is a weighted sum of basis pieces, and the squared weights total 1."
 
+> **School-kid analogy.** A variable is a lunchbox with a name on the lid. You can slide lunchboxes around the table (rearrange the equation) without opening them. Normalization is a pizza: however you slice it, the slices add up to one whole pizza. And order matters the way socks-then-shoes is not shoes-then-socks.
+
 ## The essentials, fast
 
 **Solve equations** by doing the same thing to both sides, and substitute back to check. **Un‑squaring introduces $\pm$**: $x^2 = \tfrac14$ gives $x = \pm\tfrac12$ (squares hide signs — which is also why probabilities can't recover an amplitude's sign). **The binomial square** $(a+b)^2 = a^2 + 2ab + b^2$ — that cross‑term $2ab$ is *literally* where interference comes from. **Functions** are named machines: $f(x) = x^2$, composed as $f(g(x))$ (inner first), inverted as $f^{-1}$ (undo). **Sigma**: $\sum_{k=1}^{4} k^2 = 30$, linear (splits over $+$, constants factor out).

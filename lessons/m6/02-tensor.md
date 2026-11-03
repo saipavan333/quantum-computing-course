@@ -8,6 +8,8 @@ Combining qubits means **multiplying their descriptions together**. One qubit ne
 
 Most combined states are "boring" in a good way: they **factor** into "this qubit is doing X and that qubit is doing Y" — a **product state**, where the qubits are independent. But — and this is the whole point of Module 6 — *some* states refuse to factor. The pair has a perfectly definite joint state while *neither qubit alone has a state of its own*. Those are **entangled** states, and the tensor‑product arithmetic is what tells product from entangled. (Plus one convention that causes every beginner's first "wrong" histogram: Qiskit numbers qubit 0 as the **rightmost** bit.)
 
+> **School-kid analogy.** 2 shirts and 3 pairs of trousers make 6 outfits. Combining systems multiplies the possibilities, so 2 qubits give 4 combinations, 3 give 8, and 10 give 1,024.
+
 ## The tensor product
 
 Qubit A in $\ket{\psi_A}$, qubit B in $\ket{\psi_B}$: the pair is $\ket{\psi_A}\otimes\ket{\psi_B}$, where $\otimes$ multiplies *every amplitude of the first by every amplitude of the second*:

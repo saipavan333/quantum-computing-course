@@ -8,6 +8,8 @@ Dirac notation is just a very clean way to write "overlap." A **ket** $\ket\psi$
 
 Why you care: the **Born rule**, the central formula of quantum mechanics, is just this overlap, magnitude‑squared — $p(\phi) = |\braket{\phi}{\psi}|^2$. Everything you measure is an overlap you square. There is one twist that trips up everyone once: for complex vectors the inner product **conjugates the first vector** (so that a state's overlap with itself is a real, non‑negative length). In code that means `np.vdot`, never `np.dot`.
 
+> **School-kid analogy.** Shine two torches at a wall. The bra-ket $\braket{a}{b}$ asks how much the two beams overlap: fully (1), not at all (0), or partly. Squaring that overlap gives the chance that one state is found to be the other.
+
 ## The complex inner product and the bracket
 
 Naively, $\binom{i}{0}\cdot\binom{i}{0} = i^2 = -1$ — a negative "length," unacceptable. The fix: conjugate the first vector, $\langle u, v\rangle = \sum_k u_k^* v_k$. Then $\langle u,u\rangle = \sum |u_k|^2 \ge 0$ is the norm‑squared. Dirac makes this automatic: the **bra** $\bra\psi = \ket\psi^\dagger$ is the conjugated row, and $\braket{\phi}{\psi} = \sum_k \phi_k^* \psi_k$ is bra times ket — a number.

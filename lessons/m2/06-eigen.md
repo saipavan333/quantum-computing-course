@@ -13,6 +13,8 @@ Two families of matrices, defined by how they relate to their **dagger** (conjug
 
 The famous bases you've juggled are eigenbases in disguise: Z owns $\{\ket0,\ket1\}$, X owns $\{\ket\pm\}$, Y owns $\{\ket{\pm i}\}$.
 
+> **School-kid analogy.** Spin a globe. Almost every point on it moves, but the North and South Poles stay put on the spin axis. Those special unmoved directions are the eigenvectors of the spin, and the eigenvalue says how much they are stretched (here, not at all: 1).
+
 ## Eigenvectors, and finding them
 
 Rewrite $M\vec v = \lambda\vec v$ as $(M-\lambda I)\vec v = 0$; a nonzero solution needs $\det(M-\lambda I) = 0$ (the **characteristic equation**, a quadratic for 2×2). For $X = \binom{0\ 1}{1\ 0}$: $\lambda^2 - 1 = 0 \Rightarrow \lambda = \pm1$, with eigenvectors $\ket+$ ($\lambda=1$) and $\ket-$ ($\lambda=-1$). So **the eigenvectors of the X gate are the ± basis** — measurements are questions, and a measurement's possible answers are the eigenvectors of its matrix.

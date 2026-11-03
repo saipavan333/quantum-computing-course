@@ -8,6 +8,8 @@ Last lesson a complex number was an arrow with a length and an angle. Euler's fo
 
 Two phrases to burn in. "Phase" just means *angle*. And a phase of $\pi$ is a factor of $-1$ (half a turn points the arrow backward) — so "apply a $\pi$ phase" and "flip the sign" are the same sentence, one you'll use weekly from Module 6 on. Quantum gates preserve total probability (lengths) while rearranging amplitudes — i.e., they *rotate* — which is exactly the algebra of unit‑length complex factors.
 
+> **School-kid analogy.** $e^{i\theta}$ is a clock hand of length 1, and $\theta$ says how far it has turned. Two hands pointing the same way add up to a longer arrow; two pointing opposite ways cancel to nothing. That adding and cancelling is interference.
+
 ## Polar form and Euler's formula
 
 Locate $z$ by its length $r = |z|$ and angle $\theta$ (the **phase**, in radians, via `atan2`): $z = r(\cos\theta + i\sin\theta) = r\,e^{i\theta}$. Euler's formula $e^{i\theta} = \cos\theta + i\sin\theta$ makes $e^{i\theta}$ walk the unit circle:

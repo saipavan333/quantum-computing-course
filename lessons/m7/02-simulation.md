@@ -8,6 +8,8 @@ Three ideas run this lesson. **There are two simulation modes for two jobs:** `S
 
 Carry one workflow: **debug on the free simulator, spend QPU only on validated circuits** — exact logic first, then ideal sampling, then a noisy fake‑backend rehearsal, and only then real hardware.
 
+> **School-kid analogy.** Simulating a quantum computer is like writing down every possible path on paper. Each extra qubit doubles the paper. At 50 qubits you would need about 18 petabytes of memory just to hold the list.
+
 ## 1. Exact simulation — `Statevector`, the glass-box mode
 
 `Statevector` computes the *complete amplitude vector* — the full $2^n$ complex entries — by multiplying your gates into the state exactly (the kron-and-matmul machinery you built by hand, industrialized):

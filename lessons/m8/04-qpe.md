@@ -10,6 +10,8 @@ Clever trick: run several wheels in parallel, tick one once, the next twice, the
 
 Why anyone cares: that eigenphase is a disguise. For a molecule's energy operator it *is* the energy. For Shor's multiply‑by‑a map it *is* the period that cracks RSA. For Grover's rotation it *is* the number of solutions. One subroutine, many masks.
 
+> **School-kid analogy.** To measure how fast a roundabout spins, look where a marked seat is after 1 turn, 2 turns, 4 turns, 8 turns. Each doubling reveals one more digit of the speed. Phase estimation reads a phase the same way, one binary digit per doubling.
+
 ## The problem, stated with care
 
 Given a unitary $U$ and an eigenstate $\ket u$ with $U\ket u = e^{2\pi i\varphi}\ket u$, $\varphi \in [0,1)$ unknown, find $\varphi$ to $t$ bits. Unitaries' eigenvalues live on the unit circle (the eigen lesson), so "measure the eigenvalue" *means* "estimate the phase." For a Hamiltonian $H$ with energy $E$, the evolution $U = e^{-iHt_0}$ has eigenphase $\varphi = -Et_0/2\pi$ — **energy estimation is phase estimation**, the one‑sentence business case for quantum chemistry.

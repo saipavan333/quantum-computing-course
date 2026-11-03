@@ -8,6 +8,8 @@ A prism takes white light and splits it into its colors — its frequencies. A F
 
 The quantum Fourier transform does this to a quantum state's amplitudes. Its single most important job in this course: if a state secretly *repeats with some period* $r$, the QFT turns that hidden rhythm into a **sharp, measurable spike** at the matching frequency. That is the whole trick behind Shor's algorithm — hide the factoring problem inside a period, then let the QFT expose it. Everything below builds the transform and shows that rhythm‑to‑spike conversion happening in a live cell.
 
+> **School-kid analogy.** A music app hears a chord and tells you which notes are in it. The quantum Fourier transform does that for repeating patterns: it turns "this repeats every 4 steps" into a reading you can measure.
+
 ## What it is — the definition, decoded
 
 The QFT on $n$ qubits ($N = 2^n$) maps each basis state to a superposition with frequency‑patterned phases:

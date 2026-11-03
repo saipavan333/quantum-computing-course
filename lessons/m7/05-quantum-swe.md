@@ -8,6 +8,8 @@ Four habits separate a shippable repo from a pile of notebooks. **Pure core, dir
 
 Carry one truth: **your GitHub repo is the portfolio artifact that outranks certificates.** A recruiter clicking your profile should find tests passing, honest error bars, and a clean history — build it as if they read it, because they do.
 
+> **School-kid analogy.** A good lab notebook lets a classmate repeat your experiment and get the same result. Tests, git and pinned versions are the lab notebook for code.
+
 ## 1. Project structure — the shape of a serious repo
 
 The layout that scales from coursework to production (and that interviewers subconsciously scan for):
