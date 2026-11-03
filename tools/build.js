@@ -66,7 +66,8 @@ for (const mod of COURSE.modules) {
       if (!f.endsWith(".md")) continue;
       files++;
       const id = f.replace(/^\d+-/, "").replace(/\.md$/, "");
-      const md = fs.readFileSync(path.join(dir, f), "utf8");
+      // normalize CRLF: Windows checkouts (core.autocrlf=true) must not leak \r into content/*.js
+      const md = fs.readFileSync(path.join(dir, f), "utf8").replace(/\r\n?/g, "\n");
       if (!mod.lessons.some((l) => l.id === id)) {
         warn(`${mod.id}/${f}: no lesson "${id}" in manifest`);
         continue;
