@@ -1810,6 +1810,67 @@
     return svg(286, b, "the exact evolution bar compared with 1, 4 and 8 rounds of alternating A and B slices");
   })();
 
+  // ---- P2 M9: noise — T1 and T2 pull the Bloch arrow inward ----
+  D["p2-noise"] = (() => {
+    const cx = 150, cy = 150, R = 110, T1 = 100, T2 = 80;
+    let b = t(320, 24, "Noise shrinks the Bloch arrow: |+⟩ left alone for t microseconds", { bold: true, size: 15 });
+    b += circ(cx, cy, R, { fill: "none", stroke: C.faint, sw: 1.3 }) + ln(cx - R - 8, cy, cx + R + 8, cy, { stroke: C.boxS }) + ln(cx, cy - R - 8, cx, cy + R + 8, { stroke: C.boxS });
+    b += t(cx - 10, cy - R + 4, "|0⟩ (ground)", { size: 12, fill: C.goodT, a: "end" }) + t(cx + R + 4, cy + 18, "|+⟩", { size: 12, fill: C.dim, a: "start" });
+    let pts = [];
+    for (let k = 0; k <= 60; k++) { const tt = k * 5, x = Math.exp(-tt / T2), z = 1 - Math.exp(-tt / T1); pts.push((cx + R * x).toFixed(1) + "," + (cy - R * z).toFixed(1)); }
+    b += `<polyline points="${pts.join(" ")}" style="fill:none;stroke:${C.warn};stroke-width:1.6;stroke-dasharray:4 3"/>`;
+    [0, 25, 50, 100, 200].forEach(tt => {
+      const x = Math.exp(-tt / T2), z = 1 - Math.exp(-tt / T1), px = cx + R * x, py = cy - R * z;
+      b += circ(px, py, 4, { fill: C.warn, stroke: C.warn }) + t(px + 8, py + (tt ? 4 : -8), "t=" + tt, { size: 11, fill: C.warnT, a: "start" });
+    });
+    b += arr(cx, cy, cx + R * Math.exp(-50 / T2), cy - R * (1 - Math.exp(-50 / T1)), { stroke: C.cyan, sw: 2.4 });
+    b += lines(320, 66, ["T1 = 100 µs: energy leaks, the arrow", "sags toward |0⟩:  z = 1 − e^(−t/T1)", "", "T2 = 80 µs: the phase blurs, the arrow", "shrinks sideways:  x = e^(−t/T2)", "", "At t = 50 µs: x = 0.54, z = 0.39,", "so a gate that needed |+⟩ now sees", "a weaker, tilted arrow."], { size: 13, fill: C.tx, a: "start", lh: 19 });
+    b += t(470, 264, "T2 can never be more than 2 × T1.", { size: 12, fill: C.dim });
+    return svg(280, b, "x-z slice of the Bloch sphere; a state starting at |+> follows a curve inward and up toward |0> as T1 and T2 act");
+  })();
+
+  // ---- P2 M9: VQE — quantum energy, classical optimizer, repeat ----
+  D["p2-vqe"] = (() => {
+    let b = t(320, 24, "VQE: a quantum chip measures energy, a classical optimizer tunes the knobs", { bold: true, size: 15 });
+    b += box(20, 48, 190, 70, { stroke: C.cyan }) + t(115, 72, "quantum circuit", { size: 12, fill: C.dim }) + t(115, 94, "prepare |ψ(θ)⟩", { size: 14, bold: true, fill: C.cyanT }) + t(115, 110, "shallow, a few knobs θ", { size: 11, fill: C.dim });
+    b += arrR(212, 83, 246) + box(248, 48, 150, 70, { stroke: C.warn }) + t(323, 72, "measure", { size: 12, fill: C.dim }) + t(323, 96, "energy E(θ)", { size: 14, bold: true, fill: C.warnT });
+    b += arrR(400, 83, 434) + box(436, 48, 184, 70, { stroke: C.acc }) + t(528, 72, "classical optimizer", { size: 12, fill: C.dim }) + t(528, 96, "suggest better θ", { size: 14, bold: true, fill: C.accT });
+    b += ln(528, 120, 528, 136, { stroke: C.acc }) + ln(528, 136, 115, 136, { stroke: C.acc }) + arrU(115, 136, 120, { stroke: C.acc }) + t(320, 150, "repeat until the energy stops dropping", { size: 12, fill: C.accT });
+    const x0 = 60, x1 = 580, Y = th => 190 + 60 * (1 - Math.cos(th)) / 2, X = th => x0 + th / (2 * Math.PI) * (x1 - x0);
+    let pts = []; for (let k = 0; k <= 60; k++) { const th = k / 60 * 2 * Math.PI; pts.push(X(th).toFixed(1) + "," + Y(th).toFixed(1)); }
+    b += `<polyline points="${pts.join(" ")}" style="fill:none;stroke:${C.cyan};stroke-width:2"/>`;
+    [0.6, 1.4, 2.2, 2.8, Math.PI].forEach((th, i) => { b += circ(X(th), Y(th), 4.5, { fill: i === 4 ? C.good : C.warn, stroke: "none" }); });
+    b += t(X(Math.PI), 262, "lowest energy = best answer", { size: 12, fill: C.goodT });
+    b += t(36, 184, "E", { size: 12, fill: C.dim }) + t(320, 182, "energy vs one knob θ: each step slides downhill", { size: 11, fill: C.dim });
+    return svg(276, b, "VQE loop between a quantum circuit, an energy measurement and a classical optimizer, and an energy curve with steps descending to the minimum");
+  })();
+
+  // ---- P2 M9: QAOA — Max-Cut on a 4-node ring ----
+  D["p2-qaoa"] = (() => {
+    let b = t(320, 24, "QAOA on Max-Cut: split the nodes so as many edges as possible cross", { bold: true, size: 15 });
+    const N = [[90, 70], [210, 70], [210, 190], [90, 190]], col = [C.cyan, C.warn, C.cyan, C.warn];
+    [[0, 1], [1, 2], [2, 3], [3, 0]].forEach(([a, c]) => { b += ln(N[a][0], N[a][1], N[c][0], N[c][1], { stroke: C.good, sw: 3 }); });
+    N.forEach((p, i) => { b += circ(p[0], p[1], 18, { fill: C.box, stroke: col[i], sw: 2.4 }) + t(p[0], p[1] + 5, String(i), { size: 14, bold: true, fill: col[i] === C.cyan ? C.cyanT : C.warnT }); });
+    b += t(150, 236, "cyan set vs gold set: all 4 edges cut (best)", { size: 12, fill: C.goodT });
+    b += t(150, 254, "bit string 0101 or 1010", { size: 12, fill: C.dim });
+    const lay = [["start: H on every qubit", "all splits equally likely", C.boxS, C.tx], ["cost layer, angle γ", "phases each split by its cut size", C.warn, C.warnT], ["mixer layer, angle β", "lets amplitude flow between splits", C.cyan, C.cyanT], ["repeat p times, then measure", "optimizer tunes all γ and β", C.acc, C.accT]];
+    lay.forEach((l, i) => { const y = 48 + i * 50; b += box(300, y, 320, 42, { stroke: l[2] }) + t(314, y + 18, l[0], { size: 13, bold: true, fill: l[3], a: "start" }) + t(314, y + 34, l[1], { size: 11, fill: C.dim, a: "start" }); if (i < 3) b += arrD(460, y + 43, y + 49, { stroke: C.faint }); });
+    b += t(460, 264, "More rounds p: better splits, but deeper circuits.", { size: 11, fill: C.dim });
+    return svg(276, b, "a four-node ring split into two colors so all four edges are cut, beside the QAOA layer sequence");
+  })();
+
+  // ---- P2 M9: QML — the pipeline and the reality check ----
+  D["p2-qml"] = (() => {
+    let b = t(320, 24, "Quantum machine learning: where the quantum part sits", { bold: true, size: 15 });
+    const st = [["data x", "a row of numbers", C.boxS, C.tx], ["feature map", "x sets gate angles", C.cyan, C.cyanT], ["quantum part", "kernel overlaps or a trained circuit", C.acc, C.accT], ["classical model", "e.g. an SVM decides", C.warn, C.warnT], ["label", "cat / dog", C.good, C.goodT]];
+    st.forEach((s, i) => { const x = 12 + i * 126, w = 112; b += box(x, 48, w, 62, { stroke: s[2] }) + t(x + w / 2, 72, s[0], { size: 13, bold: true, fill: s[3] }); b += t(x + w / 2, 92, s[1].length > 18 ? s[1].slice(0, 15) : s[1], { size: 10, fill: C.dim }); if (s[1].length > 18) b += t(x + w / 2, 104, s[1].slice(16), { size: 10, fill: C.dim }); if (i < 4) b += arrR(x + w + 1, 79, x + 125, { stroke: C.faint }); });
+    b += ln(20, 130, 620, 130, { stroke: C.cardEdge });
+    b += t(320, 156, "What the evidence says (2026):", { size: 13, bold: true, fill: C.tx });
+    b += lines(40, 182, ["• 160 datasets, 12 models: classical models generally won (Bowles, Ahmed, Schuld 2024).", "• Training can stall on flat landscapes (barren plateaus, McClean 2018).", "• Proven speedups exist, but for contrived or quantum-native data (Liu 2021; Huang 2022)."], { size: 12, fill: C.dim, a: "start", lh: 22 });
+    b += t(320, 262, "Treat 'quantum AI' claims as hypotheses to test against a strong classical baseline.", { size: 12, fill: C.warnT });
+    return svg(276, b, "pipeline from data through a feature map and quantum part to a classical model and label, with a summary of the evidence");
+  })();
+
   // @@P2-INSERT
   window.DIAGRAMS = Object.assign(window.DIAGRAMS || {}, D);
 })();

@@ -578,6 +578,48 @@
     F.on(draw); draw();
   };
 
+  /* =====================================================================
+     M9 noise — T1/T2 shrink the Bloch vector (x–z slice):
+     x(t) = x0·e^(−t/T2),  z(t) = 1 − (1 − z0)·e^(−t/T1),  T2 ≤ 2·T1
+     ===================================================================== */
+  V["bloch-shrink"] = function (host) {
+    var F = frame(host, "Leave a qubit alone and watch T1 and T2 shrink its Bloch arrow", 480, 280,
+      [{ type: "range", id: "th", label: "Start angle θ from |0⟩ =", min: 0, max: 180, step: 5, value: 90 },
+       { type: "range", id: "t1", label: "T1 (µs) =", min: 10, max: 400, step: 10, value: 150 },
+       { type: "range", id: "t2", label: "T2 (µs) =", min: 10, max: 400, step: 10, value: 100 },
+       { type: "range", id: "t", label: "Waiting time t (µs) =", min: 0, max: 400, step: 5, value: 60 }],
+      "A slice of the Bloch sphere with the starting arrow, the decayed arrow and the path between them");
+    function draw() {
+      var th = F.val("th") * Math.PI / 180, T1 = F.val("t1"), T2raw = F.val("t2"), T2 = Math.min(T2raw, 2 * T1), t = F.val("t");
+      F.out("th", F.val("th") + "°"); F.out("t1", T1); F.out("t2", T2raw + (T2raw > 2 * T1 ? " → " + T2 : "")); F.out("t", t);
+      var x0 = Math.sin(th), z0 = Math.cos(th);
+      var at = function (tt) { return [x0 * Math.exp(-tt / T2), 1 - (1 - z0) * Math.exp(-tt / T1)]; };
+      var cx = 140, cy = 140, Rr = 110, v = at(t);
+      var o = C(cx, cy, Rr, "none", "var(--faint)", 1.3) + L(cx - Rr - 8, cy, cx + Rr + 8, cy, "var(--border)", 1) + L(cx, cy - Rr - 8, cx, cy + Rr + 8, "var(--border)", 1);
+      o += T(cx, cy - Rr - 12, "|0⟩", { s: 12, c: "var(--good)" }) + T(cx, cy + Rr + 22, "|1⟩", { s: 12, c: "var(--warn)" }) + T(cx + Rr + 6, cy - 6, "x", { s: 11, c: "var(--faint)", a: "start" });
+      var pts = []; for (var k = 0; k <= 80; k++) { var p = at(k / 80 * t); pts.push([cx + Rr * p[0], cy - Rr * p[1]]); }
+      o += P(pts, "var(--warn)", 1.6);
+      o += A(cx, cy, cx + Rr * x0, cy - Rr * z0, "var(--faint)", 2);
+      o += A(cx, cy, cx + Rr * v[0], cy - Rr * v[1], "var(--acc2)", 3);
+      var len = Math.hypot(v[0], v[1]), p0 = (1 + v[1]) / 2;
+      var bx = 300;
+      o += T(bx, 40, "arrow length: " + f(len, 3), { s: 14, b: true, a: "start", c: "var(--acc2)" });
+      o += T(bx, 66, "coherence |x| = " + f(Math.abs(v[0]), 3), { s: 13, a: "start" });
+      o += T(bx, 88, "height z = " + f(v[1], 3), { s: 13, a: "start" });
+      o += T(bx, 110, "P(0) = (1 + z)/2 = " + f(p0, 3), { s: 13, a: "start", c: "var(--good)" });
+      var gates = Math.floor(t / 0.05);
+      o += T(bx, 150, "≈ " + gates.toLocaleString("en-US") + " gates of 50 ns (assumed)", { s: 12, a: "start", c: "var(--dim)" });
+      o += T(bx, 168, "fit inside this wait", { s: 12, a: "start", c: "var(--dim)" });
+      o += T(bx, 190, "T1 = " + T1 + " µs, T2 = " + T2 + " µs", { s: 12, a: "start", c: "var(--text)" });
+      o += T(bx, 210, "gray: start", { s: 12, a: "start", c: "var(--faint)" }) + T(bx, 228, "cyan: after t µs", { s: 12, a: "start", c: "var(--acc2)" }) + T(bx, 246, "gold: the path", { s: 12, a: "start", c: "var(--warn)" });
+      F.draw(o);
+      F.read.innerHTML = "x(t) = x₀·e^(−t/T2) and z(t) = 1 − (1 − z₀)·e^(−t/T1). The arrow shrinks toward the inside of the sphere (a mixed state) and drifts to |0⟩, the ground state. " +
+        (T2raw > 2 * T1 ? "T2 was clamped to 2·T1 = " + 2 * T1 + " µs: physics never allows more. " : "") +
+        "Start at |0⟩ (θ = 0) and nothing happens, because the qubit is already at rest. Start at |1⟩ and only T1 acts.";
+    }
+    F.on(draw); draw();
+  };
+
   /* @@VIZ-INSERT */
 
   /* ---------- mount + simple-section styling ---------- */

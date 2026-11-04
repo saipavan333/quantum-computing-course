@@ -1,5 +1,24 @@
 # Quantum machine learning: promise vs reality
 
+## The simple version
+
+**In plain English.** Quantum machine learning (QML) tries to use quantum circuits inside machine-learning models. Usually data is turned into gate angles, a quantum circuit processes it, and a normal model makes the final decision. The hope is to find patterns that classical models miss. So far, the evidence says classical models usually do as well or better on ordinary data. Proven advantages exist, but mostly for special or quantum-made data.
+
+**The everyday picture: a fancy new kitchen gadget.**
+
+| In the picture | In the real thing |
+|---|---|
+| Putting ingredients into the gadget | Encoding data with a feature map |
+| What the gadget does inside | The quantum kernel or trained circuit |
+| The chef who decides on the dish | The classical model, such as an SVM |
+| Taste tests against an ordinary knife | Benchmarks against strong classical baselines |
+
+**Where the picture breaks.** A gadget either works or it doesn't, and you can see why. QML results depend on subtle things: noise, how data is encoded, and whether a classical trick can copy the quantum model (dequantization). A gadget also doesn't need a fridge near absolute zero. Treat every 'quantum AI' claim as a hypothesis and check it against a good classical model.
+
+@@diagram:p2-qml|Where the quantum part sits in a QML pipeline, and what the evidence says in 2026: classical models usually win on ordinary data; proven speedups need special data.
+
+## Going deeper
+
 Quantum machine learning is the field's most hyped and most misunderstood corner — which makes calibrated understanding of it unusually valuable. You'll be asked about QML in interviews, in meetings, by executives who read a headline. This lesson gives you the actual mechanisms (feature maps, quantum kernels, variational classifiers), the genuine open questions (barren plateaus, data-loading, whether any advantage exists), and the ability to discuss QML credibly without either breathless hype or reflexive dismissal.
 
 ## Start here — the intuition
@@ -186,3 +205,7 @@ Checked 3 November 2026. Roadmap items are company *targets*, not results.
 - ☐ Name QML's core obstacles (data loading, barren plateaus, classical competition, de-quantization).
 - ☐ Explain why every QML result needs a classical baseline on the same data.
 - ☐ Give the calibrated QML stance to a non-expert without hype or dismissiveness.
+
+## In one line
+
+Quantum machine learning puts a quantum circuit inside a model, and so far it rarely beats a good classical model on everyday data.
