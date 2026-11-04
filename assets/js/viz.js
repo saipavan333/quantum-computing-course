@@ -146,6 +146,81 @@
     F.on(draw); draw();
   };
 
+  /* =====================================================================
+     M2 complex — multiply two complex numbers: lengths multiply, angles add
+     ===================================================================== */
+  V["complex-multiply"] = function (host) {
+    var F = frame(host, "Multiply two complex numbers: lengths multiply, angles add", 480, 290,
+      [{ type: "range", id: "r1", label: "|z| =", min: 0.5, max: 1.8, step: 0.1, value: 1.5 },
+       { type: "range", id: "a1", label: "angle of z =", min: 0, max: 360, step: 5, value: 30 },
+       { type: "range", id: "r2", label: "|w| =", min: 0.5, max: 1.8, step: 0.1, value: 1.2 },
+       { type: "range", id: "a2", label: "angle of w =", min: 0, max: 360, step: 5, value: 60 }],
+      "Complex plane showing z, w and their product");
+    function draw() {
+      var r1 = F.val("r1"), a1 = F.val("a1"), r2 = F.val("r2"), a2 = F.val("a2");
+      F.out("r1", f(r1, 1)); F.out("a1", a1 + "°"); F.out("r2", f(r2, 1)); F.out("a2", a2 + "°");
+      var z = [r1 * Math.cos(a1 * Math.PI / 180), r1 * Math.sin(a1 * Math.PI / 180)];
+      var w = [r2 * Math.cos(a2 * Math.PI / 180), r2 * Math.sin(a2 * Math.PI / 180)];
+      var p = [z[0] * w[0] - z[1] * w[1], z[0] * w[1] + z[1] * w[0]];  // (a+bi)(c+di)
+      var pr = Math.hypot(p[0], p[1]), pa = ((Math.atan2(p[1], p[0]) * 180 / Math.PI) + 360) % 360;
+      var ox = 140, oy = 145, s = 40;
+      var o = L(10, oy, 270, oy, "var(--border)", 1.2) + L(ox, 10, ox, 280, "var(--border)", 1.2);
+      o += C(ox, oy, s, "none", "var(--faint)", 1) + T(ox + s + 3, oy + 14, "1", { s: 11, c: "var(--faint)", a: "start" });
+      o += A(ox, oy, ox + s * z[0], oy - s * z[1], "var(--acc2)", 2.6);
+      o += A(ox, oy, ox + s * w[0], oy - s * w[1], "var(--warn)", 2.6);
+      o += A(ox, oy, ox + s * p[0], oy - s * p[1], "var(--good)", 3);
+      var y = 40;
+      [["z", r1, a1, z, "var(--acc2)"], ["w", r2, a2, w, "var(--warn)"], ["z·w", pr, pa, p, "var(--good)"]].forEach(function (q) {
+        o += T(290, y, q[0] + ": length " + f(q[1], 2) + ", angle " + Math.round(q[2]) + "°", { s: 13, c: q[4], a: "start", b: true });
+        o += T(290, y + 20, "= " + f(q[3][0], 2) + (q[3][1] < 0 ? " − " : " + ") + f(Math.abs(q[3][1]), 2) + "i", { s: 13, c: "var(--dim)", a: "start" });
+        y += 62;
+      });
+      o += T(290, 232, f(r1, 1) + " × " + f(r2, 1) + " = " + f(r1 * r2, 2), { s: 13, a: "start" });
+      o += T(290, 254, a1 + "° + " + a2 + "° = " + ((a1 + a2) % 360) + "° (mod 360)", { s: 13, a: "start" });
+      F.draw(o);
+      F.read.innerHTML = "The green arrow is z·w, computed the long way as (a + bi)(c + di) = (ac − bd) + (ad + bc)i. Its length is <b>" + f(pr, 2) +
+        "</b> = " + f(r1, 1) + " × " + f(r2, 1) + " and its angle is <b>" + Math.round(pa) + "°</b>. Set both lengths to 1 and multiplying only turns the arrow; that is what a phase does to an amplitude.";
+    }
+    F.on(draw); draw();
+  };
+
+  /* =====================================================================
+     M2 vector spaces — same state, tilted measuring ruler: chances cos²(a−b), sin²(a−b)
+     ===================================================================== */
+  V["basis-measure"] = function (host) {
+    var F = frame(host, "Same state, different ruler: tilt the basis and watch the chances change", 480, 280,
+      [{ type: "range", id: "a", label: "State angle a =", min: 0, max: 180, step: 1, value: 30 },
+       { type: "range", id: "b", label: "Ruler tilt b =", min: 0, max: 90, step: 1, value: 45 }],
+      "A state arrow and a tilted pair of basis axes with bars for the two measurement chances");
+    function draw() {
+      var a = F.val("a"), bb = F.val("b"); F.out("a", a + "°"); F.out("b", bb + "°");
+      var ar = a * Math.PI / 180, br = bb * Math.PI / 180, cx = 140, cy = 140, Rr = 110;
+      var c0 = Math.cos(ar - br), c1 = Math.sin(ar - br);  // coordinates in the tilted basis
+      var o = C(cx, cy, Rr, "none", "var(--border)", 1.2);
+      var e0 = [Math.cos(br), Math.sin(br)], e1 = [-Math.sin(br), Math.cos(br)];
+      o += L(cx - Rr * e0[0], cy + Rr * e0[1], cx + Rr * e0[0], cy - Rr * e0[1], "#b9a9ff", 1.4, "6 4");
+      o += L(cx - Rr * e1[0], cy + Rr * e1[1], cx + Rr * e1[0], cy - Rr * e1[1], "#b9a9ff", 1.4, "6 4");
+      o += T(cx + (Rr + 14) * e0[0], cy - (Rr + 14) * e0[1] + 5, "e₀", { s: 13, c: "#b9a9ff" });
+      o += T(cx + (Rr + 14) * e1[0], cy - (Rr + 14) * e1[1] + 5, "e₁", { s: 13, c: "#b9a9ff" });
+      var tip = [cx + Rr * Math.cos(ar), cy - Rr * Math.sin(ar)], foot = [cx + Rr * c0 * e0[0], cy - Rr * c0 * e0[1]];
+      o += L(tip[0], tip[1], foot[0], foot[1], "var(--good)", 1.4, "3 3");
+      o += L(cx, cy, foot[0], foot[1], "var(--good)", 4);
+      o += A(cx, cy, tip[0], tip[1], "var(--acc2)", 2.8) + T(tip[0], tip[1] - 10, "ψ", { s: 15, b: true, c: "var(--acc2)" });
+      var bx = 300, base = 220, H = 160;
+      [[c0 * c0, "chance e₀", "var(--good)"], [c1 * c1, "chance e₁", "var(--warn)"]].forEach(function (q, i) {
+        var x = bx + i * 90, h = q[0] * H;
+        o += R(x, base - H, 60, H, "none", "var(--border)", 4) + R(x, base - h, 60, h, q[2], "none", 4);
+        o += T(x + 30, base + 20, q[1], { s: 12, c: q[2] }) + T(x + 30, base - h - 8, f(q[0], 3), { s: 13, b: true });
+      });
+      o += T(375, 270, "ψ = " + f(c0, 3) + "·e₀ " + (c1 < 0 ? "− " : "+ ") + f(Math.abs(c1), 3) + "·e₁", { s: 12, c: "var(--dim)" });
+      F.draw(o);
+      F.read.innerHTML = "The state arrow ψ never changes when you move the ruler. Its coordinates along the tilted axes are cos(a − b) = <b>" + f(c0, 3) +
+        "</b> and sin(a − b) = <b>" + f(c1, 3) + "</b>, and their squares are the chances for that measurement. Line the ruler up with ψ and one outcome becomes certain. " +
+        "(Real amplitudes only. On the Bloch sphere in Module 5 these angles double.)";
+    }
+    F.on(draw); draw();
+  };
+
   /* @@VIZ-INSERT */
 
   /* ---------- mount + simple-section styling ---------- */

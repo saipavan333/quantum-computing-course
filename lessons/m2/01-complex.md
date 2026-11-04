@@ -1,5 +1,27 @@
 # Complex numbers & the complex plane
 
+## The simple version
+
+**In plain English.** Ordinary numbers sit on a line, so they can only point left (negative) or right (positive). A complex number is a point on a flat plane instead, so it can point in any direction. You write it as a + bi, where a is how far right and b is how far up. The letter i is a special number with i × i = −1. Quantum amplitudes are complex numbers, and their direction, called the phase, is what lets them cancel or add up.
+
+**The everyday picture: an arrow on a compass card.**
+
+| In the picture | In the real thing |
+|---|---|
+| How long the arrow is | The modulus \|z\|, from Pythagoras: √(a² + b²) |
+| Which way the arrow points | The phase (argument) of z |
+| Steps east and steps north | The real part a and the imaginary part b |
+| Turning the arrow a quarter turn left | Multiplying by i |
+| Two quarter turns: now facing backwards | i × i = −1 |
+
+**Where the picture breaks.** A compass arrow points to a place in the real world. The 'up' direction of the complex plane is not a real place; it is a second number line that only exists in the math. Also, for a qubit only the length decides chances; the phase is invisible in a single measurement until two amplitudes meet and interfere.
+
+@@diagram:p2-complex|z = 3 + 1i and i·z = −1 + 3i have the same length, √10, but i·z is turned 90° further. Multiplying by i is a quarter turn.
+
+@@viz:complex-multiply
+
+## Going deeper
+
 Quantum amplitudes are not just positive or negative — they are **complex numbers**. This isn't optional decoration: interference patterns observed in real experiments cannot be reproduced with real‑valued amplitudes alone. The good news: complex numbers are a *simplification* once you see them geometrically — a complex number is just a 2D arrow that knows how to multiply.
 
 ## Start here — the intuition
@@ -164,3 +186,7 @@ Norm$^2 = |1+i|^2 + 4 = 6$; $p(0) = \tfrac26 = \tfrac13$, $p(1) = \tfrac23$. The
 - ☐ Run the live cell and explain why `z**2` is the wrong probability.
 - ☐ Explain why quantum needs complex amplitudes (continuous phase) in one sentence.
 - ☐ Normalize a complex state and say why the phase didn't change the probabilities.
+
+## In one line
+
+A complex number is an arrow with a length and a direction, and multiplying by i turns it a quarter turn.

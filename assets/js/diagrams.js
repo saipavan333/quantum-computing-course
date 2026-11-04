@@ -1254,6 +1254,106 @@
     return svg(270, b, "grid with vector u (3,1), vector v (1,2) placed tip to tail, and their sum (4,3); dot product worked as 5");
   })();
 
+  // ---- P2 M2: complex — multiplying by i is a quarter turn ----
+  D["p2-complex"] = (() => {
+    const ox = 170, oy = 170, s = 36;
+    let b = t(320, 24, "A complex number is an arrow; multiplying by i turns it 90°", { bold: true, size: 15 });
+    b += ln(30, oy, 320, oy, { stroke: C.boxS }) + ln(ox, 44, ox, 270, { stroke: C.boxS });
+    b += t(312, oy + 18, "real", { size: 12, fill: C.dim, a: "end" }) + t(ox + 8, 54, "imaginary", { size: 12, fill: C.dim, a: "start" });
+    b += arr(ox, oy, ox + 3 * s, oy - 1 * s, { stroke: C.cyan, sw: 2.6 }) + t(ox + 3 * s - 4, oy - s - 14, "z = 3 + 1i", { size: 13, fill: C.cyanT });
+    b += arr(ox, oy, ox - 1 * s, oy - 3 * s, { stroke: C.good, sw: 2.6 }) + t(ox - s - 6, oy - 3 * s, "i·z = −1 + 3i", { size: 13, fill: C.goodT, a: "end" });
+    b += `<path d="M217.4,154.2 A50,50 0 0,0 154.2,122.6" style="fill:none;stroke:${C.warn};stroke-width:1.6;stroke-dasharray:4 3"/>`;
+    b += t(206, 124, "90°", { size: 12, fill: C.warnT });
+    b += lines(350, 70, ["z = 3 + 1i: 3 right, 1 up", "i·z = −1 + 3i", "", "Same length: √10 ≈ 3.16", "Angle grew by 90°", "", "i × i = −1:", "two quarter turns = a half turn"], { size: 14, fill: C.tx, a: "start", lh: 22 });
+    return svg(284, b, "complex plane with z = 3 + 1i and i times z = -1 + 3i, the same length rotated by 90 degrees");
+  })();
+
+  // ---- P2 M2: euler — multiplying adds the angles ----
+  D["p2-euler"] = (() => {
+    const cx = 160, cy = 152, R = 100, P = d => [cx + R * Math.cos(d * Math.PI / 180), cy - R * Math.sin(d * Math.PI / 180)];
+    let b = t(320, 24, "e^(iθ) is the point at angle θ, and multiplying adds the angles", { bold: true, size: 15 });
+    b += ln(40, cy, 280, cy, { stroke: C.boxS }) + ln(cx, 40, cx, 268, { stroke: C.boxS }) + circ(cx, cy, R, { fill: "none", stroke: C.faint, sw: 1.4 });
+    const [ax, ay] = P(30), [bx, by] = P(45), [px, py] = P(75);
+    b += arr(cx, cy, ax, ay, { stroke: C.cyan, sw: 2.4 }) + t(ax + 8, ay + 6, "e^(i·30°)", { size: 13, fill: C.cyanT, a: "start" });
+    b += arr(cx, cy, bx, by, { stroke: C.warn, sw: 2, dash: "5 4" }) + t(bx + 8, by - 4, "e^(i·45°)", { size: 13, fill: C.warnT, a: "start" });
+    b += arr(cx, cy, px, py, { stroke: C.good, sw: 2.8 }) + t(px - 6, py - 10, "e^(i·75°)", { size: 13, fill: C.goodT, a: "end" });
+    b += t(cx - R - 6, cy - 6, "−1", { size: 12, fill: C.dim, a: "end" }) + t(cx + R + 6, cy - 6, "1", { size: 12, fill: C.dim, a: "start" });
+    b += lines(330, 76, ["e^(i·30°) × e^(i·45°) = e^(i·75°)", "Lengths: 1 × 1 = 1, still on the circle", "", "e^(i·75°) = cos 75° + i·sin 75°", "         = 0.259 + 0.966i", "", "e^(iπ) = −1: a half turn"], { size: 13, fill: C.tx, a: "start", lh: 22 });
+    return svg(284, b, "unit circle with arrows at 30, 45 and 75 degrees; multiplying the first two gives the third");
+  })();
+
+  // ---- P2 M2: matrices — rows dotted with the input ----
+  D["p2-matrices"] = (() => {
+    let b = t(320, 24, "Matrix × vector: each output is one row dotted with the input", { bold: true, size: 15 });
+    b += box(40, 56, 150, 88, { stroke: C.boxS }) + box(46, 64, 138, 28, { r: 6, fill: C.cyanFill, stroke: C.cyan }) + box(46, 106, 138, 28, { r: 6, fill: C.warnFill, stroke: C.warn });
+    b += t(85, 83, "0", { size: 15, fill: C.cyanT }) + t(145, 83, "1", { size: 15, fill: C.cyanT }) + t(85, 125, "1", { size: 15, fill: C.warnT }) + t(145, 125, "0", { size: 15, fill: C.warnT });
+    b += box(220, 56, 70, 88, { stroke: C.acc }) + t(255, 88, "0.8", { size: 15, fill: C.accT }) + t(255, 124, "0.6", { size: 15, fill: C.accT });
+    b += t(315, 106, "=", { size: 20, bold: true });
+    b += box(340, 56, 70, 88, { stroke: C.good, fill: C.goodFill }) + t(375, 88, "0.6", { size: 15, bold: true, fill: C.cyanT }) + t(375, 124, "0.8", { size: 15, bold: true, fill: C.warnT });
+    b += arrR(412, 83, 440, { stroke: C.cyan }) + t(446, 88, "0×0.8 + 1×0.6 = 0.6", { size: 13, fill: C.cyanT, a: "start" });
+    b += arrR(412, 120, 440, { stroke: C.warn }) + t(446, 125, "1×0.8 + 0×0.6 = 0.8", { size: 13, fill: C.warnT, a: "start" });
+    b += t(115, 166, "matrix (the gate)", { size: 12, fill: C.dim }) + t(255, 166, "input", { size: 12, fill: C.dim }) + t(375, 166, "output", { size: 12, fill: C.dim });
+    b += t(320, 206, "This matrix is the quantum NOT gate, X: it swaps the two amplitudes.", { size: 13, fill: C.tx });
+    b += t(320, 230, "Chances before: 0.64 and 0.36. After: 0.36 and 0.64.", { size: 12, fill: C.dim });
+    return svg(250, b, "the X matrix multiplied by the vector 0.8, 0.6 gives 0.6, 0.8, with each output computed as a row dot product");
+  })();
+
+  // ---- P2 M2: vector spaces — one arrow, two rulers ----
+  D["p2-vector-spaces"] = (() => {
+    const ox = 170, oy = 150, L0 = 150, d = Math.PI / 4;
+    let b = t(320, 24, "One state, measured with two different rulers", { bold: true, size: 15 });
+    b += arr(ox - 150, oy, ox + L0, oy, { stroke: C.boxS }) + t(ox + L0 - 2, oy + 18, "|0⟩", { size: 13, fill: C.dim, a: "end" });
+    b += arr(ox, oy + 120, ox, oy - 112, { stroke: C.boxS }) + t(ox - 8, oy - 100, "|1⟩", { size: 13, fill: C.dim, a: "end" });
+    const pp = [ox + 140 * Math.cos(d), oy - 140 * Math.sin(d)], pm = [ox + 140 * Math.cos(d), oy + 140 * Math.sin(d)];
+    b += arr(ox, oy, pp[0], pp[1], { stroke: C.acc, dash: "6 4" }) + t(pp[0] + 6, pp[1] + 4, "|+⟩", { size: 13, fill: C.accT, a: "start" });
+    b += arr(ox, oy, pm[0], pm[1], { stroke: C.acc, dash: "6 4" }) + t(pm[0] + 6, pm[1] + 4, "|−⟩", { size: 13, fill: C.accT, a: "start" });
+    const a = Math.PI / 6, Lp = 140, tip = [ox + Lp * Math.cos(a), oy - Lp * Math.sin(a)];
+    const fp = 0.9659 * Lp, fm = 0.2588 * Lp;
+    b += ln(tip[0], tip[1], ox + fp * Math.cos(d), oy - fp * Math.sin(d), { stroke: C.good, dash: "3 3" });
+    b += ln(tip[0], tip[1], ox + fm * Math.cos(d), oy + fm * Math.sin(d), { stroke: C.warn, dash: "3 3" });
+    b += arr(ox, oy, tip[0], tip[1], { stroke: C.cyan, sw: 2.8 }) + t(tip[0] + 8, tip[1] + 14, "ψ", { size: 15, bold: true, fill: C.cyanT, a: "start" });
+    b += lines(360, 62, ["Standard ruler |0⟩, |1⟩:", "ψ = (0.866, 0.500)", "chances 0.75 and 0.25"], { size: 13, fill: C.tx, a: "start", lh: 20 });
+    b += lines(360, 140, ["Tilted ruler |+⟩, |−⟩:", "ψ = (0.966, 0.259)", "chances 0.933 and 0.067"], { size: 13, fill: C.accT, a: "start", lh: 20 });
+    b += lines(360, 218, ["The arrow never moved.", "Only the ruler changed."], { size: 13, fill: C.goodT, a: "start", lh: 20 });
+    return svg(286, b, "a state arrow at 30 degrees with coordinates in the 0/1 basis and in the plus/minus basis");
+  })();
+
+  // ---- P2 M2: dirac — bra meets ket, out comes one number ----
+  D["p2-dirac"] = (() => {
+    let b = t(320, 24, "Bra + ket = bracket: one number that measures overlap", { bold: true, size: 15 });
+    b += box(24, 70, 150, 40, { stroke: C.acc }) + t(99, 96, "0.707   0.707", { size: 15, fill: C.accT });
+    b += box(200, 50, 50, 80, { stroke: C.cyan }) + t(225, 82, "1", { size: 15, fill: C.cyanT }) + t(225, 114, "0", { size: 15, fill: C.cyanT });
+    b += t(99, 134, "bra ⟨+| (a row)", { size: 12, fill: C.dim }) + t(225, 150, "ket |0⟩", { size: 12, fill: C.dim });
+    b += arrR(256, 90, 290) + box(292, 70, 150, 40, { stroke: C.boxS }) + t(367, 95, "0.707·1 + 0.707·0", { size: 13 });
+    b += arrR(444, 90, 470) + box(472, 70, 80, 40, { stroke: C.good, fill: C.goodFill }) + t(512, 96, "0.707", { size: 15, bold: true, fill: C.goodT });
+    b += t(512, 128, "overlap ⟨+|0⟩", { size: 12, fill: C.dim });
+    b += arrD(512, 136, 162, { stroke: C.warn }) + box(452, 164, 120, 36, { stroke: C.warn, fill: C.warnFill }) + t(512, 187, "square: 0.50", { size: 13, bold: true, fill: C.warnT });
+    b += lines(24, 180, ["The squared overlap is the chance that a", "qubit in |0⟩ is found as |+⟩ when you", "measure in the plus/minus basis."], { size: 13, fill: C.tx, a: "start", lh: 19 });
+    b += t(320, 248, "A state overlaps itself completely: ⟨ψ|ψ⟩ = 1. Opposite states overlap 0.", { size: 12, fill: C.dim });
+    return svg(264, b, "row vector bra plus meets column vector ket zero; the products add to 0.707, which squares to a 0.5 chance");
+  })();
+
+  // ---- P2 M2: eigen — the X gate's own directions ----
+  D["p2-eigen"] = (() => {
+    let b = t(320, 24, "Eigenvectors keep their line; the eigenvalue is the stretch", { bold: true, size: 15 });
+    const panels = [
+      ["|0⟩ → X → |1⟩", [1, 0], [0, 1], "direction changed:", "not an eigenvector", C.bad, C.badT],
+      ["|+⟩ → X → |+⟩", [0.707, 0.707], [0.707, 0.707], "same arrow:", "eigenvalue λ = +1", C.good, C.goodT],
+      ["|−⟩ → X → −|−⟩", [0.707, -0.707], [-0.707, 0.707], "flipped on its line:", "eigenvalue λ = −1", C.warn, C.warnT]
+    ];
+    panels.forEach((p, i) => {
+      const cx = 110 + i * 210, cy = 136, s = 66;
+      b += t(cx, 52, p[0], { size: 13, bold: true, fill: p[6] });
+      b += ln(cx - 76, cy, cx + 76, cy, { stroke: C.cardEdge }) + ln(cx, cy - 66, cx, cy + 66, { stroke: C.cardEdge });
+      if (i === 2) b += ln(cx - 80 * 0.707, cy - 80 * 0.707, cx + 80 * 0.707, cy + 80 * 0.707, { stroke: C.boxS, dash: "3 4" });
+      b += arr(cx, cy, cx + s * p[1][0], cy - s * p[1][1], { stroke: C.faint, sw: 4 });
+      b += arr(cx, cy, cx + s * p[2][0], cy - s * p[2][1], { stroke: p[5], sw: 2.4 });
+      b += t(cx, 226, p[3], { size: 12, fill: C.dim }) + t(cx, 243, p[4], { size: 12, fill: p[6] });
+    });
+    b += t(320, 266, "Gray arrow: before. Colored arrow: after the X gate. For any gate, |λ| = 1.", { size: 12, fill: C.dim });
+    return svg(280, b, "three panels: X turns |0> into |1>, leaves |+> unchanged with eigenvalue +1, and flips |-> with eigenvalue -1");
+  })();
+
   // @@P2-INSERT
   window.DIAGRAMS = Object.assign(window.DIAGRAMS || {}, D);
 })();

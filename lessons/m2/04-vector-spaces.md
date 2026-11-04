@@ -1,5 +1,27 @@
 # Vector spaces, basis & linear combinations
 
+## The simple version
+
+**In plain English.** A vector space is any collection of arrows you can add together and stretch. A basis is a set of reference arrows, like a ruler, that you use to describe every other arrow. A qubit's state is a mix of two basis states, written α|0⟩ + β|1⟩. You can describe the same state with a different, tilted ruler, and the numbers change but the state does not. Choosing which ruler to measure with decides what chances you see.
+
+**The everyday picture: giving directions in a city with a tilted street grid.**
+
+| In the picture | In the real thing |
+|---|---|
+| A place in the city | A quantum state ψ |
+| '3 blocks east, 2 blocks north' | Coordinates in the standard basis \|0⟩, \|1⟩ |
+| The same place described on a grid tilted 45° | Coordinates in the \|+⟩, \|−⟩ basis |
+| The place doesn't move when you swap maps | The state is the same; only its description changes |
+| Which map the guard asks you to use | Which basis you measure in |
+
+**Where the picture breaks.** A city has one true place and maps are just paper. In quantum mechanics the choice of basis is physical: measuring in a basis forces the state to snap onto one of that basis's arrows. Also, the city is flat and real, while a qubit's space uses complex numbers, so the full picture is the Bloch sphere in Module 5.
+
+@@diagram:p2-vector-spaces|The same arrow ψ has coordinates (0.866, 0.500) on the standard ruler and (0.966, 0.259) on the tilted one. Squared, those are the chances for each kind of measurement.
+
+@@viz:basis-measure
+
+## Going deeper
+
 "The state of a qubit is a unit vector in $\mathbb{C}^2$." After this lesson, that sentence — which opens every quantum textbook — will read as plainly as "the temperature is a number." You'll learn what a vector space is, what a basis does, why the *same* state has different coordinates in different bases, and why that last fact is not pedantry: measuring in different bases is a physical act, and quantum cryptography, algorithms, and error correction all live in the gap between bases.
 
 ## Start here — the intuition
@@ -125,3 +147,7 @@ Standard basis: 75/25. ± basis: 93.3/6.7 — *more* predictable. Those numbers 
 - ☐ Find a state's coordinates in the ± basis by dot products, and reconstruct it.
 - ☐ Run the live cell and explain why $\ket0$ measures differently in the two bases.
 - ☐ Explain how basis mismatch catches an eavesdropper in BB84.
+
+## In one line
+
+A state is one arrow, a basis is the ruler you describe it with, and the ruler you measure with decides the chances you see.
