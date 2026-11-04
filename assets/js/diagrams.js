@@ -1535,6 +1535,94 @@
     return svg(282, b, "three states with equal chances; after a Hadamard the relative-phase state ends in 1 while the global-phase state behaves like the first");
   })();
 
+  // ---- P2 M6: single gates — X, H, Z as half-turns of the Bloch arrow (x–z slice) ----
+  D["p2-single-gates"] = (() => {
+    let b = t(320, 24, "Gates turn the Bloch arrow: X, H and Z are half-turns about different axes", { bold: true, size: 15 });
+    const P = [["X: |0⟩ → |1⟩", 0, 180, "axis x", 0], ["H: |0⟩ → |+⟩", 0, 90, "axis between x and z", 45], ["Z: |+⟩ → |−⟩", 90, 270, "axis z (out of page)", null]];
+    P.forEach((p, i) => {
+      const cx = 110 + i * 210, cy = 140, R = 64;
+      const pt = d => [cx + R * Math.sin(d * Math.PI / 180), cy - R * Math.cos(d * Math.PI / 180)];
+      b += t(cx, 56, p[0], { size: 14, bold: true, fill: C.accT });
+      b += circ(cx, cy, R, { fill: "none", stroke: C.faint, sw: 1.3 });
+      b += t(cx, cy - R - 6, "|0⟩", { size: 11, fill: C.dim }) + t(cx, cy + R + 15, "|1⟩", { size: 11, fill: C.dim });
+      b += t(cx + R + 4, cy + 4, "|+⟩", { size: 11, fill: C.dim, a: "start" }) + t(cx - R - 4, cy + 4, "|−⟩", { size: 11, fill: C.dim, a: "end" });
+      if (p[4] === null) b += circ(cx, cy, 6, { fill: "none", stroke: C.warn, sw: 1.6 }) + circ(cx, cy, 1.8, { fill: C.warn, stroke: C.warn });
+      else { const a = p[4] * Math.PI / 180, dx = (R + 10) * Math.cos(a), dy = (R + 10) * Math.sin(a); b += ln(cx - dx, cy + dy, cx + dx, cy - dy, { stroke: C.warn, dash: "5 4" }); }
+      const [bx0, by0] = pt(p[1]), [bx1, by1] = pt(p[2]);
+      b += arr(cx, cy, bx0, by0, { stroke: C.faint, sw: 3.5 }) + arr(cx, cy, bx1, by1, { stroke: C.cyan, sw: 2.6 });
+      b += t(cx, 238, p[3], { size: 12, fill: C.warnT });
+    });
+    b += t(320, 266, "Gray: before. Cyan: after. Dashed or dotted: the axis the gate turns 180° around.", { size: 12, fill: C.dim });
+    return svg(280, b, "three slices of the Bloch sphere: X flips |0> to |1>, H turns |0> to |+>, Z turns |+> to |->");
+  })();
+
+  // ---- P2 M6: tensor — every amplitude times every amplitude ----
+  D["p2-tensor"] = (() => {
+    let b = t(320, 24, "Two separate qubits combine by multiplying every pair of amplitudes", { bold: true, size: 15 });
+    b += t(60, 70, "qubit A", { size: 12, fill: C.dim }) + t(60, 96, "0.6 |0⟩", { size: 14, fill: C.cyanT }) + t(60, 150, "0.8 |1⟩", { size: 14, fill: C.cyanT });
+    b += t(240, 56, "qubit B:  0.707 |0⟩", { size: 13, fill: C.warnT }) + t(400, 56, "0.707 |1⟩", { size: 13, fill: C.warnT });
+    const cells = [["|00⟩", "0.424", "18%", 0, 0], ["|01⟩", "0.424", "18%", 1, 0], ["|10⟩", "0.566", "32%", 0, 1], ["|11⟩", "0.566", "32%", 1, 1]];
+    cells.forEach(([k, a, p, c, r]) => {
+      const x = 180 + c * 160, y = 70 + r * 54;
+      b += box(x, y, 150, 46, { stroke: C.acc, fill: C.accFill }) + t(x + 40, y + 28, k, { size: 14, bold: true, fill: C.accT }) + t(x + 110, y + 22, a, { size: 13, fill: C.tx }) + t(x + 110, y + 39, p, { size: 12, fill: C.dim });
+    });
+    b += t(500, 100, "0.6 × 0.707", { size: 12, fill: C.dim, a: "start" }) + t(500, 154, "0.8 × 0.707", { size: 12, fill: C.dim, a: "start" });
+    b += t(320, 200, "4 amplitudes; their squares add to 1 (0.18 + 0.18 + 0.32 + 0.32).", { size: 13, fill: C.goodT });
+    b += t(320, 230, "An entangled state such as (|00⟩ + |11⟩)/√2 cannot be made this way:", { size: 12, fill: C.warnT });
+    b += t(320, 248, "it would need A0·B1 = 0 while A0·B0 and A1·B1 are both non-zero.", { size: 12, fill: C.dim });
+    return svg(264, b, "a 2 by 2 grid of products of qubit A amplitudes 0.6 and 0.8 with qubit B amplitudes 0.707, giving four two-qubit amplitudes");
+  })();
+
+  // ---- P2 M6: two-qubit gates — what CNOT, CZ and SWAP do to basis states ----
+  D["p2-two-qubit-gates"] = (() => {
+    let b = t(320, 24, "Two-qubit gates on the four basis states (control written first)", { bold: true, size: 15 });
+    const tabs = [["CNOT", ["00 → 00", "01 → 01", "10 → 11", "11 → 10"], "flips the 2nd bit if the 1st is 1", C.cyan, C.cyanT],
+      ["CZ", ["00 → 00", "01 → 01", "10 → 10", "11 → −11"], "minus sign only on 11", C.warn, C.warnT],
+      ["SWAP", ["00 → 00", "01 → 10", "10 → 01", "11 → 11"], "trades the two qubits", C.good, C.goodT]];
+    tabs.forEach((tb, i) => {
+      const x = 20 + i * 210, w = 190;
+      b += box(x, 44, w, 190, { stroke: tb[3] }) + t(x + w / 2, 68, tb[0], { size: 15, bold: true, fill: tb[4] });
+      tb[1].forEach((r, j) => { const hot = r.split(" → ")[0] !== r.split(" → ")[1]; b += t(x + w / 2, 100 + j * 28, "|" + r.replace(" → ", "⟩ → |").replace("−", "−|").replace("|−|", "−|") + "⟩", { size: 15, fill: hot ? tb[4] : C.dim, bold: hot }); });
+      b += t(x + w / 2, 222, tb[2], { size: 12, fill: C.dim });
+    });
+    b += t(320, 262, "On a superposition these act on every part at once, which is how CNOT creates entanglement.", { size: 12, fill: C.tx });
+    return svg(278, b, "truth tables: CNOT flips the second bit when the first is 1, CZ adds a minus sign to 11, SWAP exchanges 01 and 10");
+  })();
+
+  // ---- P2 M6: entanglement — perfect match, random alone, beats any plan, no signal ----
+  D["p2-entanglement"] = (() => {
+    let b = t(320, 24, "A Bell pair: random on each side, matched together, no message sent", { bold: true, size: 15 });
+    b += t(30, 60, "|0⟩", { size: 13, fill: C.dim }) + t(30, 110, "|0⟩", { size: 13, fill: C.dim });
+    b += ln(46, 56, 300, 56, { stroke: C.line }) + ln(46, 106, 300, 106, { stroke: C.line });
+    b += box(80, 40, 40, 32, { stroke: C.acc, fill: C.accFill }) + t(100, 61, "H", { size: 14, bold: true, fill: C.accT });
+    b += circ(170, 56, 5, { fill: C.cyan, stroke: C.cyan }) + ln(170, 56, 170, 106, { stroke: C.cyan }) + circ(170, 106, 11, { fill: "none", stroke: C.cyan }) + ln(159, 106, 181, 106, { stroke: C.cyan }) + ln(170, 95, 170, 117, { stroke: C.cyan });
+    b += t(240, 86, "(|00⟩ + |11⟩)/√2", { size: 14, bold: true, fill: C.cyanT });
+    b += box(320, 40, 300, 30, { stroke: C.boxS }) + t(470, 60, "Alice alone: 0 or 1, 50/50", { size: 13, fill: C.tx });
+    b += box(320, 76, 300, 30, { stroke: C.boxS }) + t(470, 96, "Bob alone: 0 or 1, 50/50", { size: 13, fill: C.tx });
+    b += box(320, 112, 300, 30, { stroke: C.good, fill: C.goodFill }) + t(470, 132, "compared later: always the same", { size: 13, bold: true, fill: C.goodT });
+    b += t(320, 170, "Random questions, CHSH game win rate:", { size: 13, bold: true, fill: C.tx });
+    const X = v => 150 + v * 420;
+    b += ln(X(0), 188, X(1), 188, { stroke: C.faint }) + t(X(0), 184, "0%", { size: 10, fill: C.faint }) + t(X(1), 184, "100%", { size: 10, fill: C.faint });
+    b += box(X(0), 196, X(0.75) - X(0), 22, { r: 3, fill: C.box, stroke: C.boxS }) + t(142, 212, "best plan", { size: 12, fill: C.dim, a: "end" }) + t(X(0.75) + 6, 212, "75% (S ≤ 2)", { size: 12, fill: C.dim, a: "start" });
+    b += box(X(0), 224, X(0.8536) - X(0), 22, { r: 3, fill: C.cyanFill, stroke: C.cyan }) + t(142, 240, "Bell pair", { size: 12, fill: C.cyanT, a: "end" }) + t(X(0.8536) + 6, 240, "85.4% (S = 2√2)", { size: 12, fill: C.cyanT, a: "start" });
+    b += t(320, 270, "Whatever Alice does, Bob's own results stay 50/50, so no message travels.", { size: 12, fill: C.warnT });
+    return svg(284, b, "H and CNOT make a Bell pair; each side alone is random, together they match; the pair wins the CHSH game 85.4 percent against 75 percent for any plan");
+  })();
+
+  // ---- P2 M6: protocols — teleportation timeline ----
+  D["p2-protocols"] = (() => {
+    let b = t(320, 24, "Teleportation: a qubit's state moves, using a shared pair and 2 ordinary bits", { bold: true, size: 15 });
+    b += box(14, 48, 180, 70, { stroke: C.acc }) + t(104, 72, "Alice holds", { size: 12, fill: C.dim }) + t(104, 94, "ψ + her half", { size: 14, bold: true, fill: C.accT }) + t(104, 110, "of a Bell pair", { size: 12, fill: C.dim });
+    b += arrR(196, 83, 226) + box(228, 48, 170, 70, { stroke: C.warn }) + t(313, 72, "Bell measurement", { size: 13, bold: true, fill: C.warnT }) + t(313, 92, "gives 2 random bits", { size: 12, fill: C.dim }) + t(313, 108, "ψ is gone from Alice", { size: 12, fill: C.badT });
+    b += arrR(400, 83, 430) + box(432, 48, 194, 70, { stroke: C.boxS }) + t(529, 72, "phone call", { size: 12, fill: C.dim }) + t(529, 94, "2 bits, e.g. 1 0", { size: 14, bold: true }) + t(529, 110, "no faster than light", { size: 12, fill: C.dim });
+    b += arrD(529, 120, 156, { stroke: C.line });
+    b += box(432, 158, 194, 70, { stroke: C.cyan }) + t(529, 182, "Bob fixes his half:", { size: 12, fill: C.dim }) + t(529, 204, "X and/or Z, chosen", { size: 14, bold: true, fill: C.cyanT }) + t(529, 220, "by the 2 bits", { size: 12, fill: C.dim });
+    b += arrL(430, 193, 360, { stroke: C.good }) + box(214, 166, 144, 54, { stroke: C.good, fill: C.goodFill }) + t(286, 199, "Bob now has ψ", { size: 14, bold: true, fill: C.goodT });
+    b += lines(20, 158, ["Before the call, Bob's half", "is random noise to him.", "One state in, one state out:", "nothing was copied."], { size: 12, fill: C.dim, a: "start", lh: 17 });
+    b += t(320, 260, "Superdense coding runs it the other way: 1 qubit + a shared pair carries 2 bits.", { size: 12, fill: C.tx });
+    return svg(276, b, "teleportation steps: Bell measurement on Alice's side gives two bits, sent by phone, and Bob's correction recreates the state");
+  })();
+
   // @@P2-INSERT
   window.DIAGRAMS = Object.assign(window.DIAGRAMS || {}, D);
 })();

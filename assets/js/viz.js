@@ -298,6 +298,118 @@
     F.on(draw); draw();
   };
 
+  /* =====================================================================
+     M6 two-qubit gates — step a 2-qubit circuit gate by gate (real 4-amplitude simulation)
+     basis order |q0 q1>: index = 2*q0 + q1
+     ===================================================================== */
+  V["bell-stepper"] = function (host) {
+    var CIRCS = {
+      bell: { name: "Bell pair: H on q0, then CNOT", gates: [["H", 0], ["CX", 0, 1]] },
+      psi: { name: "X on q1 first, then H, CNOT", gates: [["X", 1], ["H", 0], ["CX", 0, 1]] },
+      undo: { name: "Make a Bell pair, then undo it", gates: [["H", 0], ["CX", 0, 1], ["CX", 0, 1], ["H", 0]] },
+      kick: { name: "Phase kickback: X, H on q1; H on q0; CNOT; H on q0", gates: [["X", 1], ["H", 1], ["H", 0], ["CX", 0, 1], ["H", 0]] }
+    };
+    var F = frame(host, "Step through a two-qubit circuit and watch all four amplitudes", 480, 300,
+      [{ type: "button", id: "next", label: "Next gate ▶" }, { type: "button", id: "back", label: "◀ Back" },
+       { type: "select", id: "c", label: "Circuit", value: "bell", options: Object.keys(CIRCS).map(function (k) { return [k, CIRCS[k].name]; }) }],
+      "Circuit diagram with the current step highlighted and bars for the four amplitudes");
+    var step = 0, s2 = Math.SQRT1_2;
+    function apply(st, g) {
+      var o = st.slice();
+      if (g[0] === "CX") { o = st.slice(); var c = g[1]; for (var i = 0; i < 4; i++) { var cb = c === 0 ? (i >> 1) & 1 : i & 1; if (cb) { var j = i ^ (g[2] === 1 ? 1 : 2); o[j] = st[i]; } } return o; }
+      var q = g[1], m = q === 0 ? 2 : 1;
+      for (var k = 0; k < 4; k++) {
+        if (k & m) continue; var a = st[k], b = st[k | m];
+        if (g[0] === "H") { o[k] = s2 * (a + b); o[k | m] = s2 * (a - b); }
+        else if (g[0] === "X") { o[k] = b; o[k | m] = a; }
+        else if (g[0] === "Z") { o[k] = a; o[k | m] = -b; }
+      }
+      return o;
+    }
+    function state(circ, n) { var st = [1, 0, 0, 0]; for (var i = 0; i < n; i++) st = apply(st, circ.gates[i]); return st; }
+    function draw() {
+      var circ = CIRCS[F.val("c")], G = circ.gates; if (step > G.length) step = G.length;
+      var st = state(circ, step), labels = ["|00⟩", "|01⟩", "|10⟩", "|11⟩"];
+      var o = T(16, 26, "q0", { s: 13, a: "start", c: "var(--dim)" }) + T(16, 76, "q1", { s: 13, a: "start", c: "var(--dim)" });
+      var x0 = 44, dx = Math.min(80, 400 / G.length);
+      o += L(x0, 22, 464, 22, "var(--faint)", 1.4) + L(x0, 72, 464, 72, "var(--faint)", 1.4);
+      G.forEach(function (g, i) {
+        var x = x0 + 30 + i * dx, done = i < step, col = done ? "var(--acc2)" : "var(--faint)";
+        if (g[0] === "CX") {
+          var yc = g[1] === 0 ? 22 : 72, yt = g[2] === 1 ? 72 : 22;
+          o += L(x, yc, x, yt, col, 2) + C(x, yc, 5, col, "none") + C(x, yt, 11, "var(--code-bg)", col, 2) + L(x - 11, yt, x + 11, yt, col, 2) + L(x, yt - 11, x, yt + 11, col, 2);
+        } else {
+          var y = g[1] === 0 ? 22 : 72;
+          o += R(x - 15, y - 15, 30, 30, "var(--code-bg)", col, 5) + T(x, y + 5, g[0], { s: 14, b: true, c: col });
+        }
+      });
+      var cur = x0 + 30 + (step - 0.5) * dx; if (step > 0) o += L(cur, 6, cur, 92, "var(--warn)", 2, "4 3");
+      o += T(240, 112, step === 0 ? "start: both qubits in |0⟩" : "after gate " + step + " of " + G.length + ": " + G[step - 1][0] + (G[step - 1][0] === "CX" ? " (control q" + G[step - 1][1] + ")" : " on q" + G[step - 1][1]), { s: 13, c: "var(--warn)" });
+      var mid = 205, sc = 70;
+      o += L(30, mid, 450, mid, "var(--border)", 1.2);
+      st.forEach(function (a, i) {
+        var x = 60 + i * 100, h = Math.abs(a) * sc;
+        o += R(x, a >= 0 ? mid - h : mid, 60, h, a >= 0 ? "var(--acc2)" : "var(--bad)", "none", 3);
+        o += T(x + 30, 290, labels[i], { s: 13, c: "var(--text)" }) + T(x + 30, a >= 0 ? mid - h - 6 : mid + h + 15, (Math.abs(a) < 1e-9 ? "0" : f(a, 3)), { s: 12, c: "var(--dim)" });
+      });
+      F.draw(o);
+      var probs = st.map(function (a) { return a * a; });
+      var ent = Math.abs(st[0] * st[3] - st[1] * st[2]) > 1e-9;
+      F.read.innerHTML = "Chances now: " + labels.map(function (l, i) { return l + " <b>" + pct(probs[i], 0) + "</b>"; }).join(", ") + ". " +
+        (ent ? "This state is <b>entangled</b>: the amplitude grid can't be split into one factor per qubit (a₀₀·a₁₁ ≠ a₀₁·a₁₀)." : "This state is a plain product of one state per qubit (a₀₀·a₁₁ = a₀₁·a₁₀).") +
+        " Red bars are negative amplitudes.";
+    }
+    F.click("next", function () { var G = CIRCS[F.val("c")].gates; if (step < G.length) step++; else step = 0; draw(); });
+    F.click("back", function () { if (step > 0) step--; draw(); });
+    host.querySelector('[data-id="c"]').addEventListener("change", function () { step = 0; draw(); });
+    draw();
+  };
+
+  /* =====================================================================
+     M6 entanglement — CHSH value for |Φ+> with measurements in the x–z plane:
+     E(a,b) = cos(a − b) (Bloch angles). S = E(a,b) − E(a,b') + E(a',b) + E(a',b')
+     ===================================================================== */
+  V["chsh-angle"] = function (host) {
+    var F = frame(host, "Bell test: choose four measurement angles and compute the CHSH value S", 480, 290,
+      [{ type: "range", id: "a", label: "Alice a =", min: 0, max: 180, step: 5, value: 0 },
+       { type: "range", id: "a2", label: "Alice a′ =", min: 0, max: 180, step: 5, value: 90 },
+       { type: "range", id: "b", label: "Bob b =", min: 0, max: 180, step: 5, value: 45 },
+       { type: "range", id: "b2", label: "Bob b′ =", min: 0, max: 180, step: 5, value: 135 }],
+      "Measurement directions for Alice and Bob, the four correlations, and the CHSH value compared with 2 and 2 root 2");
+    function draw() {
+      var a = F.val("a"), a2 = F.val("a2"), b = F.val("b"), b2 = F.val("b2");
+      F.out("a", a + "°"); F.out("a2", a2 + "°"); F.out("b", b + "°"); F.out("b2", b2 + "°");
+      var E = function (x, y) { return Math.cos((x - y) * Math.PI / 180); };
+      var e = [E(a, b), -E(a, b2), E(a2, b), E(a2, b2)], S = e[0] + e[1] + e[2] + e[3];
+      var cx = 100, cy = 130, Rr = 80;
+      var o = C(cx, cy, Rr, "none", "var(--border)", 1.2) + T(cx, cy - Rr - 8, "z", { s: 11, c: "var(--faint)" }) + T(cx + Rr + 8, cy + 4, "x", { s: 11, c: "var(--faint)", a: "start" });
+      [[a, "a", "var(--acc2)"], [a2, "a′", "var(--acc2)"], [b, "b", "var(--warn)"], [b2, "b′", "var(--warn)"]].forEach(function (d) {
+        var r = d[0] * Math.PI / 180, x = cx + Rr * Math.sin(r), y = cy - Rr * Math.cos(r);
+        o += A(cx, cy, x, y, d[2], 2.2) + T(cx + (Rr + 14) * Math.sin(r), cy - (Rr + 14) * Math.cos(r) + 4, d[1], { s: 13, b: true, c: d[2] });
+      });
+      o += T(cx, 250, "cyan: Alice, gold: Bob", { s: 12, c: "var(--dim)" });
+      var names = ["E(a,b)", "−E(a,b′)", "E(a′,b)", "E(a′,b′)"], bx = 210, mid = 80, sc = 40;
+      o += L(bx - 6, mid, 470, mid, "var(--border)", 1.2);
+      e.forEach(function (v, i) {
+        var x = bx + i * 66, h = Math.abs(v) * sc;
+        o += R(x, v >= 0 ? mid - h : mid, 44, h, v >= 0 ? "var(--good)" : "var(--bad)", "none", 3);
+        o += T(x + 22, 138, names[i], { s: 11, c: "var(--dim)" }) + T(x + 22, 154, (v >= 0 ? "+" : "−") + f(Math.abs(v), 3), { s: 12, c: "var(--text)" });
+      });
+      var X = function (v) { return bx + (v / 3) * 250; }, y = 222;
+      o += L(X(0), y, X(3), y, "var(--faint)", 1.2) + R(X(0), y - 12, X(Math.min(3, Math.abs(S))) - X(0), 24, Math.abs(S) > 2 + 1e-9 ? "var(--acc2)" : "var(--panel2)", "var(--border)", 3);
+      o += L(X(2), y - 22, X(2), y + 22, "var(--warn)", 2) + T(X(2), y + 38, "2: any plan", { s: 11, c: "var(--warn)" });
+      o += L(X(2 * Math.SQRT2), y - 22, X(2 * Math.SQRT2), y + 22, "var(--good)", 2, "4 3") + T(X(2 * Math.SQRT2), y - 28, "2√2 ≈ 2.83", { s: 11, c: "var(--good)" });
+      o += T(X(0), y - 28, "|S| = " + f(Math.abs(S), 3), { s: 14, b: true, a: "start", c: "var(--acc2)" });
+      F.draw(o);
+      var win = 0.5 + Math.abs(S) / 8;
+      F.read.innerHTML = "For the Bell pair (|00⟩ + |11⟩)/√2 measured along angles in the x–z plane, the correlation is E = cos(angle difference). " +
+        "Here S = " + e.map(function (v) { return (v >= 0 ? "+" : "−") + f(Math.abs(v), 3); }).join(" ") + " = <b>" + f(S, 3) + "</b>. " +
+        (Math.abs(S) > 2 + 1e-9 ? "That breaks the limit of 2 that any pre-agreed plan obeys." : "That is inside the limit of 2, so a pre-agreed plan could fake it.") +
+        " The matching CHSH game win rate is 1/2 + |S|/8 = <b>" + pct(win) + "</b> (plans top out at 75%, quantum at 85.4%). Bob's own results stay 50/50 for every setting, so nothing is signaled.";
+    }
+    F.on(draw); draw();
+  };
+
   /* @@VIZ-INSERT */
 
   /* ---------- mount + simple-section styling ---------- */

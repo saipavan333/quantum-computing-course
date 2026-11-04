@@ -1,5 +1,25 @@
 # Teleportation & superdense coding
 
+## The simple version
+
+**In plain English.** Teleportation moves a qubit's exact state from Alice to Bob without sending the qubit itself. They first share a Bell pair. Alice measures her qubit together with her half of the pair. This gives two ordinary bits and destroys her copy. She sends the bits by phone, and Bob uses them to pick a fix: X, Z, both or neither. Superdense coding is the reverse trick: one qubit plus a shared pair carries two classical bits.
+
+**The everyday picture: a locked box and a two-digit code.**
+
+| In the picture | In the real thing |
+|---|---|
+| A pair of matched boxes, shared ahead of time | The Bell pair |
+| Alice's secret item | The state ψ, which Alice may not even know |
+| Alice locks her item in and the original crumbles | The Bell measurement destroys her copy |
+| A two-digit code read over the phone | The 2 classical bits |
+| Bob uses the code to open his box the right way | Bob's X/Z correction |
+
+**Where the picture breaks.** In the box story something travels inside the box. In teleportation nothing carrying ψ travels; only two bits do, and without them Bob's half is just random noise. It is also not faster than light, since Bob must wait for the call, and it never makes a copy: the original is destroyed, as no-cloning requires.
+
+@@diagram:p2-protocols|Alice's Bell measurement gives two random bits and leaves her with nothing. After the phone call, Bob's correction turns his half of the pair into the original state.
+
+## Going deeper
+
 Two protocols close this module — not because they're party tricks, but because they're the **resource accounting** of quantum information made vivid: teleportation converts [1 entangled pair + 2 classical bits] into [1 transmitted qubit]; superdense coding converts [1 entangled pair + 1 transmitted qubit] into [2 classical bits]. They're mirror images, they power quantum networking and fault-tolerant computing, and walking through them gate-by-gate is the final exam for Modules 5–6.
 
 ## Start here — the intuition
@@ -160,3 +180,7 @@ Toggling `z(1)` flips the left output bit (q1); toggling `x(1)` flips the right 
 - ☐ Describe superdense coding and run the cell to send all four messages.
 - ☐ State both resource ledgers and why neither breaks Holevo or enables FTL.
 - ☐ Explain entanglement swapping and why "move entanglement first, data last" is loss‑tolerant.
+
+## In one line
+
+Teleportation moves a quantum state using a shared Bell pair and two ordinary bits, destroying the original and never beating light.

@@ -1,5 +1,26 @@
 # CNOT, CZ, SWAP & controlled operations
 
+## The simple version
+
+**In plain English.** Some gates act on two qubits at once. CNOT (controlled-NOT) flips the second qubit, the target, only when the first, the control, is 1. CZ puts a minus sign on the |11⟩ part and leaves everything else alone. SWAP trades the two qubits. On a superposition these gates act on every part at once, which is how two separate qubits become entangled.
+
+**The everyday picture: a light switch wired to a second switch.**
+
+| In the picture | In the real thing |
+|---|---|
+| Switch A, the one you look at | The control qubit |
+| Switch B, which flips when A is on | The target qubit of CNOT |
+| Wiring that only acts when both are on | CZ: a minus sign on \|11⟩ only |
+| Swapping the two switches' positions | SWAP |
+
+**Where the picture breaks.** Wired switches only ever see 'on' or 'off', one case at a time. A control qubit in superposition is both cases' amplitudes at once, so CNOT acts on both and creates entanglement. And the 'control' isn't always untouched: with the target in the right state, the gate's phase lands on the control instead (phase kickback), which wiring can never do.
+
+@@diagram:p2-two-qubit-gates|What each gate does to the four basis states. Highlighted rows are the ones that change. On superpositions these rules apply to every part at once.
+
+@@viz:bell-stepper
+
+## Going deeper
+
 Single-qubit gates rotate islands; two-qubit gates build bridges. They are the only way to create entanglement (last lesson proved tensor-product gates can't), the hardest thing hardware does (10–50× the error of single-qubit gates), and the currency in which circuit cost is really measured. Master CNOT and its family — and the phase-kickback trick — and every algorithm in Module 8 becomes readable.
 
 ## Start here — the intuition
@@ -149,3 +170,7 @@ The target is in $\ket-$, an eigenstate of $X$ (eigenvalue $-1$) but *not* of $Z
 - ☐ Run the live cell and read Deutsch's one‑query answer off the control.
 - ☐ State that SWAP = 3 CNOTs and why routing is expensive.
 - ☐ Explain error propagation ($X$ control→target, $Z$ target→control) and why codes care.
+
+## In one line
+
+Two-qubit gates make one qubit's change depend on another, and that is how entanglement is made.

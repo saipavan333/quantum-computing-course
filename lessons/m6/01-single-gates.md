@@ -1,5 +1,26 @@
 # The single-qubit gate set: X, Y, Z, H, S, T & rotations
 
+## The simple version
+
+**In plain English.** A gate is one step that changes a qubit's state. On the Bloch sphere, every single-qubit gate is a rotation of the arrow. X turns it half a turn around the x axis, so |0⟩ becomes |1⟩. Z turns it half a turn around the vertical axis, which changes only the phase. H (Hadamard) turns it half a turn around a slanted axis, taking |0⟩ to the equator. S, T and the R gates turn by smaller or chosen angles.
+
+**The everyday picture: turning a globe on different spindles.**
+
+| In the picture | In the real thing |
+|---|---|
+| The globe | The Bloch sphere with the qubit's arrow |
+| A spindle you can mount it on | A rotation axis: x, y, z, or a slanted one |
+| Half a turn on the east–west spindle | X: \|0⟩ ↔ \|1⟩ |
+| Half a turn on the north–south spindle | Z: flips the phase, leaves the chances |
+| Half a turn on a spindle halfway between | H: \|0⟩ → \|+⟩, \|1⟩ → \|−⟩ |
+| A small twist on the north–south spindle | S (90°) and T (45°) |
+
+**Where the picture breaks.** Turning a globe twice the same way is just a bigger turn. For gates that is also true, but the math adds a detail: a full 360° turn multiplies the state by −1, a global phase you can never see but which matters when the gate is controlled by another qubit. The globe picture also stops working for two or more qubits.
+
+@@diagram:p2-single-gates|Three gates seen on a slice of the Bloch sphere. X flips |0⟩ to |1⟩, H turns |0⟩ to |+⟩, and Z turns |+⟩ to |−⟩ by spinning around the vertical axis.
+
+## Going deeper
+
 Professionals don't look gates up — they *know* them: matrix, Bloch action, eigenbasis, and the algebra connecting them. This lesson is the complete single-qubit vocabulary plus the identities that make circuits simplifiable by hand.
 
 ## Start here — the intuition
@@ -132,3 +153,7 @@ One pulse. This is exactly what `transpile(qc, basis_gates=['rz','sx','x'])` emi
 - ☐ Run the live cell and predict where each gate sends the Bloch vector.
 - ☐ Explain which gates are free vs costly on today's hardware, and how fault tolerance flips it.
 - ☐ Decompose any single-qubit unitary as three Euler rotations, and H to one $\sqrt X$ pulse.
+
+## In one line
+
+Every single-qubit gate is a turn of the Bloch arrow, and the gate's name tells you which axis and how far.
