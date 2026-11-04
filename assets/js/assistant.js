@@ -97,6 +97,7 @@
     return String(md)
       .replace(/<!--[\s\S]*?-->/g, "")            // html comments
       .replace(/^@@diagram:.*$/gm, "")            // diagram directives
+      .replace(/^@@(?:viz:.*|widget)\s*$/gm, "")  // interactive slots
       .replace(/^```(?:run|quiz)[\s\S]*?```$/gm, "") // runnable/quiz blocks (noise)
       .replace(/```[\s\S]*?```/g, function (b) { return b.length > 500 ? b.slice(0, 500) + "\n…" : b; })
       .replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();

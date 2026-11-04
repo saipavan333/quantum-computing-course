@@ -359,3 +359,24 @@ html.loaded #app { opacity: 1; transition: opacity .5s ease; }
 .cap-why { border-left: 3px solid var(--good); padding: 6px 0 6px 14px; color: var(--dim); font-size: .9rem; margin-top: 6px; }
 .cap-why b { color: var(--text); }
 @media (max-width: 640px) { .cap-cols { grid-template-columns: 1fr; } }
+
+/* ==================== pass 2: simple-first layout + interactive visuals ==================== */
+.simple-panel { background: linear-gradient(180deg, rgba(34, 211, 238, .06), rgba(124, 92, 255, .05)); border: 1px solid rgba(34, 211, 238, .35); border-radius: 16px; padding: 4px 22px 18px; margin: 18px 0 30px; }
+.simple-panel > h2:first-child { border-top: 0; margin-top: 14px; padding-top: 6px; color: #8ce9f6; }
+.simple-panel p:first-of-type { font-size: 1.06rem; line-height: 1.7; }
+.simple-panel table { width: 100%; }
+.simple-panel th:first-child, .simple-panel td:first-child { color: #fcd77a; }
+.simple-panel .diagram-wrap { margin: 18px 0 8px; }
+.lesson-body h2.deeper-h { color: #b9a9ff; }
+.lesson-body h2.deeper-h::after { content: " — the full lesson continues below"; color: var(--faint); font-size: .8rem; font-weight: 400; }
+.lesson-body h2.oneline-h { color: #8ff0c8; }
+.lesson-body p.oneline { font-size: 1.12rem; font-weight: 600; color: #e6fff4; background: rgba(52, 211, 153, .08); border: 1px solid rgba(52, 211, 153, .4); border-radius: 12px; padding: 14px 18px; }
+.viz-slot { margin: 22px 0; }
+.viz .vz { display: block; width: 100%; height: auto; background: var(--code-bg); border-radius: 10px; }
+.viz-controls { gap: 14px 18px; }
+.viz-range { display: flex; flex-direction: column; gap: 4px; min-width: 160px; flex: 1 1 180px; }
+.viz-range span { color: var(--dim); font-size: .84rem; }
+.viz-range b { color: #8ce9f6; font-variant-numeric: tabular-nums; }
+.viz-range input[type=range] { width: 100%; accent-color: #22d3ee; }
+.viz-range select { background: var(--panel2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px 10px; font-family: inherit; }
+@media (max-width: 520px) { .simple-panel { padding: 2px 12px 14px; margin-left: -6px; margin-right: -6px; } .simple-panel .diagram-wrap { margin-left: -8px; margin-right: -8px; } .viz { padding: 10px; } .viz-range { min-width: 100%; } }

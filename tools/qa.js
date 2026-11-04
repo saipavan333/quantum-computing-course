@@ -93,6 +93,13 @@ for (const [id, md] of Object.entries(CONTENT)) {
   let m; const re = /@@diagram:([\w-]+)/g;
   while ((m = re.exec(md))) if (!DIAGRAMS[m[1]]) { fail(`${id}: @@diagram "${m[1]}" not in DIAGRAMS`); refIssues++; }
 }
+// pass-2 interactive slots: every @@viz:key must be registered as V["key"] in assets/js/viz.js
+const vizSrc = fs.readFileSync(path.join(ROOT, "assets", "js", "viz.js"), "utf8");
+const VIZ = new Set([...vizSrc.matchAll(/V\["([\w-]+)"\]\s*=/g)].map((x) => x[1]));
+for (const [id, md] of Object.entries(CONTENT)) {
+  let m; const re = /^@@viz:([\w-]+)\s*$/gm;
+  while ((m = re.exec(md))) if (!VIZ.has(m[1])) { fail(`${id}: @@viz "${m[1]}" not registered in viz.js`); refIssues++; }
+}
 // every manifest lesson has compiled content
 COURSE.modules.forEach((mod) => mod.lessons.forEach((l) => {
   if (!CONTENT[l.id]) { fail(`manifest lesson "${l.id}" has no compiled content`); refIssues++; }

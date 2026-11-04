@@ -1,5 +1,28 @@
 # Your mission: from zero to quantum professional
 
+## The simple version
+
+**In plain English.** A normal computer stores everything as bits, and each bit is either 0 or 1. A quantum computer uses qubits, which follow the physics of the very small. A qubit holds two numbers called amplitudes, and amplitudes can add up or cancel out like waves. A quantum program arranges that canceling so wrong answers fade and the right answer grows. When you look, you get plain 0s and 1s, so you run the program many times and count. These machines are real today, but they do not yet beat normal computers at any useful business job.
+
+**The everyday picture: ripples on a pond.**
+
+| In the picture | In the real thing |
+|---|---|
+| Dropping pebbles to start ripples | Putting qubits into superposition with gates |
+| Height of the water at each spot | The amplitude of each possible answer |
+| Crest meets crest: a big wave | Constructive interference: an answer's chance grows |
+| Crest meets trough: flat water | Destructive interference: an answer's chance shrinks to zero |
+| Where you place the pebbles | The algorithm: the choice and order of gates |
+| Dropping a cork and seeing where it bobs | Measuring: you get one answer per try |
+
+**Where the picture breaks.** Pond water is a real height in real space, and you can watch the whole pond at once. Amplitudes are complex numbers (they carry a direction as well as a size), and n qubits have 2ⁿ of them, which don't live anywhere in the room. You can never look at all of them: one measurement gives one answer and ends the run. Also, a quantum computer does not "try every answer at once"; without careful interference you would just get a random answer.
+
+@@diagram:p2-welcome|What actually happens when you run a quantum program: a classical laptop sends a circuit, gates arrange interference, each shot gives one bitstring, and the histogram over many shots is your result.
+
+@@viz:qubit-memory
+
+## Going deeper
+
 You're about to learn a field that most people — including most software engineers — find intimidating. Here's the secret they don't tell you: quantum computing is not hard because the ideas are beyond human comprehension. It's hard because it stacks four subjects (math, probability, programming, physics) and most learning material assumes you already know three of them. This course assumes you know **none** of them. Every stone gets turned.
 
 By the end, you will write programs that run on a real 156-qubit quantum processor sitting in a dilution refrigerator near absolute zero, you'll understand *exactly* why they work, and you'll have a portfolio and interview preparation aimed at real quantum jobs.
@@ -20,8 +43,8 @@ A classical computer stores information in **bits**: each is 0 or 1, always, def
 
 A quantum computer stores information in **qubits** (quantum bits) — physical objects small and cold and isolated enough that they obey quantum mechanics, the physics of the very small. Qubits have three abilities bits don't:
 
-1. **Superposition** — a qubit can be in a combination of 0 and 1 at once, described by two numbers called *amplitudes*. Not "secretly 0 or 1 and we don't know which" — genuinely both, in a precise mathematical sense you'll be able to compute with by Module 5.
-2. **Entanglement** — two or more qubits can share a joint state that cannot be described by listing each qubit separately. Measure one, and the other's statistics change instantly. This is the resource behind almost every quantum speedup.
+1. **Superposition** — a qubit can be in a combination of 0 and 1 at once, described by two numbers called *amplitudes*. It is not "secretly 0 or 1 and we don't know which". It is not "both answers at once" either: a measurement still returns one plain 0 or 1. The amplitudes matter because they can add up or cancel before you measure, which you'll compute with by Module 5.
+2. **Entanglement** — two or more qubits can share a joint state that cannot be described by listing each qubit separately. Measure one and you can predict what the other will show, but the far qubit's own statistics do not change, so no message travels. Entanglement is the resource behind almost every quantum speedup.
 3. **Interference** — amplitudes can be negative (and complex), so computational paths can *cancel each other out*. Quantum algorithms are choreography: arrange the computation so wrong answers interfere destructively and right answers interfere constructively.
 
 @@diagram:bit-vs-qubit|A bit is a switch. A qubit is a direction — infinitely many possible states, but a measurement only ever returns 0 or 1.
@@ -194,3 +217,7 @@ Checked 3 November 2026. Roadmap items are company *targets*, not results.
 - ☐ Name two realistic entry‑level quantum roles this course targets and their rough pay band.
 - ☐ Commit to the study method: in order, type everything, struggle before solutions, verify in code.
 - ☐ Have written a specific weekly study contract with a floor and a catch‑up rule.
+
+## In one line
+
+A quantum computer arranges waves of possibility so the right answer shows up most often when you measure, and that is useful only for some special problems.

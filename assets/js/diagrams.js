@@ -1122,5 +1122,64 @@
     b += t(320, y + 4, "Best depends on metric, application, and fault-tolerance economics.", { fill: C.faint, size: 11 });
     return svg(y + 24, b, "quantum hardware modality comparison");
   })();
+  // =====================================================================
+  // PASS 2 (Nov 2026): one "how it works" picture per lesson, shown in the
+  // lesson's simple opening. Keys are p2-<lesson id>.
+  // =====================================================================
+  // any-angle arrow: the head's tip sits exactly on (x2,y2)
+  const arr = (x1, y1, x2, y2, o = {}) => {
+    const a = Math.atan2(y2 - y1, x2 - x1), h = 9, s = 0.45, k = v => Math.round(v * 10) / 10;
+    const bx = x2 - 7 * Math.cos(a), by = y2 - 7 * Math.sin(a);
+    return ln(k(x1), k(y1), k(bx), k(by), o) +
+      `<polygon points="${k(x2)},${k(y2)} ${k(x2 - h * Math.cos(a - s))},${k(y2 - h * Math.sin(a - s))} ${k(x2 - h * Math.cos(a + s))},${k(y2 - h * Math.sin(a + s))}" style="fill:${o.stroke || C.line}"/>`;
+  };
+  const lines = (x, y, arrTxt, o = {}) => arrTxt.map((s, i) => s ? t(x, y + i * (o.lh || 15), s, o) : "").join("");
+
+  // ---- P2 M0: welcome — one quantum run, end to end ----
+  D["p2-welcome"] = (() => {
+    let b = t(320, 24, "One quantum program, start to finish", { bold: true, size: 15 });
+    const steps = [
+      ["You write", "a circuit on a", "normal laptop", C.acc, C.accT],
+      ["Qubits start", "at 0, kept near", "absolute zero", C.cyan, C.cyanT],
+      ["Gates steer", "the amplitudes", "(interference)", C.cyan, C.cyanT],
+      ["Measure:", "each qubit", "gives 0 or 1", C.warn, C.warnT],
+      ["Repeat it", "1,000s of times", "and count", C.good, C.goodT]
+    ];
+    const w = 108, g = 18, y = 44, h = 72;
+    steps.forEach((s, i) => {
+      const x = 14 + i * (w + g);
+      b += box(x, y, w, h, { stroke: s[3] }) + t(x + w / 2, y + 23, s[0], { size: 14, bold: true, fill: s[4] });
+      b += t(x + w / 2, y + 43, s[1], { size: 12, fill: C.dim }) + t(x + w / 2, y + 60, s[2], { size: 12, fill: C.dim });
+      if (i < 4) b += arrR(x + w + 2, y + h / 2, x + w + g - 2, { stroke: C.faint });
+    });
+    const hx = 360, hy = 150, bars = [["00", 0.06], ["01", 0.05], ["10", 0.07], ["11", 0.82]];
+    b += arrD(572, y + h + 2, hy - 4, { stroke: C.good });
+    b += box(hx - 16, hy, 280, 132, { stroke: C.boxS, fill: C.card });
+    bars.forEach((bb, i) => {
+      const bh = bb[1] * 90, x = hx + 10 + i * 62;
+      b += box(x, hy + 104 - bh, 36, bh, { r: 3, fill: i === 3 ? C.goodFill : C.box, stroke: i === 3 ? C.good : C.boxS });
+      b += t(x + 18, hy + 124, bb[0], { size: 13, fill: i === 3 ? C.goodT : C.dim });
+    });
+    b += t(hx + 150, hy + 22, "the answer →", { size: 13, fill: C.goodT, a: "end" });
+    b += lines(24, 176, ["Wrong answers cancel out,", "the right one piles up.", "", "The result is this histogram", "of many shots, never one", "magic readout of every answer."], { size: 14, a: "start", fill: C.dim, lh: 19 });
+    return svg(300, b, "five steps of a quantum run ending in a histogram of shots where the correct bitstring is the tallest bar");
+  })();
+
+  // ---- P2 M0: setup — which Python is running? ----
+  D["p2-setup"] = (() => {
+    let b = t(320, 24, "The #1 setup bug: two Pythons, one library", { bold: true, size: 15 });
+    b += box(20, 52, 200, 62, { stroke: C.acc }) + t(120, 77, "Terminal shows (.venv)", { size: 14, bold: true, fill: C.accT }) + t(120, 97, "pip install qiskit …", { size: 13, fill: C.dim });
+    b += box(20, 178, 200, 62, { stroke: C.acc }) + t(120, 203, "VS Code / Jupyter", { size: 14, bold: true, fill: C.accT }) + t(120, 223, "kernel you selected", { size: 13, fill: C.dim });
+    b += box(410, 44, 210, 90, { stroke: C.good, fill: C.goodFill }) + t(515, 70, ".venv Python", { size: 14, bold: true, fill: C.goodT });
+    b += t(515, 90, "qiskit 2.x, qiskit-aer,", { size: 13, fill: C.dim }) + t(515, 106, "numpy, matplotlib", { size: 13, fill: C.dim });
+    b += box(410, 178, 210, 62, { stroke: C.bad }) + t(515, 203, "System Python", { size: 14, bold: true, fill: C.badT }) + t(515, 223, "no qiskit inside", { size: 13, fill: C.dim });
+    b += arr(222, 83, 406, 83, { stroke: C.good }) + t(314, 74, "pip installs land here", { size: 12, fill: C.goodT });
+    b += arr(222, 192, 406, 130, { stroke: C.good }) + t(314, 128, "right pick: import works", { size: 12, fill: C.goodT });
+    b += arr(222, 214, 406, 214, { stroke: C.bad, dash: "5 4" }) + t(314, 232, "wrong pick: import fails", { size: 12, fill: C.badT });
+    b += t(320, 266, "ModuleNotFoundError: qiskit almost always means \"wrong Python\", not \"broken install\".", { size: 12, fill: C.warnT });
+    return svg(284, b, "terminal installs into the venv Python; the editor kernel must point at the same venv or imports fail");
+  })();
+
+  // @@P2-INSERT
   window.DIAGRAMS = Object.assign(window.DIAGRAMS || {}, D);
 })();

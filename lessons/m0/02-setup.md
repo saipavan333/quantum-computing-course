@@ -1,5 +1,26 @@
 # Set up your lab: Python, VS Code, Jupyter & Qiskit
 
+## The simple version
+
+**In plain English.** To practice quantum computing you need a small workshop on your own computer. Python is the programming language. VS Code is the editor where you type. A virtual environment (a private folder of libraries, called .venv) keeps this course's tools apart from everything else. Qiskit is IBM's free library for building and running quantum programs. A free IBM Quantum account lets you send programs to a real quantum chip later.
+
+**The everyday picture: your own shelf in a shared kitchen.**
+
+| In the picture | In the real thing |
+|---|---|
+| The kitchen's stove | Python, which actually runs your code |
+| Your countertop | VS Code, where you write and edit |
+| Your own labeled shelf | The .venv folder, holding this course's library versions |
+| Groceries delivered to your shelf | pip install putting Qiskit, NumPy and friends into the .venv |
+| A recipe card you can cook one step at a time | A Jupyter notebook: run code cell by cell |
+| Booking time in a restaurant's big kitchen | Sending a job to IBM's real hardware, with a queue |
+
+**Where the picture breaks.** If you grab from the wrong shelf in a kitchen, you notice. In software you often don't: an editor pointed at the system Python quietly can't see the libraries you installed into .venv, and you get ModuleNotFoundError. A .venv is also not a sealed box; it's just a folder with its own copy of Python and packages, and the (.venv) label in your terminal is the quickest sign of which one is active.
+
+@@diagram:p2-setup|Why most setup errors happen: pip installs into the Python your terminal is using, and the editor must be pointed at that same .venv Python.
+
+## Going deeper
+
 Professionals are distinguished less by what they know than by having a working environment they trust. Today you build yours: Python, an editor, notebooks, the Qiskit quantum SDK, and a free account that gives you real quantum-hardware time. Everything here is free. Budget 45 minutes; if something breaks, the Gotchas section is your friend — environment problems are the #1 reason beginners quit, and they are always fixable.
 
 You do **not** need to understand the code you'll type today. This lesson is pure plumbing; understanding starts in Module 1.
@@ -259,3 +280,7 @@ Checked 3 November 2026. Roadmap items are company *targets*, not results.
 - ☐ Save your IBM token with `save_account` and list real backends (Checkpoint 3).
 - ☐ Run the one-qubit smoke test and get `{'0': 0.5, '1': 0.5}`.
 - ☐ Diagnose a `ModuleNotFoundError` by checking which Python is running first.
+
+## In one line
+
+Install Python, make a private .venv shelf, put Qiskit on it, and always check which Python is running when something breaks.

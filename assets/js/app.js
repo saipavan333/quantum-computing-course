@@ -139,6 +139,8 @@
       return stash('<figure class="diagram-wrap" data-cap="' + capId + '">' + body + caption + "</figure>", true);
     });
     src = src.replace(/^@@widget\s*$/gm, function () { return stash('<div class="widget-slot"></div>', true); });
+    /* pass-2 interactive visuals, mounted by assets/js/viz.js */
+    src = src.replace(/^@@viz:([\w-]+)\s*$/gm, function (_, key) { return stash('<div class="viz-slot" data-viz="' + escapeHtml(key) + '"></div>', true); });
     src = src.replace(/^```([\w+-]*)[ \t]*\n([\s\S]*?)\n```[ \t]*$/gm, function (_, lang, code) {
       var html;
       if (lang && window.hljs && hljs.getLanguage(lang)) {
