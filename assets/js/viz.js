@@ -221,6 +221,40 @@
     F.on(draw); draw();
   };
 
+  /* =====================================================================
+     M3 sampling — 20 repeated experiments of n shots each; spread vs the ±1.96·SE band
+     ===================================================================== */
+  V["shots-error"] = function (host) {
+    var F = frame(host, "Run 20 experiments of n shots each: how far do the estimates wander?", 480, 280,
+      [{ type: "range", id: "e", label: "Shots per experiment n =", min: 1, max: 5, step: 0.25, value: 2 },
+       { type: "range", id: "p", label: "True chance of '1' p =", min: 0.05, max: 0.95, step: 0.05, value: 0.5 }],
+      "Dots for 20 simulated estimates around the true probability, with a shaded 95% band");
+    function rng(seed) { var s = seed >>> 0; return function () { s = (s + 0x6D2B79F5) >>> 0; var x = Math.imul(s ^ (s >>> 15), 1 | s); x ^= x + Math.imul(x ^ (x >>> 7), 61 | x); return ((x ^ (x >>> 14)) >>> 0) / 4294967296; }; }
+    function draw() {
+      var n = Math.round(Math.pow(10, F.val("e"))), p = F.val("p");
+      F.out("e", n.toLocaleString("en-US")); F.out("p", f(p, 2));
+      var se = Math.sqrt(p * (1 - p) / n), lo = Math.max(0, p - 1.96 * se), hi = Math.min(1, p + 1.96 * se);
+      var X = function (v) { return 30 + v * 420; };
+      var o = L(30, 230, 450, 230, "var(--faint)", 1.2);
+      for (var k = 0; k <= 10; k += 2) { o += L(X(k / 10), 226, X(k / 10), 234, "var(--faint)", 1); o += T(X(k / 10), 250, (k / 10).toFixed(1), { s: 12, c: "var(--faint)" }); }
+      o += R(X(lo), 34, X(hi) - X(lo), 186, "rgba(34,211,238,.13)", "none", 2);
+      o += L(X(p), 30, X(p), 226, "var(--good)", 2, "5 4") + T(X(p), 22, "true p = " + f(p, 2), { s: 13, c: "var(--good)", b: true });
+      var r = rng(Math.round(n * 1000 + p * 100)), inside = 0, ests = [];
+      for (var e = 0; e < 20; e++) {
+        var ones = 0; for (var i = 0; i < n; i++) if (r() < p) ones++;
+        var est = ones / n; ests.push(est); if (est >= lo && est <= hi) inside++;
+        o += C(X(est), 44 + e * 9, 4, "var(--warn)", "none");
+      }
+      var mn = Math.min.apply(null, ests), mx = Math.max.apply(null, ests);
+      o += T(240, 272, "95% band: " + f(lo, 3) + " to " + f(hi, 3) + "   (± " + f(1.96 * se, 3) + ")", { s: 13, c: "var(--acc2)" });
+      F.draw(o);
+      F.read.innerHTML = "Each gold dot is one experiment's estimate (count of 1s ÷ n). The shaded band is p ± 1.96·√(p(1−p)/n) = <b>± " + f(1.96 * se, 3) +
+        "</b>; about 19 of 20 dots should land inside it, and here <b>" + inside + " of 20</b> did. This run's estimates spread from " + f(mn, 3) + " to " + f(mx, 3) +
+        ". Multiply n by 4 and the band gets half as wide.";
+    }
+    F.on(draw); draw();
+  };
+
   /* @@VIZ-INSERT */
 
   /* ---------- mount + simple-section styling ---------- */

@@ -1,5 +1,27 @@
 # Expectation, variance & sampling: why shots matter
 
+## The simple version
+
+**In plain English.** A quantum computer doesn't hand you a probability directly. You run the same program many times, called shots, and count how often each answer appears. More shots give a better estimate, but slowly. To make the error half as big you need four times as many shots. This is why real experiments use thousands of shots and why every result has an error bar.
+
+**The everyday picture: tasting soup by the spoonful.**
+
+| In the picture | In the real thing |
+|---|---|
+| The whole pot of soup | The true probability you want, for example P(1) = 0.5 |
+| One spoonful | One shot: one measured result |
+| Your guess about the whole pot | The estimate: count of 1s ÷ number of shots |
+| Tasting more spoonfuls | More shots |
+| How unsure you still are | The standard error √(p(1−p)/n) |
+
+**Where the picture breaks.** A spoonful is a small piece of the same soup, and you can taste it as many times as you like. A shot is a whole new run of the program, and each measurement destroys that run's state. Also, the soup's flavor is a fixed fact; the 'true probability' only exists as a pattern over many runs, never inside one shot.
+
+@@diagram:p2-sampling|The same 50% chance estimated from 100, 400, 1,600 and 6,400 shots: each 4× jump in shots halves the 95% error bar, from ±0.098 to ±0.012.
+
+@@viz:shots-error
+
+## Going deeper
+
 Every quantum job you submit asks one question: **how many shots?** Too few and your results are noise wearing a lab coat; too many and you burn a 10‑minute QPU budget on decimals nobody needs. The answer is a formula — precision improves as $1/\sqrt n$ — and this lesson derives it, teaches you to wield it, and makes "add error bars" a reflex. This is what separates people who *run* quantum circuits from people who can *defend their results*.
 
 ## Start here — the intuition
@@ -130,3 +152,7 @@ print(rolls.mean(), rolls.var())   # ≈ 4.5, ≈ 3.25
 - ☐ Run the live cell and explain why 100× shots buys only 10× precision.
 - ☐ Size a shot budget for a target precision or a hypothesis test.
 - ☐ Distinguish statistical noise from systematic bias.
+
+## In one line
+
+You estimate quantum probabilities by counting many shots, and halving the error costs four times the shots.

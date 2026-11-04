@@ -1,5 +1,25 @@
 # Probability: outcomes, rules & distributions
 
+## The simple version
+
+**In plain English.** Probability is a number from 0 to 1 that says how likely something is. A fair coin lands heads with probability 0.5. If two things must both happen, you multiply their chances. If either one of several separate outcomes will do, you add their chances. Quantum measurements give random results, so every answer a quantum computer gives you is a probability you have to read correctly.
+
+**The everyday picture: a family tree of coin flips.**
+
+| In the picture | In the real thing |
+|---|---|
+| Each fork in the tree | One random event, such as measuring one qubit |
+| The number on a branch | The chance of that outcome, given what came before |
+| Walking down one path to a leaf | One combined outcome, like '01' |
+| Multiplying the numbers along the path | The chance of that combined outcome (AND) |
+| Adding up several leaves | The chance that any of them happens (OR) |
+
+**Where the picture breaks.** Coin flips have hidden causes; a better robot could predict them. A qubit's measurement result is random in a deeper way, and no hidden list of answers explains entangled qubits (that is Bell's theorem, Module 6). The tree also assumes you know each branch's chance; in quantum computing those chances come from squaring amplitudes, which can cancel before you ever measure.
+
+@@diagram:p2-probability|Measuring two qubits where the first gives 0 with chance 0.7: multiply along each path to get 0.35, 0.35, 0.15, 0.15, then add the leaves you care about.
+
+## Going deeper
+
 A quantum computer never hands you "the answer." It hands you a **sample** — one random bit‑string drawn from a distribution your circuit engineered. Run 4,000 shots, get 4,000 samples, and *you* infer the answer from their statistics. That makes probability not background math but the literal output format of your future job. This lesson builds the rules; the next teaches you to reason about samples like a professional.
 
 ## Start here — the intuition
@@ -135,3 +155,7 @@ Exact target $\tfrac{0.3}{0.4}=0.75$. Estimates land within ~±0.015 and differ 
 - ☐ Compute a conditional and explain post‑selection as conditioning.
 - ☐ Run the live cell and test two qubits for independence.
 - ☐ Name the Bernoulli/Binomial models behind a single qubit and a shot count.
+
+## In one line
+
+Multiply chances for 'and', add them for 'or', and every quantum result is one of these chances.
