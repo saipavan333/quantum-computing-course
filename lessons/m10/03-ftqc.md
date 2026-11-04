@@ -1,5 +1,25 @@
 # Fault tolerance & the road to useful quantum computing
 
+## The simple version
+
+**In plain English.** A fault-tolerant quantum computer is one that keeps working even though every part makes errors. It builds logical qubits out of many physical qubits using codes like the surface code. Most logical gates, the Clifford gates, are cheap to do on encoded qubits. One essential gate, the T gate, can't be done that way, so separate 'factories' prepare special magic states to supply it. That is why big algorithms are costed in T gates and why they need so many physical qubits.
+
+**The everyday picture: a factory floor with a special parts workshop.**
+
+| In the picture | In the real thing |
+|---|---|
+| Workers who make mistakes | Physical qubits with ~0.1% error per gate |
+| Teams that double-check each other's work | Logical qubits protected by a code |
+| Simple jobs any team can do safely | Clifford gates, done directly on encoded qubits |
+| A part that can't be built from the safe parts | The T gate (Eastin–Knill: no code does every gate the easy way) |
+| A side workshop making those parts in bulk | Magic-state factories |
+
+**Where the picture breaks.** Factory parts can be stockpiled for months. Magic states decay like any qubit, so they must be made just in time, and the factories take up a large share of the whole machine. Also, a factory worker's mistakes are independent and rare; quantum errors can be correlated, which is one of the open engineering risks.
+
+@@diagram:p2-ftqc|The layers: noisy physical qubits, logical qubits from surface-code patches, cheap Clifford gates, and the algorithm on top. Magic-state factories feed in the T gates.
+
+## Going deeper
+
 You now understand how to *store* a logical qubit (surface code). But storing isn't computing — you need to apply gates to logical qubits without a single physical fault cascading into a logical error. That's **fault‑tolerant quantum computation (FTQC)**, the final conceptual layer of the course: transversal gates, the T‑gate problem and magic‑state distillation, qLDPC codes, and reading the 2026 roadmaps with calibrated skepticism. This lesson ties everything together and equips you to discuss the field's trajectory credibly — the exact skill that makes you valuable in strategy conversations and interviews.
 
 ## Start here — the intuition
@@ -140,3 +160,7 @@ Checked 3 November 2026. Roadmap items are company *targets*, not results.
 - ☐ Run the live cell and trace an algorithm's T‑count to a physical‑qubit footprint.
 - ☐ Describe what qLDPC codes promise and their trade‑off.
 - ☐ Give the calibrated "when will it arrive?" answer without false precision.
+
+## In one line
+
+Fault tolerance stacks error-corrected logical qubits on noisy physical ones, and the hard part is supplying T gates from magic-state factories.

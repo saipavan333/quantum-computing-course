@@ -620,6 +620,41 @@
     F.on(draw); draw();
   };
 
+  /* =====================================================================
+     M10 QEC — repetition code with majority vote: P_L = Σ_{k > d/2} C(d,k) p^k (1−p)^(d−k)
+     ===================================================================== */
+  V["rep-code"] = function (host) {
+    var F = frame(host, "Repetition code: when does copying a bit and voting actually help?", 480, 280,
+      [{ type: "range", id: "p", label: "Physical flip chance p =", min: 0.001, max: 0.6, step: 0.001, value: 0.05 },
+       { type: "select", id: "d", label: "Copies d", value: "3", options: [["1", "1 (no code)"], ["3", "3"], ["5", "5"], ["7", "7"], ["9", "9"]] }],
+      "Log-scale curves of logical error against physical error for repetition codes of 1, 3, 5, 7 and 9 copies");
+    function binom(n, k) { var r = 1; for (var i = 1; i <= k; i++) r = r * (n - k + i) / i; return r; }
+    function PL(p, d) { var s = 0; for (var k = Math.floor(d / 2) + 1; k <= d; k++) s += binom(d, k) * Math.pow(p, k) * Math.pow(1 - p, d - k); return s; }
+    function draw() {
+      var p = F.val("p"), d = +F.val("d"); F.out("p", f(p, 3));
+      var x0 = 56, x1 = 460, y0 = 24, y1 = 220, lmin = -8, X = function (q) { return x0 + (Math.log10(q) + 3) / Math.log10(600) * (x1 - x0); };
+      var Y = function (v) { var l = Math.log10(Math.max(v, 1e-8)); return y1 - (l - lmin) / (0 - lmin) * (y1 - y0); };
+      var o = L(x0, y1, x1, y1, "var(--faint)", 1.2) + L(x0, y0, x0, y1, "var(--faint)", 1.2);
+      for (var l = lmin; l <= 0; l += 2) { o += L(x0, Y(Math.pow(10, l)), x1, Y(Math.pow(10, l)), "var(--border)", 0.8); o += T(x0 - 6, Y(Math.pow(10, l)) + 4, "10" + sup(l), { s: 11, c: "var(--faint)", a: "end" }); }
+      [0.001, 0.01, 0.1, 0.5].forEach(function (q) { o += T(X(q), y1 + 16, String(q), { s: 11, c: "var(--faint)" }); });
+      o += L(X(0.5), y0, X(0.5), y1, "var(--warn)", 1.2, "4 3") + T(X(0.5) - 4, y0 + 12, "p = 0.5", { s: 11, c: "var(--warn)", a: "end" });
+      var cols = { 1: "var(--faint)", 3: "var(--acc2)", 5: "#b9a9ff", 7: "var(--good)", 9: "#fcd77a" };
+      [1, 3, 5, 7, 9].forEach(function (dd) {
+        var pts = []; for (var i = 0; i <= 120; i++) { var q = Math.pow(10, -3 + i / 120 * Math.log10(600)); pts.push([X(q), Y(PL(q, dd))]); }
+        o += P(pts, cols[dd], dd === d ? 3 : 1.2);
+      });
+      var v = PL(p, d), v1 = p;
+      o += C(X(p), Y(v), 6, cols[d], "#0b0e14", 2) + C(X(p), Y(v1), 4, "var(--faint)", "none");
+      o += T((x0 + x1) / 2, 254, "physical flip chance p (log scale); bold curve = " + d + " copies", { s: 12, c: "var(--dim)" });
+      F.draw(o);
+      var better = v < p;
+      F.read.innerHTML = "With " + d + " copies and majority vote, the stored bit is wrong only if more than half flip: P = <b>" + v.toExponential(2) + "</b> vs " + p.toExponential(2) + " with no code. " +
+        (d === 3 ? "(That is 3p² − 2p³.) " : "") + (d === 1 ? "One copy is just the bare bit." : better ? "Coding <b>helps</b> here, and more copies help more." : "Coding <b>hurts</b> here: above p = 0.5 voting picks the wrong answer more often.") +
+        " This only fixes bit flips; real codes like the surface code also catch phase flips, and their break-even point (threshold) is about 1%.";
+    }
+    F.on(draw); draw();
+  };
+
   /* @@VIZ-INSERT */
 
   /* ---------- mount + simple-section styling ---------- */

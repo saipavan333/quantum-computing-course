@@ -1,5 +1,25 @@
 # The surface code & logical qubits
 
+## The simple version
+
+**In plain English.** The surface code is the error-correcting code most quantum companies plan to use. It places data qubits on a square grid with check qubits between them. Each check measures the parity of just four neighbors, which suits chips where qubits only talk to neighbors. A decoder program reads which checks lit up and works out the most likely errors. A bigger grid (larger distance d) makes logical errors much rarer, but only if physical errors are below about 1%.
+
+**The everyday picture: a checkerboard of smoke detectors.**
+
+| In the picture | In the real thing |
+|---|---|
+| Rooms in a big building | Data qubits on a grid |
+| A smoke detector between each group of four rooms | A local check (stabilizer) on four neighbors |
+| Detectors that go off around a fire | Checks flipped by an error: the syndrome |
+| The fire chief guessing where the fire is | The decoder |
+| A bigger building with more detectors | Larger distance d: needs more errors to fool it |
+
+**Where the picture breaks.** A real fire stays put while you look for it. Quantum errors keep arriving during every round of checks, and the checks themselves can be wrong, so the decoder must reason over time as well as space. And a building's detectors don't change the rooms; measuring quantum checks is what turns smooth errors into discrete ones the decoder can handle.
+
+@@diagram:p2-surface-code|A distance-3 patch: 9 data qubits with checks between them. With physical error 0.1%, the lesson's model gives logical error 0.001 at d = 3, 0.0001 at d = 5 and 0.00001 at d = 7.
+
+## Going deeper
+
 The surface code is the error‑correcting code the entire industry is betting on — IBM, Google, and most superconducting roadmaps build toward it. It's the reason "millions of physical qubits" appears in Shor resource estimates (Module 8), the code Google's Willow chip demonstrated below‑threshold (Module 0), and the practical realization of last lesson's stabilizer theory. Understanding its structure — the qubit lattice, code distance, threshold, and the physical‑to‑logical overhead arithmetic — lets you read hardware roadmaps critically and speak credibly about the timeline to fault tolerance. This is core knowledge for QEC and hardware‑adjacent roles.
 
 ## Start here — the intuition
@@ -160,3 +180,7 @@ Checked 3 November 2026. Roadmap items are company *targets*, not results.
 - ☐ Translate a physical‑qubit headline into a logical‑qubit estimate.
 - ☐ Explain decoding and why it's a hard real‑time problem (name Stim/PyMatching).
 - ☐ Size a fault‑tolerant machine with physical ≈ logical × $2d^2$ × distillation.
+
+## In one line
+
+The surface code watches a grid of qubits with simple local checks, and bigger grids make errors vanishingly rare when the hardware is good enough.
