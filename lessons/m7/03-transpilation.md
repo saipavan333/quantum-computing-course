@@ -1,5 +1,25 @@
 # Transpilation: from ideal circuits to ISA circuits
 
+## The simple version
+
+**In plain English.** Real chips can only do a few kinds of gates, and only between qubits that are wired together. Transpiling rewrites your circuit so it fits one particular chip. It picks which physical qubits to use, adds SWAP gates to bring distant qubits together, translates every gate into the chip's native gates, and then trims what it can. Each added two-qubit gate adds error, so good transpiling makes results noticeably better.
+
+**The everyday picture: planning a car route on real roads.**
+
+| In the picture | In the real thing |
+|---|---|
+| The straight line you'd like to drive | The circuit you wrote, with gates between any qubits |
+| The actual road map | The chip's coupling map: which qubits are connected |
+| Choosing a starting neighborhood | Layout: picking physical qubits |
+| Detours around missing roads | Routing: inserting SWAPs (3 two-qubit gates each) |
+| Using only the car's real gears | Translating into native gates like rz, sx, x and ecr or cz |
+
+**Where the picture breaks.** A detour only costs time; a SWAP also adds error, and the damage grows with every extra gate. Road maps stay the same for years, but a chip's error rates drift from day to day, so the best route today may not be the best one tomorrow.
+
+@@diagram:p2-transpilation|A CX between unconnected Q0 and Q2 gets a SWAP so the qubits become neighbors, then every gate is rewritten into native gates and the result is optimized.
+
+## Going deeper
+
 Your circuit says `h(0); cx(0, 7)`. The chip has no H gate, and qubits 0 and 7 aren't connected. **Transpilation** is the compiler pass that bridges that gap — rewriting your ideal circuit into an equivalent one the hardware can physically execute: its native gates, its wiring diagram, hopefully with fewer errors than a naive translation. Since Qiskit 2.x you *must* transpile before running on IBM hardware (primitives accept only "ISA circuits" — Instruction Set Architecture-conformant). Understanding what the transpiler does — and reading what it did — separates people who run circuits from people who can explain their results.
 
 ## Start here — the intuition
@@ -7,6 +27,8 @@ Your circuit says `h(0); cx(0, 7)`. The chip has no H gate, and qubits 0 and 7 a
 The compiler faces two hard walls, and everything follows. **The chip speaks only a few native gates** — typically `rz` (free), `sx`, `x`, and one two‑qubit gate (`ecr` or `cz`) — so every H, T, and Toffoli you wrote must be *translated* into those. **The chip's qubits are sparsely wired** (heavy‑hex: 2–3 neighbors each), so a gate between unconnected qubits must be *routed* by SWAP chains — and since a SWAP is 3 two‑qubit gates, distance literally costs fidelity. The transpiler's **layout** (which physical qubits to use) and **routing** (how to connect them) therefore set most of your error budget, and higher optimization levels can *halve* the two‑qubit gate count of the exact same circuit.
 
 Carry one number: **the post‑transpile two‑qubit gate count is your circuit's true price tag.** Log it, compare optimization levels, and seed the transpiler — because on hardware your circuit isn't what you wrote, it's what the transpiler emitted.
+
+> **School-kid analogy.** You have a recipe, but the kitchen only has a kettle and a microwave, and pans can only be passed to the burner next door. Transpiling rewrites the recipe using only those tools and plans where to move the pans (SWAPs).
 
 ## 1. The target: what a real device offers
 
@@ -250,3 +272,7 @@ Answers with reasoning: (a) **level 0 or 1** — CI on ideal Aer doesn't care ab
 - ☐ Pick an optimization level for CI, hardware, and transpiler‑bug hunting.
 - ☐ Read `count_ops()` post‑transpile and treat the 2q count as the price tag.
 - ☐ Seed the transpiler and log layout/counts as experiment metadata.
+
+## In one line
+
+Transpiling rewrites your circuit to fit a chip's wiring and native gates, and fewer added gates means fewer errors.

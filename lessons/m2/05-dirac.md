@@ -1,5 +1,25 @@
 # Inner products, norms & Dirac notation
 
+## The simple version
+
+**In plain English.** Dirac notation is a short way to write quantum states. A ket, written |ψ⟩, is a state written as a column of numbers. A bra, written ⟨φ|, is the matching row, with each number's imaginary part flipped in sign. Put a bra next to a ket, ⟨φ|ψ⟩, and you get one number that says how much the two states overlap. Square the size of that number and you get a chance.
+
+**The everyday picture: two flashlight beams and how much they line up.**
+
+| In the picture | In the real thing |
+|---|---|
+| A flashlight beam pointing somewhere | A ket \|ψ⟩, a state |
+| A second beam you compare against | A bra ⟨φ\|, the reference state turned into a row |
+| How much the two beams line up | The overlap ⟨φ\|ψ⟩, one number |
+| Beams pointing the same way | ⟨ψ\|ψ⟩ = 1 |
+| Beams at right angles | Orthogonal states: ⟨φ\|ψ⟩ = 0 |
+
+**Where the picture breaks.** Flashlight beams line up by a real angle you can see. Quantum overlaps are complex numbers, so two states can overlap by the same amount but with a different phase. And the chance is the squared size of the overlap, not the overlap itself: an overlap of 0.707 means a 50% chance.
+
+@@diagram:p2-dirac|⟨+| as a row meets |0⟩ as a column: 0.707·1 + 0.707·0 = 0.707. Squared, that is the 50% chance of finding |0⟩ as |+⟩.
+
+## Going deeper
+
 Every quantum paper, textbook, and library docstring is written in one notation: Dirac's bras and kets. People who "know the concepts" but stumble on $\braket{\phi}{\psi}$ read the literature at half speed forever. This lesson finishes the inner product properly (the complex version has one crucial twist), then installs Dirac notation as muscle memory. After today you read $\bra{0}H\ket{+}$ the way you read arithmetic.
 
 ## Start here — the intuition
@@ -7,6 +27,8 @@ Every quantum paper, textbook, and library docstring is written in one notation:
 Dirac notation is just a very clean way to write "overlap." A **ket** $\ket\psi$ is a column vector — a state. A **bra** $\bra\psi$ is its mirror‑image row (conjugate every entry). And when a bra meets a ket, $\braket{\phi}{\psi}$, they **collapse into a single number** — the overlap between the two states, i.e. "how much of $\phi$ is in $\psi$." That's the whole notation: bra + ket = bracket = a number.
 
 Why you care: the **Born rule**, the central formula of quantum mechanics, is just this overlap, magnitude‑squared — $p(\phi) = |\braket{\phi}{\psi}|^2$. Everything you measure is an overlap you square. There is one twist that trips up everyone once: for complex vectors the inner product **conjugates the first vector** (so that a state's overlap with itself is a real, non‑negative length). In code that means `np.vdot`, never `np.dot`.
+
+> **School-kid analogy.** Shine two torches at a wall. The bra-ket $\braket{a}{b}$ asks how much the two beams overlap: fully (1), not at all (0), or partly. Squaring that overlap gives the chance that one state is found to be the other.
 
 ## The complex inner product and the bracket
 
@@ -123,3 +145,7 @@ $S = \begin{pmatrix}1&0\\0&i\end{pmatrix}$. $S\ket+ = \tfrac{1}{\sqrt2}(\ket0 + 
 - ☐ Distinguish bra·ket (number) from ket·bra (projector matrix), and use completeness.
 - ☐ Run the live cell and explain why `np.vdot` is right and `np.dot` is wrong.
 - ☐ Show that a relative phase changes ±‑basis but not standard‑basis statistics.
+
+## In one line
+
+A ket is a state, a bra is its mirror row, and ⟨bra|ket⟩ is one number that tells how much two states overlap.

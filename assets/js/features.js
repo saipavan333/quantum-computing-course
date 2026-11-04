@@ -103,7 +103,7 @@
     var walker = document.createTreeWalker(body, NodeFilter.SHOW_TEXT, {
       acceptNode: function (n) {
         var p = n.parentElement;
-        if (!p || p.closest("code,pre,a,.katex,h1,h2,h3,figcaption,.term")) return NodeFilter.FILTER_REJECT;
+        if (!p || p.closest("code,pre,a,.katex,h1,h2,h3,figcaption,.term,svg")) return NodeFilter.FILTER_REJECT;
         return n.nodeValue.trim().length > 3 ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
       }
     });

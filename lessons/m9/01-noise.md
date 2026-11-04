@@ -1,5 +1,27 @@
 # Noise: T1, T2, gate errors & error mitigation
 
+## The simple version
+
+**In plain English.** Real qubits are not perfectly isolated, so the world slowly scrambles them. T1 is how long a qubit takes to leak its energy and fall from 1 back to 0. T2 is how long its phase stays in step, and it is never more than twice T1. Gates and readouts also make small mistakes each time you use them. Error mitigation is a set of tricks that clean up results afterwards, at the cost of running more shots.
+
+**The everyday picture: a spinning top on a table.**
+
+| In the picture | In the real thing |
+|---|---|
+| The top slowly falling over | T1 relaxation: \|1⟩ decays to \|0⟩ |
+| The top's wobble drifting out of rhythm | T2 dephasing: the phase gets scrambled |
+| Bumping the table each time you touch it | Gate errors, worst for two-qubit gates |
+| Misreading which way it fell | Readout error |
+| Correcting your notes for a known misreading habit | Readout-error mitigation |
+
+**Where the picture breaks.** A top falls in one direction you can watch. A qubit's decay is random: each run, at an unknown moment, it may or may not relax, and the T1 curve only describes the average. Also, losing phase (T2) has no everyday picture; on the Bloch sphere it shrinks the arrow's sideways part toward the vertical axis, which means the state becomes partly random, not just tilted.
+
+@@diagram:p2-noise|Leave |+⟩ alone with T1 = 100 µs and T2 = 80 µs: the arrow shrinks sideways (x = e^(−t/T2)) and sags toward |0⟩ (z = 1 − e^(−t/T1)). After 200 µs little quantum information is left.
+
+@@viz:bloch-shrink
+
+## Going deeper
+
 Every result you've run on real hardware came back imperfect — Bell states with a few percent of forbidden outcomes, GHZ signatures decaying with size. That imperfection is **noise**, and understanding it is the defining skill of the NISQ era (Noisy Intermediate-Scale Quantum — today's regime). This lesson makes noise quantitative: the physical mechanisms (T1, T2, gate and readout errors), how they compound through a circuit, and the mitigation toolbox that squeezes usable answers from noisy machines. This is where a huge fraction of *actual quantum jobs in 2026* live — not building fault-tolerant computers (Module 10's future), but making today's imperfect ones useful.
 
 ## Start here — the intuition
@@ -7,6 +29,8 @@ Every result you've run on real hardware came back imperfect — Bell states wit
 A qubit is like a child's spinning top. Two ways it goes wrong on its own: it slowly **falls over** — energy leaks away and $\ket1$ relaxes to $\ket0$ (that's $T_1$) — and it **wobbles out of sync** — the delicate phase that makes it quantum gets scrambled by its jittery surroundings (that's $T_2$). On top of that, every gate you apply is a slightly imperfect shove, and even reading the answer occasionally flips a bit.
 
 You can't stop the noise on today's machines. So the NISQ craft is twofold: **keep circuits short and cheap** (fewer, faster gates = less time to fall over), and **clean up the answer statistically** afterward — error *mitigation*, which recovers a truer number from noisy runs without adding a single qubit. (That's different from error *correction*, next module, which spends many extra qubits to actually remove errors.)
+
+> **School-kid analogy.** In the whispering game, every extra child in the line adds mistakes to the message. Every extra gate does the same to a quantum state, so short circuits win.
 
 ## The enemies: what corrupts a qubit
 
@@ -152,3 +176,7 @@ A degree-2 fit through 3 points passes exactly through them and can swing wildly
 - ☐ Distinguish mitigation from correction (cost, scalability, era).
 - ☐ Describe ZNE, readout mitigation, and dynamical decoupling, and what each fights.
 - ☐ Run the live cell and read a T1 decay and a zero-noise extrapolation.
+
+## In one line
+
+Noise makes qubits forget: T1 drains their energy, T2 blurs their phase, and every gate adds a small mistake.

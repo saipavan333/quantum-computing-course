@@ -1,5 +1,25 @@
 # Matrices: the machines of linear algebra
 
+## The simple version
+
+**In plain English.** A matrix is a grid of numbers that acts like a machine. You feed it a list of numbers (a vector) and it gives you a new list. Each output number comes from one row of the grid: multiply that row's numbers with the input's numbers in pairs, then add. Every quantum gate is a matrix like this. Running two gates one after another is the same as multiplying their matrices.
+
+**The everyday picture: a recipe card for mixing paint.**
+
+| In the picture | In the real thing |
+|---|---|
+| Cans of red and blue paint you start with | The input vector, for example amplitudes (0.8, 0.6) |
+| One recipe line: 'take 0 parts red and 1 part blue' | One row of the matrix |
+| Each new can you mix | One output entry: that row dotted with the input |
+| Swapping which paint goes in which can | The X gate's matrix [[0, 1], [1, 0]] |
+| Following two recipe cards in a row | Multiplying two matrices; order matters |
+
+**Where the picture breaks.** Paint, once mixed, can't be unmixed. Quantum gates are special matrices (unitary ones) that can always be undone, and they keep the total chance at exactly 1. Paint amounts are also never negative or complex, while matrix entries often are.
+
+@@diagram:p2-matrices|The X matrix times (0.8, 0.6): row 1 gives 0.6 and row 2 gives 0.8. The two amplitudes swap, so the chances 0.64 and 0.36 swap too.
+
+## Going deeper
+
 Here is the second half of quantum computing's core equation. An earlier lesson said *states are vectors*. This lesson: **operations on states are matrices.** Every quantum gate — X, Hadamard, CNOT — is literally a small matrix of complex numbers, and "apply the gate" means "multiply the vector by the matrix." Master 2×2 mechanics now and Modules 5–8 become computation instead of ceremony.
 
 ## Start here — the intuition
@@ -9,6 +29,8 @@ A matrix is a **machine that eats a vector and returns a vector**. That's the wh
 **The columns tell you where the basis vectors go.** Feed a matrix the vector $\binom10$ and out comes its first column; feed $\binom01$ and out comes the second. So you can *read* any gate at a glance ("where does $\ket0$ land? where does $\ket1$ land?"), and *build* any gate you want by writing those destinations as columns.
 
 **Linearity carries you the rest of the way.** Because a matrix respects sums and scaling, knowing what a gate does to $\ket0$ and $\ket1$ tells you what it does to *every* superposition — the amplitudes just tag along. That's the entire reason quantum mechanics is computable by hand. Two more facts to hold: **order matters** ($AB \neq BA$ — gate order is physics), and the "dagger" $M^\dagger$ (transpose *and* conjugate) is quantum's proper transpose.
+
+> **School-kid analogy.** A matrix is a machine on a factory line: an arrow goes in, and it comes out stretched, turned or flipped. Two machines in a row is matrix multiplication, and swapping the order of machines can give a different result.
 
 ## What a matrix does
 
@@ -130,3 +152,7 @@ $\det M = 1$; $M^{-1} = \begin{pmatrix}1&-1\\-1&2\end{pmatrix}$; $\vec x = M^{-1
 - ☐ Run the live cell and explain $H@H = I$, $XZ \neq ZX$, and $HXH = Z$.
 - ☐ Compute a 2×2 inverse and dagger, and know `@` vs `*` in numpy.
 - ☐ Explain why $H$'s minus sign is destructive interference inside a matrix multiply.
+
+## In one line
+
+A matrix turns one list of numbers into another, row by row, and every quantum gate is one.

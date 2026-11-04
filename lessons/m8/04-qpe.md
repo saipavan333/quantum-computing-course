@@ -1,5 +1,24 @@
 # Quantum phase estimation
 
+## The simple version
+
+**In plain English.** Every gate has special input states, its eigenstates, that it only multiplies by a phase. Quantum phase estimation (QPE) measures that phase. Extra 'counting' qubits each control the gate run 1, 2, 4, 8 … times, so each one picks up the phase doubled again. An inverse QFT then turns those phases into a binary number you can read. More counting qubits give more digits of the phase.
+
+**The everyday picture: reading a clock hand by speeding it up.**
+
+| In the picture | In the real thing |
+|---|---|
+| A clock hand at an unknown angle | The hidden phase φ of the gate U |
+| Watching it after 1, 2, 4 turns of speed-up | Applying U, U², U⁴ controlled by counting qubits |
+| Each speed-up reveals one finer detail | Each counting qubit holds one binary digit of φ |
+| Writing the angle down as digits | The inverse QFT turns phases into a readable number |
+
+**Where the picture breaks.** You can watch a clock hand directly; a phase can't be seen at all until interference turns it into a measurable result. QPE also needs the input to be (close to) an eigenstate, and the controlled U^(2^k) gates get very deep, which is why it is a fault-tolerant-era algorithm rather than one for today's noisy chips.
+
+@@diagram:p2-qpe|With φ = 0.625 of a turn, U, U² and U⁴ give the three counting qubits 0.625, 0.25 and 0.5 turns. The inverse QFT reads them as 101, which is 5/8.
+
+## Going deeper
+
 Phase estimation is the most *consequential* subroutine in quantum computing: Shor's algorithm is QPE pointed at modular arithmetic; quantum chemistry's endgame is QPE pointed at molecular Hamiltonians; quantum counting is QPE pointed at Grover's rotation. The question it answers sounds narrow — *given a unitary $U$ and its eigenvector, what's the eigenvalue's phase?* — but eigenphases turn out to encode periods, energies, and solution‑counts. Master QPE and Module 8's finale (Shor) becomes assembly, not invention. You already have every part: kickback (M6), controlled powers, and last lesson's inverse QFT.
 
 ## Start here — the intuition
@@ -9,6 +28,8 @@ Picture a spinning wheel with a single painted mark. Each "tick" of a machine tu
 Clever trick: run several wheels in parallel, tick one once, the next twice, the next four times, and so on — doubling. Then compare all their final positions at once. The doubling makes the small angle add up into something you can read off in binary. That is quantum phase estimation: the "turn per tick" is a unitary's **eigenphase** $\varphi$, and QPE reads it to as many binary digits as you have counting qubits.
 
 Why anyone cares: that eigenphase is a disguise. For a molecule's energy operator it *is* the energy. For Shor's multiply‑by‑a map it *is* the period that cracks RSA. For Grover's rotation it *is* the number of solutions. One subroutine, many masks.
+
+> **School-kid analogy.** To measure how fast a roundabout spins, look where a marked seat is after 1 turn, 2 turns, 4 turns, 8 turns. Each doubling reveals one more digit of the speed. Phase estimation reads a phase the same way, one binary digit per doubling.
 
 ## The problem, stated with care
 
@@ -163,3 +184,7 @@ The post‑QPE state before measurement is entangled — estimate ⊗ eigenstate
 - ☐ Explain the off‑grid peaked distribution and the two ways to sharpen it (qubits vs medians).
 - ☐ Say why QPE needs no eigenstate up front, and what sets the repetition budget when overlap is imperfect.
 - ☐ Point QPE at Grover's iterate and describe how that counts solutions.
+
+## In one line
+
+Phase estimation reads a gate's hidden phase digit by digit by running the gate 1, 2, 4 … times and decoding with an inverse QFT.

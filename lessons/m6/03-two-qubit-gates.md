@@ -1,5 +1,26 @@
 # CNOT, CZ, SWAP & controlled operations
 
+## The simple version
+
+**In plain English.** Some gates act on two qubits at once. CNOT (controlled-NOT) flips the second qubit, the target, only when the first, the control, is 1. CZ puts a minus sign on the |11⟩ part and leaves everything else alone. SWAP trades the two qubits. On a superposition these gates act on every part at once, which is how two separate qubits become entangled.
+
+**The everyday picture: a light switch wired to a second switch.**
+
+| In the picture | In the real thing |
+|---|---|
+| Switch A, the one you look at | The control qubit |
+| Switch B, which flips when A is on | The target qubit of CNOT |
+| Wiring that only acts when both are on | CZ: a minus sign on \|11⟩ only |
+| Swapping the two switches' positions | SWAP |
+
+**Where the picture breaks.** Wired switches only ever see 'on' or 'off', one case at a time. A control qubit in superposition is one state with an amplitude for each case, and CNOT acts on both parts together, which creates entanglement. And the 'control' isn't always untouched: with the target in the right state, the gate's phase lands on the control instead (phase kickback), which wiring can never do.
+
+@@diagram:p2-two-qubit-gates|What each gate does to the four basis states. Highlighted rows are the ones that change. On superpositions these rules apply to every part at once.
+
+@@viz:bell-stepper
+
+## Going deeper
+
 Single-qubit gates rotate islands; two-qubit gates build bridges. They are the only way to create entanglement (last lesson proved tensor-product gates can't), the hardest thing hardware does (10–50× the error of single-qubit gates), and the currency in which circuit cost is really measured. Master CNOT and its family — and the phase-kickback trick — and every algorithm in Module 8 becomes readable.
 
 ## Start here — the intuition
@@ -7,6 +28,8 @@ Single-qubit gates rotate islands; two-qubit gates build bridges. They are the o
 A two-qubit gate lets one qubit's fate **depend on** another — a "quantum if‑statement." The star is **CNOT**: *flip the target qubit if the control is $\ket1$; leave it alone if the control is $\ket0$.* On plain 0/1 inputs that's just a conditional NOT. But two things make it magic.
 
 First, feed CNOT a **control in superposition** and it doesn't pick a branch — it does both at once and **manufactures entanglement**: $H$ then CNOT turns two independent qubits into a Bell pair that always agree. Second, and deeper: point a controlled gate at a target that happens to be an **eigenstate**, and the effect bounces *backward* onto the control as a phase — **phase kickback**, where the "if" edits the *asker*, not the asked. That backward trick is the engine of nearly every quantum algorithm.
+
+> **School-kid analogy.** CNOT is a buddy rule: "if your buddy's hand is up, flip your card over." One qubit's state decides what happens to the other.
 
 ## CNOT — the conditional flip
 
@@ -147,3 +170,7 @@ The target is in $\ket-$, an eigenstate of $X$ (eigenvalue $-1$) but *not* of $Z
 - ☐ Run the live cell and read Deutsch's one‑query answer off the control.
 - ☐ State that SWAP = 3 CNOTs and why routing is expensive.
 - ☐ Explain error propagation ($X$ control→target, $Z$ target→control) and why codes care.
+
+## In one line
+
+Two-qubit gates make one qubit's change depend on another, and that is how entanglement is made.

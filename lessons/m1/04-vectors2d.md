@@ -1,5 +1,25 @@
 # Vectors: arrows, components & dot products
 
+## The simple version
+
+**In plain English.** A vector is an arrow with a length and a direction. You can also write it as a list of numbers: (3, 1) means 3 steps right and 1 step up. You can add arrows by walking one and then the other, and you can stretch them by multiplying. The dot product says how much two arrows point the same way. It is zero when they meet at a right angle. A qubit's state is exactly this kind of object: a vector of length 1.
+
+**The everyday picture: steps on a treasure map.**
+
+| In the picture | In the real thing |
+|---|---|
+| "3 paces east, 2 paces north" | A vector written as components (3, 2) |
+| Doing one step, then the next | Vector addition, tip to tail |
+| Taking the same step twice as far | Scaling by a number |
+| How much of your walk went with the wind | The dot product |
+| A step straight across the wind | Perpendicular vectors: dot product 0 |
+
+**Where the picture breaks.** Map steps live in a flat, real plane you can see. Quantum state vectors have complex entries and, for n qubits, 2ⁿ components, so you can't draw them. The dot product also needs a small change for complex numbers (you flip the sign of the imaginary parts of one vector first), which comes in Module 2.
+
+@@diagram:p2-vectors2d|u = (3, 1) followed by v = (1, 2) lands at (4, 3). Their dot product is 3×1 + 1×2 = 5, which also equals their lengths times the cosine of the 45° between them.
+
+## Going deeper
+
 Time to meet the main character. A quantum state *is a vector* — not "is like a vector," not "can be pictured as." The state of a qubit is literally a vector with two entries, and every quantum operation is something done to vectors. Learn them in friendly 2D first, where you can draw everything, and the quantum versions become the same pictures with richer numbers.
 
 ## Start here — the intuition
@@ -7,6 +27,8 @@ Time to meet the main character. A quantum state *is a vector* — not "is like 
 Three ideas, and each is a quantum concept two modules early. **A vector has two faces** — an arrow (length + direction) and a column of components — and you translate between them freely. **There are only two things you can do to vectors:** add them (matching components) and scale them (multiply every component by a number); combine both into $a\vec u + b\vec v$, a *linear combination*, and you've written the skeleton of superposition — a qubit is $\alpha\ket0 + \beta\ket1$, a linear combination of two special vectors. **The dot product is an alignment score:** one number saying how much two arrows point the same way — and its square is, quite literally, the probability of mistaking one quantum state for another.
 
 The punchline lands early: a **unit vector** (length 1) has squared components that sum to 1 — which *is* "probabilities sum to 1." Quantum states are unit vectors, so normalization and geometry are the same statement.
+
+> **School-kid analogy.** A treasure-map step like "3 paces east, 2 paces north" is a vector. Adding vectors is doing one step and then the next. The dot product asks how much of your walk went along a given direction, like how much of a bike ride was with the wind.
 
 ## The two faces and the two operations
 
@@ -132,3 +154,7 @@ Both have norm $\sqrt{10}$. Overlap $\hat a\cdot\hat b = \tfrac{3+3}{10} = 0.6$;
 - ☐ Compute a dot product and read its sign as alignment; define orthogonal.
 - ☐ Run the live cell and explain why overlap² is a probability of confusion.
 - ☐ Say why a component is a dot product with a basis vector.
+
+## In one line
+
+A vector is an arrow you can add, stretch, and compare with a dot product, and a qubit is an arrow of length 1.

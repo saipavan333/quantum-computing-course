@@ -1,5 +1,25 @@
 # QAOA: quantum optimization
 
+## The simple version
+
+**In plain English.** Many business problems ask for the best choice out of a huge number of options, such as how to split a network in two. QAOA (the quantum approximate optimization algorithm) attacks them with a short repeating circuit. One layer gives each possible answer a phase based on how good it is. A second layer, the mixer, lets the amplitudes flow between answers. A normal computer tunes the two angles of each round so that good answers become more likely.
+
+**The everyday picture: shaking a tray of marbles into the right holes.**
+
+| In the picture | In the real thing |
+|---|---|
+| Marbles spread evenly over the tray | Equal superposition over all answers |
+| Holes whose depth matches how good each answer is | The cost layer: phase by quality |
+| Shaking the tray | The mixer layer |
+| How hard and how long you shake | The angles γ and β, tuned by an optimizer |
+| More rounds of shaking | More layers p: better answers, deeper circuits |
+
+**Where the picture breaks.** Marbles roll downhill on their own. QAOA works through interference, not gravity, and with few layers it only finds good answers, not guaranteed best ones. For most real problems, no one has shown that QAOA beats the best classical methods yet.
+
+@@diagram:p2-qaoa|Max-Cut on a 4-node ring: coloring the nodes alternately cuts all 4 edges. QAOA starts with every split equally likely and alternates cost and mixer layers to make such splits likely.
+
+## Going deeper
+
 QAOA (Quantum Approximate Optimization Algorithm) is VQE's cousin pointed at combinatorial optimization — scheduling, routing, portfolio selection, the problems businesses actually pay to solve. It's the algorithm most often invoked when companies pitch "quantum advantage for optimization," which makes understanding both its mechanism *and* its sober reality a directly marketable skill. You'll encode a real problem (MaxCut) into a quantum Hamiltonian, build the alternating-operator circuit, read solutions from samples, and — critically — say honestly where QAOA stands versus classical solvers in 2026.
 
 ## Start here — the intuition
@@ -7,6 +27,8 @@ QAOA (Quantum Approximate Optimization Algorithm) is VQE's cousin pointed at com
 You're splitting a group of people into two teams, and you want to *maximize* the number of rivalries that end up split across the two teams (so the teams are as "cut apart" as possible). With a handful of people you could try every split; with hundreds, the number of splits explodes.
 
 QAOA's move: put *all* splits into superposition at once, then **nudge** the good ones — stamp better splits with distinguishing phases (the "cost" step), let amplitude flow between splits (the "mix" step), and repeat. After a couple of rounds, measuring the register tends to hand you a *good* split. You then check a handful of the splits it returns and keep the best. It's a tunable machine that samples good solutions — not a magic box that spits out the perfect one, and (honestly, in 2026) not yet a winner against mature classical optimizers.
+
+> **School-kid analogy.** Split a class into two teams so that as many pairs of friends as possible end up on opposite teams. QAOA alternates two moves, "shuffle" and "reward good splits", and then you check the best splits it suggests.
 
 ## The problem class — combinatorial optimization
 
@@ -164,3 +186,7 @@ Conclusion: at demonstrable sizes, trivial classical methods match or beat QAOA 
 - ☐ Explain why the best sampled bitstring beats the expected value, and how $p$ changes both.
 - ☐ State the depth‑vs‑noise ceiling and the NISQ sweet spot for $p$.
 - ☐ Give the honest 2026 assessment vs mature classical solvers — mechanism and sobriety together.
+
+## In one line
+
+QAOA alternates 'score every answer' and 'mix the answers' layers, tuned by a normal computer, to make good solutions likely.

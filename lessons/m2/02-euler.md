@@ -1,5 +1,25 @@
 # Polar form & Euler's formula
 
+## The simple version
+
+**In plain English.** Euler's formula gives a short name to the point at angle θ on a circle of radius 1: e^(iθ). It is just cos θ + i·sin θ, the x and y of that point. Its length is always 1, so multiplying by it never stretches anything. It only turns, and when you multiply two of them the angles add. Quantum gates use this all the time to change an amplitude's phase without changing its chance.
+
+**The everyday picture: the hand of a clock.**
+
+| In the picture | In the real thing |
+|---|---|
+| A clock hand of fixed length | e^(iθ): always length 1 |
+| Where the hand points | The angle θ |
+| Moving the hand forward 15 minutes, then 10 more | e^(iα) × e^(iβ) = e^(i(α+β)): angles add |
+| The hand at 6 o'clock, pointing the opposite way | e^(iπ) = −1 |
+| A full turn back to the start | e^(2πi) = 1 |
+
+**Where the picture breaks.** A clock hand turns clockwise and only by the clock's rules. e^(iθ) turns counterclockwise for positive θ, and θ can be any real number, including negative ones. A clock face also hides that the hand's tip has two coordinates, cos θ and sin θ, which is exactly what the formula spells out.
+
+@@diagram:p2-euler|e^(i·30°) times e^(i·45°) lands at e^(i·75°): the lengths stay 1 and the angles add. That is how a phase gate turns an amplitude.
+
+## Going deeper
+
 If this course had to keep only one equation, it would be $e^{i\theta} = \cos\theta + i\sin\theta$. Euler's formula turns complex numbers from coordinate pairs into **rotations**, makes multiplication geometric, and gives quantum computing its single most used word: *phase*. Every gate you'll ever apply, every interference pattern you'll ever engineer, is bookkeeping with $e^{i\theta}$.
 
 ## Start here — the intuition
@@ -7,6 +27,8 @@ If this course had to keep only one equation, it would be $e^{i\theta} = \cos\th
 Last lesson a complex number was an arrow with a length and an angle. Euler's formula gives the angle its own name and power: $e^{i\theta}$ is simply **the point on the unit circle at angle $\theta$**. That's it. And it hands you the one move that runs all of quantum computing: **multiplying by $e^{i\theta}$ rotates by $\theta$** — no stretching, just turning. Moduli multiply, **phases add**.
 
 Two phrases to burn in. "Phase" just means *angle*. And a phase of $\pi$ is a factor of $-1$ (half a turn points the arrow backward) — so "apply a $\pi$ phase" and "flip the sign" are the same sentence, one you'll use weekly from Module 6 on. Quantum gates preserve total probability (lengths) while rearranging amplitudes — i.e., they *rotate* — which is exactly the algebra of unit‑length complex factors.
+
+> **School-kid analogy.** $e^{i\theta}$ is a clock hand of length 1, and $\theta$ says how far it has turned. Two hands pointing the same way add up to a longer arrow; two pointing opposite ways cancel to nothing. That adding and cancelling is interference.
 
 ## Polar form and Euler's formula
 
@@ -124,3 +146,7 @@ $\tfrac14(1+e^{i\varphi})(1+e^{-i\varphi}) = \tfrac14(2 + 2\cos\varphi) = \cos^2
 - ☐ Run the live cell and explain why the roots of unity sum to zero.
 - ☐ Derive and use $|1+e^{i\varphi}|^2 = 2 + 2\cos\varphi$ and $\cos^2(\varphi/2)$.
 - ☐ Recover an unknown phase from two interference measurements.
+
+## In one line
+
+e^(iθ) is the point at angle θ on a circle of radius 1, and multiplying by it turns things by θ without stretching them.

@@ -1,5 +1,25 @@
 # Python III: classes & objects
 
+## The simple version
+
+**In plain English.** A class is a blueprint that describes a kind of thing: what data it holds and what it can do. An object is one thing built from that blueprint. Each object keeps its own data, even when many objects come from the same class. The functions that belong to a class are called methods, and inside them the word self means 'this particular object'. Qiskit is built this way: every circuit you make is an object of the QuantumCircuit class.
+
+**The everyday picture: a cookie cutter and its cookies.**
+
+| In the picture | In the real thing |
+|---|---|
+| The cookie cutter | The class, such as Qubit or QuantumCircuit |
+| Each cookie you press out | An object: q1 = Qubit() |
+| Icing one cookie | Calling a method on one object: q1.apply_x() |
+| The other cookies stay plain | Other objects keep their own data |
+| 'This cookie' when you decorate it | self inside a method |
+
+**Where the picture breaks.** Cookies can't do anything; objects can act, through their methods. A cutter also can't change, while a class can be extended into a new class that adds abilities (inheritance). And two names can point at the very same object, so changing it through one name changes what the other name sees, which cookies never do.
+
+@@diagram:p2-python-oop|One Qubit class, two objects. Calling q1.apply_x() flips q1's state only, because inside the method self is q1.
+
+## Going deeper
+
 Open any Qiskit program and the first real line is `qc = QuantumCircuit(2)` — you're *constructing an object*. Then `qc.h(0)`, `qc.measure_all()`, `qc.depth()` — you're *calling its methods*. Qiskit is object‑oriented through and through, and people who skip OOP read quantum code like tourists with a phrasebook. One lesson is enough to change that permanently.
 
 ## Start here — the intuition
@@ -7,6 +27,8 @@ Open any Qiskit program and the first real line is `qc = QuantumCircuit(2)` — 
 You've used objects all along without noticing. A string carries data (`"hello"`) *and* behavior (`.upper()`); a list carries items and knows how to `.append()`. That bundling is the whole idea: an **object** = data (attributes) + operations on that data (methods), and a **class** is the blueprint objects are built from. `qc` will be an object of class `QuantumCircuit`.
 
 Two things unlock reading any quantum code. First, `self` is not magic: it's just **the object itself**, handed to every method automatically — `run.prob("11")` is secretly `RunResult.prob(run, "11")`. That's the entire mystery. Second, and the real goal: you rarely need to *write* big classes, but you must **read** a library's objects fluently — `type(obj)`, `dir(obj)`, `help(obj)`, then learn the constructor and the three‑to‑five methods your task needs. Nobody learns all 100 methods; professionals learn entry points.
+
+> **School-kid analogy.** A class is a cookie cutter and objects are the cookies. Every cookie has the same shape (methods), but each can have its own sprinkles (attribute values).
 
 ## Writing a class
 
@@ -145,3 +167,7 @@ A `QuantumCircuit` is an object holding an ordered list of instructions over qub
 - ☐ Distinguish methods that mutate in place from those that return new objects.
 - ☐ Interrogate an unknown object with `type()`, `dir()`, `help()`.
 - ☐ Spot the mutable‑default and stored‑duplicate‑state bugs.
+
+## In one line
+
+A class is the blueprint, objects are the things built from it, and each object keeps its own data.

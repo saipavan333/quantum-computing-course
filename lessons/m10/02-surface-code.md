@@ -1,12 +1,34 @@
 # The surface code & logical qubits
 
-The surface code is the error‑correcting code the entire industry is betting on — IBM, Google, and most superconducting roadmaps build toward it. It's the reason "millions of physical qubits" appears in Shor resource estimates (Module 8), the code Google's Willow chip demonstrated below‑threshold (Module 0), and the practical realization of last lesson's stabilizer theory. Understanding its structure — the qubit lattice, code distance, threshold, and the physical‑to‑logical overhead arithmetic — lets you read hardware roadmaps critically and speak credibly about the timeline to fault tolerance. This is core knowledge for QEC and hardware‑adjacent roles.
+## The simple version
+
+**In plain English.** The surface code is the most studied quantum error-correcting code, and the one Google's chips use. It places data qubits on a square grid with check qubits between them. Each check measures the parity of just four neighbors, which suits chips where qubits only talk to neighbors. A decoder program reads which checks lit up and works out the most likely errors. A bigger grid (larger distance d) makes logical errors much rarer, but only if physical errors are below about 1%.
+
+**The everyday picture: a checkerboard of smoke detectors.**
+
+| In the picture | In the real thing |
+|---|---|
+| Rooms in a big building | Data qubits on a grid |
+| A smoke detector between each group of four rooms | A local check (stabilizer) on four neighbors |
+| Detectors that go off around a fire | Checks flipped by an error: the syndrome |
+| The fire chief guessing where the fire is | The decoder |
+| A bigger building with more detectors | Larger distance d: needs more errors to fool it |
+
+**Where the picture breaks.** A real fire stays put while you look for it. Quantum errors keep arriving during every round of checks, and the checks themselves can be wrong, so the decoder must reason over time as well as space. And a building's detectors don't change the rooms; measuring quantum checks is what turns smooth errors into discrete ones the decoder can handle.
+
+@@diagram:p2-surface-code|A distance-3 patch: 9 data qubits with checks between them. With physical error 0.1%, the lesson's model gives logical error 0.001 at d = 3, 0.0001 at d = 5 and 0.00001 at d = 7.
+
+## Going deeper
+
+The surface code is the most studied error‑correcting code and the baseline every newer code is measured against — Google's Willow chips use it, and most superconducting roadmaps started from it. (IBM's Starling plan instead uses bivariate bicycle qLDPC codes, which IBM says correct errors as well with about 10× fewer qubits.) It's the reason "millions of physical qubits" appears in Shor resource estimates (Module 8), the code Google's Willow chip demonstrated below‑threshold (Module 0), and the practical realization of last lesson's stabilizer theory. Understanding its structure — the qubit lattice, code distance, threshold, and the physical‑to‑logical overhead arithmetic — lets you read hardware roadmaps critically and speak credibly about the timeline to fault tolerance. This is core knowledge for QEC and hardware‑adjacent roles.
 
 ## Start here — the intuition
 
 Three ideas carry this lesson. **The surface code won on engineering, not elegance:** it needs only nearest‑neighbor gates on a 2D grid, has the most forgiving known threshold (~1%), and every parity check is local (four neighbors) — so it's *buildable* on real superconducting chips, and buildable beats efficient. **Code distance $d$ is a dial you turn:** make the lattice bigger and, *below threshold*, the logical error rate falls *exponentially* in $d$ — you buy as much reliability as you need with more qubits. **The cost is quadratic and explodes near threshold:** each logical qubit costs about $2d^2$ physical ones, and $d$ blows up as your physical error approaches the ~1% threshold — which is exactly why the whole industry is really running a *fidelity* race.
 
 Carry one translation above all: **physical qubits ÷ (hundreds to thousands) = logical qubits.** Every "1000‑qubit" headline must be divided down to the logical number that actually matters, and being the person who does that division is a genuinely paid skill.
+
+> **School-kid analogy.** A chessboard of guards, each checking only its four neighbors. A mistake shows up as a pair of guards raising the alarm. On a bigger board, a mistake has to form a much longer chain to fool everyone, which is why bigger codes are safer.
 
 ## Why it won, and how it's built
 
@@ -57,7 +79,7 @@ Turning lit defects into a correction is the **decoding** problem, and it runs l
 
 ## Level up — reading roadmaps and sizing Shor
 
-Now the headlines decode themselves. "1000 physical qubits" ÷ hundreds‑to‑thousands per logical ≈ a *handful* of logical qubits at best. "Below threshold" (Willow) means growing $d$ finally *reduces* logical error — the precondition for scaling, achieved, still far from scale. "Fault‑tolerant by 2029" (IBM Starling) targets ~200 logical qubits and needs the overhead arithmetic to become manufacturable. The Shor sizing from the live cell — $4000\times2(27)^2\approx5.8$M physical, doubled by distillation to ~10M — matches Module 8's sober table, and its levers are explicit: better fidelity → smaller $d$ → quadratically fewer qubits. Converting "physical qubit" headlines into "logical qubit" reality *is* the literacy that makes you useful in strategy and investment conversations.
+Now the headlines decode themselves. "1000 physical qubits" ÷ hundreds‑to‑thousands per logical ≈ a *handful* of logical qubits at best. "Below threshold" (Willow) means growing $d$ finally *reduces* logical error — the precondition for scaling, achieved, still far from scale. "Fault‑tolerant by 2029" (IBM Starling) targets ~200 logical qubits and needs the overhead arithmetic to become manufacturable. The Shor sizing from the live cell — $4000\times2(27)^2\approx5.8$M physical, doubled by distillation to ~10M — is the *textbook* layout. The best published estimate (Gidney 2025, arXiv:2505.15917) brings RSA-2048 under **1 million** noisy qubits, at the same 0.1% error, by storing idle qubits in denser "yoked" surface codes and replacing big distillation factories with magic-state cultivation. Your simple formula overcounts, and knowing *why* it overcounts is the senior-level point. Its levers are explicit: better fidelity → smaller $d$ → quadratically fewer qubits. Converting "physical qubit" headlines into "logical qubit" reality *is* the literacy that makes you useful in strategy and investment conversations.
 
 ## Level up — gotchas the pros watch for
 
@@ -140,6 +162,17 @@ Below the crossing, $d=5$ beats $d=3$ (bigger code = better — exponential supp
 7. A (0.3%, slow) sits well below threshold → small $d$ (~11) → ~240 physical/logical and a relaxed 10 μs decoder deadline, but a slow logical clock. B (0.8%, fast) is near threshold → large $d$ → thousands per logical and a sub‑0.1 μs decoder deadline (brutal). Bet **A**: near‑threshold operation risks being un‑buildable at scale (overhead diverges) and imposes an unsolved decoder‑latency problem; solidly below threshold beats gate speed when the goal is *reaching* fault tolerance. Demand: B's true threshold under real noise, both technologies' *scaling* fidelity, achievable decoder latency, and connectivity/yield at scale.
 ````
 
+## Sources
+
+Checked 3 November 2026. Roadmap items are company *targets*, not results.
+
+- Google Quantum AI, "Quantum error correction below the surface code threshold", *Nature* 638, 920–926 (2025), arXiv:2408.13687 (distance 3→5→7, suppression factor Λ = 2.14)
+- C. Gidney, "How to factor 2048 bit RSA integers with less than a million noisy qubits", arXiv:2505.15917 (May 2025): under 1M qubits, under a week, 0.1% gate error, 1 μs cycle
+- C. Gidney and M. Ekerå, "How to factor 2048 bit RSA integers in 8 hours using 20 million noisy qubits", *Quantum* 5, 433 (2021), arXiv:1905.09749
+- IBM Quantum roadmap, 2026 milestones (Nighthawk, Loon, Kookaburra), page updated March 2026: https://www.ibm.com/roadmaps/quantum/2026
+- IBM Quantum blog, "How IBM will build the world's first large-scale, fault-tolerant quantum computer" (June 2025): Starling is "based on the bivariate bicycle codes"; the gross code needs about 10× fewer qubits than the surface code: https://www.ibm.com/quantum/blog/large-scale-ftqc
+- IBM Quantum roadmap overview, Starling "planned for 2029" to "run 100 million quantum gates on 200 logical qubits" (announced June 2025): https://www.ibm.com/quantum-computing/roadmap
+
 ## Mastery checklist — you are ready to move on when you can
 
 - ☐ List three engineering reasons the surface code won.
@@ -148,3 +181,7 @@ Below the crossing, $d=5$ beats $d=3$ (bigger code = better — exponential supp
 - ☐ Translate a physical‑qubit headline into a logical‑qubit estimate.
 - ☐ Explain decoding and why it's a hard real‑time problem (name Stim/PyMatching).
 - ☐ Size a fault‑tolerant machine with physical ≈ logical × $2d^2$ × distillation.
+
+## In one line
+
+The surface code watches a grid of qubits with simple local checks, and bigger grids make errors vanishingly rare when the hardware is good enough.

@@ -1,5 +1,24 @@
 # NumPy & matplotlib: math at speed
 
+## The simple version
+
+**In plain English.** NumPy is a Python library for doing math on whole lists of numbers at once. Its arrays hold vectors and matrices, which is exactly what quantum states and gates are. One NumPy call can process a million numbers, because the loop runs inside fast compiled code instead of in Python. The @ symbol multiplies a matrix by a vector, which is how you apply a gate. Matplotlib, its partner library, draws charts of the results.
+
+**The everyday picture: a stamping machine versus a hand stamp.**
+
+| In the picture | In the real thing |
+|---|---|
+| Stamping letters one at a time by hand | A plain Python loop over a list |
+| A machine that stamps a whole tray in one go | One NumPy call over an array |
+| The tray's rows and columns | The array's shape, such as (2, 2) or (2,) |
+| A stamp that turns 'heads' into 'tails' | The X gate as a matrix: X @ [1, 0] = [0, 1] |
+
+**Where the picture breaks.** The machine's speed comes from doing many letters in parallel. NumPy's speed comes mostly from running the loop in compiled C with no Python overhead per item, plus some help from the processor's vector instructions. And a tray never complains about size; NumPy will stop with an error, or silently 'broadcast', when shapes don't match, so print .shape when in doubt.
+
+@@diagram:p2-numpy|Top: a Python loop pays a cost for every item, while NumPy handles the whole array in one compiled call. Bottom: applying the X gate is one matrix product, shape (2, 2) @ (2,) → (2,).
+
+## Going deeper
+
 Here's your professional edge in one sentence: **for the rest of this course, you will verify every quantum computation with NumPy** — every gate, every probability, every interference effect — because a claim you can't check is a claim you don't own. NumPy is Python's array engine (Qiskit is built on it; states and gates *are* NumPy arrays under the hood), and matplotlib turns numbers into the plots your reports and interviews lean on. This lesson completes your toolbox; everything after it is quantum.
 
 ## Start here — the intuition
@@ -7,6 +26,8 @@ Here's your professional edge in one sentence: **for the rest of this course, yo
 NumPy is the tool that makes math *executable and checkable*. A quantum state is a NumPy array of complex numbers; a gate is a NumPy matrix; "apply the gate" is one symbol, `@`. So instead of trusting a hand calculation or a framework's output, you rebuild it in twenty lines of array arithmetic and see if they agree. **NumPy is your independent referee** — the habit that turns "I think this is right" into "I verified it."
 
 Three reflexes carry the whole lesson. **Vectorize:** operations apply to whole arrays at once (no loops) — `np.abs(psi)**2` gives all the probabilities in one stroke. **Use `@`, never `*`:** `@` is the matrix product (a gate acting on a state); `*` multiplies element‑by‑element and silently produces nonsense. And **`np.vdot` for overlaps** (it conjugates the first argument; `np.dot` doesn't). Get those three and you can check any quantum claim in the course.
+
+> **School-kid analogy.** Instead of a teacher who re-reads the marking instructions before every one of 30 tests, picture one very fast marking machine that reads the instructions once and then rips through all 30. NumPy is that machine: the loop runs in compiled code with no per-item Python overhead, which is why it is so much faster than a Python loop.
 
 ## Arrays and the quantum verbs
 
@@ -146,3 +167,7 @@ Derivation and matrix mechanics are the same physics — now demonstrated, not b
 - ☐ Run the live cell and lint a gate for unitarity/Hermiticity.
 - ☐ Make a labeled bar chart with error bars and a line‑plot sweep.
 - ☐ Use NumPy as a referee to reconcile framework output with hand math.
+
+## In one line
+
+NumPy does math on whole arrays at once, and X @ psi is how you apply a gate to a state.

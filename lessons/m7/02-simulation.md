@@ -1,5 +1,24 @@
 # Simulation: Statevector, Aer & debugging
 
+## The simple version
+
+**In plain English.** Before using a real quantum chip, you test circuits on a simulator: an ordinary program that does the quantum math. A statevector simulator keeps every amplitude exactly, so it can show you the full state. A sampling simulator (Aer) imitates real runs by drawing random shots, and it can also add realistic noise. Exact simulation needs 16 bytes per amplitude and 2ⁿ amplitudes, so around 30 qubits fills a big laptop.
+
+**The everyday picture: a flight simulator.**
+
+| In the picture | In the real thing |
+|---|---|
+| A cockpit simulator on the ground | A classical program that simulates qubits |
+| The instructor's screen showing every hidden value | Statevector: all amplitudes, exactly |
+| Practice runs that feel like real flights | Sampling shots, with optional noise models |
+| Simulators that can't model a full airliner's every rivet | The memory wall: 2ⁿ amplitudes |
+
+**Where the picture breaks.** A flight simulator is a cheaper copy of something that already flies fine. Quantum hardware exists because large quantum states can't be simulated at all on normal computers. Also, the statevector 'instructor view' is something no real quantum chip can ever give you; on hardware you only ever see shots.
+
+@@diagram:p2-simulation|The same Bell circuit two ways: the statevector shows exact amplitudes 0.707 on 00 and 11, while sampling shows counts close to, but not exactly, 50/50.
+
+## Going deeper
+
 Simulators are where quantum programs are *developed* — free, instant, noiseless (or noisy on demand), and equipped with a superpower no real QPU has: you can inspect the full quantum state mid-circuit. Professionals do 95% of their work here and spend QPU budget only on validated circuits. This lesson: the two simulation modes (exact vs sampled), the memory wall that defines their limits, and the systematic debugging workflow that separates engineers from guess-and-check hobbyists.
 
 ## Start here — the intuition
@@ -7,6 +26,8 @@ Simulators are where quantum programs are *developed* — free, instant, noisele
 Three ideas run this lesson. **There are two simulation modes for two jobs:** `Statevector` is a *glass box* — it hands you the exact amplitudes (phases and all), perfect for verifying logic — while `AerSimulator` is a *flight simulator* that returns shot‑based counts like a real QPU and can even add realistic noise. **The wall is memory, not time:** a statevector is $2^n$ complex numbers at 16 bytes each, so every added qubit *doubles* the RAM — laptops die near 30 qubits, and no patience saves a state that doesn't fit. **Histograms can't see phase:** the two Bell states $\Phi^+$ and $\Phi^-$ give *identical* counts, so a counts‑only test passes a circuit with a sign bug — only amplitude‑level checks certify a state.
 
 Carry one workflow: **debug on the free simulator, spend QPU only on validated circuits** — exact logic first, then ideal sampling, then a noisy fake‑backend rehearsal, and only then real hardware.
+
+> **School-kid analogy.** Simulating a quantum computer is like writing down every possible path on paper. Each extra qubit doubles the paper. At 50 qubits you would need about 18 petabytes of memory just to hold the list.
 
 ## 1. Exact simulation — `Statevector`, the glass-box mode
 
@@ -300,3 +321,7 @@ Typical laptop results: ~ms at n=10 rising roughly 2× per qubit through ~1–5 
 - ☐ Debug by state bisection: seed, expected state per stage, first mismatch is the bug.
 - ☐ Add a noisy fake‑backend rehearsal before spending any QPU time.
 - ☐ Name the two circuit families (Clifford, low‑entanglement) that escape the wall.
+
+## In one line
+
+Simulators run quantum math on a normal computer, exactly for small circuits and with shots for realism, until 2ⁿ memory runs out.

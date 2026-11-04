@@ -1,5 +1,24 @@
 # Python II: collections, functions & errors
 
+## The simple version
+
+**In plain English.** Programs need ways to hold many values at once. A list keeps values in order, like ['0', '1', '1']. A dictionary (dict) matches keys to values, like {'0': 2, '1': 3}. A function packages steps under a name so you can reuse them. Errors are Python telling you exactly what went wrong and where, so read them instead of fearing them.
+
+**The everyday picture: a tally sheet at a school election.**
+
+| In the picture | In the real thing |
+|---|---|
+| The pile of paper ballots | A list of shots: ['0', '1', '1', '0', '1'] |
+| The tally sheet with a line per candidate | A dict of counts: {'0': 2, '1': 3} |
+| The rule 'one stroke per ballot' | A function that counts a list |
+| Asking for a candidate who isn't on the sheet | KeyError, unless you use .get(key, 0) |
+
+**Where the picture breaks.** A tally sheet lists candidates in a fixed order you chose. A dict keeps keys in the order you first added them, which is not always the order you want to print, so sort when it matters. And the ballots in a real election are all different people; quantum shots are repeated runs of the very same program.
+
+@@diagram:p2-python-structures|This is the data path of every quantum experiment you'll run: raw shots in a list, counts in a dict, probabilities in another dict. Asking for a missing key fails unless you use .get.
+
+## Going deeper
+
 One variable holds one value; real programs juggle thousands — 1,024 shot results, a dictionary of counts, a list of gate angles. Today: Python's containers (lists, tuples, dicts), the slicing syntax every quantum example uses, **functions** (the single biggest upgrade to your code), and how to read error messages without fear. This is where your code starts looking like a professional's.
 
 ## Start here — the intuition
@@ -7,6 +26,8 @@ One variable holds one value; real programs juggle thousands — 1,024 shot resu
 When you have more than one of something, you need a **container**. Three cover almost everything. A **list** is an ordered, changeable row of items (`[0.5, 0.3, 0.15]`) you index from 0 and *slice* with `[start:stop]`. A **dict** maps **keys to values** (`{"00": 2011, "11": 1191}`) — and that is *exactly* the shape of a quantum measurement result, a histogram of bitstrings to counts. A **tuple** is a frozen list, great for bundling a few things together.
 
 Then comes the biggest upgrade to your code: the **function** — a named recipe you write once and reuse forever. Functions are the unit of reuse, of testing, and of *thought*: a program built from ten well‑named functions reads like a paragraph. The lesson's live cell writes the one function every quantum notebook eventually contains — turning a counts dict into probabilities with error bars.
+
+> **School-kid analogy.** A list is a row of numbered lockers, a dict is a phone book (you look things up by name, not by position), and a tuple is a sealed envelope: you can read what is inside but not change it.
 
 ## Lists, dicts, tuples
 
@@ -130,3 +151,7 @@ A small pure helper reused twice, zero‑safe `.get`, Module 3's comparison proc
 - ☐ Run the live cell and explain the `lambda` sort key and `.get` default.
 - ☐ Read a traceback bottom‑line first and catch a specific exception.
 - ☐ Explain copy vs alias and the mutable‑default trap.
+
+## In one line
+
+Lists keep things in order, dicts look things up by name, functions reuse steps, and error messages tell you what to fix.

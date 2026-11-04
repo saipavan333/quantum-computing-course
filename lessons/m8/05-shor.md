@@ -1,5 +1,24 @@
 # Shor's algorithm & why RSA cares
 
+## The simple version
+
+**In plain English.** RSA encryption is safe because nobody knows a fast way to split a huge number into its two prime factors. Shor showed that factoring comes down to finding the period of a repeating sequence. Quantum phase estimation finds periods fast. For N = 15, the sequence 7ˣ mod 15 repeats every 4, and two gcd steps then give 3 and 5. For RSA-2048, the best 2025 estimate is about 1,500 error-corrected qubits and under a million physical ones. Today's machines are about 1,000 times too small, so the threat is real but not here yet.
+
+**The everyday picture: finding the beat of a song to crack a lock.**
+
+| In the picture | In the real thing |
+|---|---|
+| A lock whose combination is the two factors of N | RSA: N = p × q |
+| The song made by repeatedly multiplying by 7 (mod N) | The sequence aˣ mod N |
+| Finding how often the song repeats | The quantum step: period finding with QPE |
+| Using the beat to work out the combination | gcd(a^(r/2) ± 1, N) gives the factors |
+
+**Where the picture breaks.** In the story anyone could hum along and find the beat. For a 2,048-bit number the sequence is far too long to list, which is why only the quantum period finder makes it practical. And the 'quantum computer' needed is a large fault-tolerant machine that does not exist yet; the small factoring demos so far used shortcuts.
+
+@@diagram:p2-shor|N = 15, a = 7: the sequence 1, 7, 4, 13 repeats every 4, so r = 4. Then gcd(48, 15) = 3 and gcd(50, 15) = 5. RSA-2048 needs about 1,500 logical and under 1 million physical qubits (Gidney 2025).
+
+## Going deeper
+
 This is the algorithm that created the field's urgency. In 1994 Peter Shor showed a quantum computer can factor an $n$-digit number in time polynomial in $n$ — exponentially faster than any known classical method — which means a large enough quantum computer breaks RSA, the encryption securing most of the internet. It's the reason governments fund quantum research and NIST standardized post-quantum cryptography. It's also, mechanically, a victory lap for this whole module: **Shor = clever number theory + QPE on modular multiplication + a classical cleanup.** You've built every piece; today you see the assembly, then compute the sober resource estimates that separate the threat's reality from its timeline.
 
 ## Start here — the intuition
@@ -7,6 +26,8 @@ This is the algorithm that created the field's urgency. In 1994 Peter Shor showe
 RSA's security rests on one fact: multiplying two big primes is easy, but *un*-multiplying (factoring the product back into its primes) is, classically, brutally slow. Shor doesn't attack the primes head-on. It does something sideways and beautiful: it turns factoring into a **hunt for a repeating rhythm.**
 
 Pick any number $a$ and look at the sequence $a^1, a^2, a^3, \ldots$ all taken mod $N$. That sequence *always eventually cycles*, and the length of its cycle — its **period** $r$ — secretly encodes $N$'s factors (a little algebra pops them out with a gcd). Finding that period is the only hard step, and it is exactly the "hidden rhythm → sharp frequency spike" job you already watched the QFT do. So Shor is: hide the factoring problem inside a period, let quantum period-finding expose it, finish with grade-school number theory. The quantum computer does **one** thing — find a period. Everything else is classical arithmetic older than computers.
+
+> **School-kid analogy.** Keep multiplying 7 by itself and only keep the remainder after dividing by 15: 7, 4, 13, 1, 7, 4, 13, 1... The remainders repeat with a beat of 4. Finding that beat fast is the only quantum part. Turning the beat into the factors 3 and 5 is ordinary school math.
 
 ## The reduction — factoring becomes period-finding
 
@@ -94,37 +115,39 @@ The quantum contribution was *one number* (the period $6$). Everything else — 
 | Logical qubits | ~4,000–6,000 | ~$2n$ system + counting + arithmetic ancillas |
 | Toffoli/T gates | ~$10^9$–$10^{10}$ | modular exponentiation dominates |
 | Circuit depth | ~$10^9$+ | sequential modular arithmetic |
-| **Physical qubits (fault-tolerant)** | **~1–20 million** | logical × surface-code overhead (Module 10) |
-| Runtime estimate | hours to days | on a machine that does not yet exist |
+| **Physical qubits (fault-tolerant)** | **under 1 million (2025) to ~20 million (2019)** | Gidney 2025 (arXiv:2505.15917) vs Gidney–Ekerå 2019; both assume 0.1% gate error, 1 μs cycle |
+| Runtime estimate | ~8 hours (2019, 20M qubits) to under a week (2025, <1M qubits) | on a machine that does not yet exist |
 
-2026 reality: the largest numbers factored by *pure* Shor on real hardware are tiny (15, 21, and contested larger cases riddled with shortcuts). The gap to RSA-2048 is ~six orders of magnitude in qubit count and needs fault tolerance (Module 10) not yet demonstrated at scale. The honest timeline: **cryptographically relevant Shor is likely 2035–2040+, not imminent** — but "harvest now, decrypt later" (adversaries storing encrypted traffic to crack later) makes migration urgent *today*, which is why NIST finalized post-quantum standards (ML-KEM, ML-DSA — lattice-based, Shor-resistant). Holding both truths — *not soon* AND *migrate now* — marks someone who actually understands the threat model.
+The 2025 estimate is the one to quote today. Gidney cut the qubit count about 20× by trading time for space: approximate residue arithmetic (fewer logical qubits), "yoked" surface codes for idle qubits, and magic-state cultivation instead of big distillation factories. The *logical-qubit* row above is the older textbook layout; the 2025 design uses 1,537 logical qubits (under 1,600, per the paper). The lesson for you: resource estimates move, and they mostly move down. Re-check them before you brief anyone.
+
+2026 reality: the largest numbers factored by *pure* Shor on real hardware are tiny (15, 21, and contested larger cases riddled with shortcuts). The gap to RSA-2048 is about 1,000× in physical qubit count (under 1M needed vs. hundreds to a few thousand today), *plus* working fault tolerance (Module 10), which is not yet demonstrated at scale. On timing, experts disagree. The Global Risk Institute's 2025 expert survey (published March 2026) put the chance of a cryptographically relevant quantum computer within 10 years at 28–49%, and within 15 years at 51–70%. So treat **"not imminent, but plausibly within 10–15 years"** as the calibrated reading, not a fixed date — but "harvest now, decrypt later" (adversaries storing encrypted traffic to crack later) makes migration urgent *today*, which is why NIST finalized post-quantum standards (ML-KEM, ML-DSA — lattice-based, Shor-resistant). Holding both truths — *not soon* AND *migrate now* — marks someone who actually understands the threat model.
 
 ## Level up — gotchas the pros watch for
 
 - **"Shor factors by trying all divisors in superposition."** No — it never tries divisors. It finds a *period* via eigenphase sampling; factors fall out of classical gcd. The parallelism myth's final, most seductive form.
 - **Underestimating modular exponentiation.** The controlled-$U_a^{2^k}$ arithmetic is ~90% of Shor's gates and depth — the QFT is the cheap part. "Shor is just a QFT" is operationally backwards.
 - **The "we factored 35 with 4 qubits" headlines.** Many such claims use compiled circuits that presuppose the answer or exploit $N$'s special structure — not scalable Shor. "Does the method scale without knowing the answer?" is the literacy filter.
-- **Conflating logical and physical qubits.** RSA-2048 needs a few thousand *logical* qubits but ~millions of *physical* ones (error-correction overhead). Quoting the logical number as "we're almost there" is the most common public misread.
+- **Conflating logical and physical qubits.** RSA-2048 needs about 1,500 *logical* qubits but up to a million *physical* ones (error-correction overhead; Gidney 2025). Quoting the logical number as "we're almost there" is the most common public misread.
 - **Forgetting the retries.** Even with perfect QPE, ~half of random $a$'s give useless periods (odd $r$, or $a^{r/2}\equiv-1$), and shared $s,r$ factors need retries. Shor is *probabilistic*, expected to succeed in $O(1)$ repetitions.
 - **Assuming Grover and Shor threaten crypto equally.** Grover *quadratically* dents symmetric crypto (AES-256 fixes it); Shor *exponentially* breaks public-key (RSA/ECC — migrate to lattices). Different threats, different responses.
 
 ## Level up — the CISO briefing you'll actually give
 
-A bank's security chief asks: *"Do we need to panic about Shor?"* The five-sentence briefing that shows mastery: (1) Shor will eventually break our RSA and ECC — the math is certain, the machine is not yet built. (2) Credible estimates put cryptographically-relevant machines at 2035+, needing millions of error-corrected qubits vs today's few hundred noisy ones — a ~million-fold gap. (3) BUT adversaries can record encrypted traffic today and decrypt later, so data needing secrecy beyond ~10 years is *already* at risk. (4) The response is not quantum — it's migrating to NIST post-quantum standards (ML-KEM, ML-DSA), starting now, prioritizing long-lived secrets. (5) Symmetric crypto (AES) only needs bigger keys. Translating a quantum algorithm into a risk decision is the highest-paid skill in the applied-quantum market.
+A bank's security chief asks: *"Do we need to panic about Shor?"* The five-sentence briefing that shows mastery: (1) Shor will eventually break our RSA and ECC — the math is certain, the machine is not yet built. (2) The best published estimate needs about 1,500 logical (error-corrected) qubits built from under 1 million physical ones (Gidney 2025). Today's largest machines have hundreds to a few thousand physical qubits and only a handful of logical ones, so that is about a 1,000× gap plus unsolved engineering. Expert surveys give 28–49% odds within 10 years (Global Risk Institute, 2026). (3) BUT adversaries can record encrypted traffic today and decrypt later, so data needing secrecy beyond ~10 years is *already* at risk. (4) The response is not quantum — it's migrating to NIST post-quantum standards (ML-KEM, ML-DSA), starting now, prioritizing long-lived secrets. (5) Symmetric crypto (AES) only needs bigger keys. Translating a quantum algorithm into a risk decision is the highest-paid skill in the applied-quantum market.
 
 ## Key points
 
 - Shor = classical reduction (factoring → period-finding) + quantum period-finding (QPE on $U_a: \ket y \to \ket{ay \bmod N}$) + classical cleanup (continued fractions, gcd). Quantum does ONE job.
 - The period lives in $U_a$'s eigenphases (multiples of $1/r$); feed $\ket1$ (no eigenstate prep), implement controlled powers via classically-precomputed repeated squaring (never loop $2^k$ multiplies).
 - Continued fractions recover $r$ from the noisy phase; retries handle odd/degenerate periods — Shor is probabilistic, $O(1)$ expected repetitions.
-- Modular exponentiation is ~90% of the circuit; the QFT is cheap. RSA-2048: ~few thousand logical / ~millions physical qubits, ~$10^9$–$10^{10}$ Toffolis — a machine ~2035+.
+- Modular exponentiation is ~90% of the circuit; the QFT is cheap. RSA-2048: about a million physical qubits for under a week (Gidney 2025), down from ~20 million for 8 hours (2019) — still far beyond any 2026 machine: the largest have hundreds to a few thousand physical qubits, without full error correction.
 - Threat model: Shor exponentially breaks public-key (migrate to NIST post-quantum now, for harvest-now-decrypt-later); Grover only quadratically dents symmetric (bigger keys).
 - "Explain Shor" = the assembly narrative (reduction → QPE → cleanup) + the honest timeline + the logical-vs-physical distinction.
 
 ## Check yourself
 
 ```quiz
-{"q":"An executive reads 'RSA-2048 needs only ~5000 qubits' and concludes today's 1000-qubit machines are close. The correction:","options":["The estimate is wrong; it needs 5000 classical bits","That's ~5000 LOGICAL qubits; fault-tolerant error correction requires ~1000× more PHYSICAL qubits (millions), none of which exist yet at the needed quality — a ~1000-fold gap, plus fault tolerance itself is unproven at scale","Current machines can already do it","Qubit count is irrelevant to Shor"],"answer":1,"why":"Logical (error-corrected) vs physical (raw) qubits differ by the surface-code overhead (~1000×, Module 10). Today's ~1000 NOISY physical qubits are many orders from ~millions of error-corrected ones. Conflating the two is the field's most common public misread."}
+{"q":"An executive reads 'RSA-2048 needs only ~5000 qubits' and concludes today's 1000-qubit machines are close. The correction:","options":["The estimate is wrong; it needs 5000 classical bits","That's ~5000 LOGICAL qubits; fault-tolerant error correction needs hundreds of PHYSICAL qubits per logical one (the 2025 estimate: under 1 million physical in total), far beyond today's machines at the needed quality, plus fault tolerance itself is unproven at scale","Current machines can already do it","Qubit count is irrelevant to Shor"],"answer":1,"why":"Logical (error-corrected) vs physical (raw) qubits differ by the surface-code overhead (~1000×, Module 10). Today's hundreds to few thousand NOISY physical qubits are about 1,000× short of the ~1 million physical qubits (about 1,500 logical) in the best 2025 estimate. Conflating the two is the field's most common public misread."}
 ```
 
 ## Exercises
@@ -179,9 +202,18 @@ RSA-2048 lands at ~4,000 logical / ~6 million physical qubits and $10^7$–$10^9
 3. Depth becomes $O(2^k)$ per counting qubit — exponential in $t$ — so the polynomial-time advantage evaporates. Use classically-precomputed $a^{2^k}\bmod N$ as one controlled-constant-multiply.
 4. $\text{Fraction}(0.2).\text{limit\_denominator}(21) = 1/5$ → candidate $r = 5$; check $2^5 = 32 \equiv 11 \not\equiv 1 \pmod{21}$ — not the period; retry. ($0.2$ was a poor sample.)
 5. Grover: quadratic speedup on brute-force key search → symmetric (AES); defense = double key length (AES-256). Shor: exponential period-finding → public-key (RSA/ECC); defense = migrate to lattice-based ML-KEM/ML-DSA.
-6. Small-$N$ demos typically compile using foreknowledge of the answer or special structure, and omit fault-tolerant overhead; they don't scale to 2048-bit $N$ (millions of physical qubits). "Does it scale without knowing the answer?" is the filter.
+6. Small-$N$ demos typically compile using foreknowledge of the answer or special structure, and omit fault-tolerant overhead; they don't scale to 2048-bit $N$ (about a million physical qubits even in the best 2025 estimate). "Does it scale without knowing the answer?" is the filter.
 7. Classify each asset by (crypto type × key size × secrecy-lifetime). URGENT: public-key protecting data whose secrecy must outlast ~2035 minus migration time (harvest-now-decrypt-later starts the clock now); prioritize by (secrecy-lifetime − years-to-CRQC + migration-effort). SAFE-ish: symmetric ≥ 256-bit; short-lived secrets. Compute a risk score = P(exposed before secrecy expires) from a *distribution* over CRQC-arrival (with uncertainty bands, not a point estimate), and output "migrate now / plan / monitor" tiers. The honest deliverable is a hedged decision, not false precision — this is a real product category (post-quantum readiness assessment).
 ````
+
+## Sources
+
+Checked 3 November 2026. Roadmap items are company *targets*, not results.
+
+- C. Gidney, "How to factor 2048 bit RSA integers with less than a million noisy qubits", arXiv:2505.15917 (May 2025): under 1M qubits, under a week, 0.1% gate error, 1 μs cycle
+- Global Risk Institute / evolutionQ, *Quantum Threat Timeline Report 2025* (published 9 March 2026; 26 experts): https://globalriskinstitute.org/publication/quantum-threat-timeline-report-2025b/
+- C. Gidney and M. Ekerå, "How to factor 2048 bit RSA integers in 8 hours using 20 million noisy qubits", *Quantum* 5, 433 (2021), arXiv:1905.09749
+- NIST FIPS 203 (ML-KEM) and FIPS 204 (ML-DSA), August 2024: https://csrc.nist.gov/pubs/fips/203/final
 
 ## Mastery checklist — you are ready to move on when you can
 
@@ -191,3 +223,7 @@ RSA-2048 lands at ~4,000 logical / ~6 million physical qubits and $10^7$–$10^9
 - ☐ Recover a period from a measured phase with continued fractions, and know when to retry.
 - ☐ Quote the RSA-2048 resource estimate and the logical-vs-physical distinction without conflating them.
 - ☐ Give the CISO briefing: not-soon and migrate-now, Shor vs Grover, and the post-quantum standards.
+
+## In one line
+
+Shor turns factoring into finding a repeat, a quantum computer finds the repeat, and a big enough machine would break RSA.

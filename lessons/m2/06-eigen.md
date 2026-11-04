@@ -1,5 +1,24 @@
 # Eigenvalues, Hermitian & unitary matrices
 
+## The simple version
+
+**In plain English.** When a matrix acts on most arrows, it turns them to a new direction. A few special arrows only get stretched or flipped and stay on their own line. Those are eigenvectors, and the stretch factor is the eigenvalue (eigen is German for 'own'). For quantum gates the eigenvalues always have size 1, so they are pure phases. For measurements the eigenvalues are real numbers, and they are the results you can read out.
+
+**The everyday picture: spinning a globe.**
+
+| In the picture | In the real thing |
+|---|---|
+| Every city moves when the globe spins | Most vectors change direction under the matrix |
+| The North and South Poles stay put | Eigenvectors stay on their own line |
+| A pole spins in place but doesn't move | An eigenvalue that is a phase, size 1 |
+| The axis the globe spins around | The eigenvectors of a rotation (gate) |
+
+**Where the picture breaks.** A globe's poles are fixed points you can touch. An eigenvector can be multiplied by −1 or by a complex phase and still count as 'staying', which a pole can't do. Also, some matrices stretch their eigenvectors (eigenvalue 2, say); quantum gates never do, but the observables you measure can have any real eigenvalues.
+
+@@diagram:p2-eigen|The X gate turns |0⟩ into |1⟩, so |0⟩ is not its eigenvector. It leaves |+⟩ alone (λ = +1) and flips |−⟩ to −|−⟩ (λ = −1).
+
+## Going deeper
+
 This is the capstone of the math tower. Two families of matrices run all of quantum mechanics: **unitary** matrices (they *are* the gates — evolution, circuits, algorithms) and **Hermitian** matrices (they *are* the measurements and energies). The concept binding both is the eigenvector: the directions a matrix refuses to bend. Finish this lesson and you possess every mathematical object the rest of the course uses.
 
 ## Start here — the intuition
@@ -12,6 +31,8 @@ Two families of matrices, defined by how they relate to their **dagger** (conjug
 - **Unitary** ($U^\dagger U = I$) are the **gates**. They preserve length (so total probability stays 1), they're reversible ($U^{-1} = U^\dagger$), and their eigenvalues are pure phases $e^{i\theta}$ — rotations wearing matrix clothes.
 
 The famous bases you've juggled are eigenbases in disguise: Z owns $\{\ket0,\ket1\}$, X owns $\{\ket\pm\}$, Y owns $\{\ket{\pm i}\}$.
+
+> **School-kid analogy.** Spin a globe. Almost every point on it moves, but the North and South Poles stay put on the spin axis. Those special unmoved directions are the eigenvectors of the spin, and the eigenvalue says how much they are stretched (here, not at all: 1).
 
 ## Eigenvectors, and finding them
 
@@ -128,3 +149,7 @@ Hermitian (real diagonal; $A_{12} = 1-i$, $A_{21} = 1+i$ conjugate). Characteris
 - ☐ Define unitary four ways and explain why gates must be unitary.
 - ☐ Run the live cell and read off the Hermitian (real) vs unitary (unit‑circle) eigenvalue signatures.
 - ☐ Compute an expectation value $\bra\psi A\ket\psi$ and connect it to VQE.
+
+## In one line
+
+Eigenvectors are the directions a matrix doesn't turn, and eigenvalues say how much it stretches or flips them.

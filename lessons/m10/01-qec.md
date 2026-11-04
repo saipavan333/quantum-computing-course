@@ -1,5 +1,27 @@
 # From repetition codes to stabilizers
 
+## The simple version
+
+**In plain English.** Quantum error correction (QEC) protects information by spreading one logical qubit across several physical qubits. You can't simply copy a qubit (no-cloning), and looking at it would destroy it. So QEC measures only parities: whether neighboring qubits agree, never what they hold. The pattern of those parity results, the syndrome, points to the error so you can undo it. It only pays off when the physical error rate is low enough.
+
+**The everyday picture: three friends remembering one secret.**
+
+| In the picture | In the real thing |
+|---|---|
+| Telling the same bit to three friends | Encoding 0 as 000 (repetition code) |
+| One friend forgets and says the opposite | A bit-flip error on one qubit |
+| Asking pairs 'do you two agree?' | Parity checks Z0Z1 and Z1Z2 (stabilizers) |
+| The two 'no's point at the odd one out | The syndrome tells you which qubit to fix |
+| Never asking anyone what the secret is | Checks reveal errors, not the encoded data |
+
+**Where the picture breaks.** Friends can only mix up a yes and a no. Qubits can also suffer phase flips, which the 3-bit repetition code can't see at all, so real codes need checks of two kinds. Also, with quantum states the errors are continuous, and it is the parity measurement itself that snaps them into 'flipped' or 'not flipped', a step no friend group needs.
+
+@@diagram:p2-qec|q1 flipped: both parity checks read 1, which points to q1, so you flip it back. With three copies, the logical error is 3p² − 2p³: 0.03% when p = 1%.
+
+@@viz:rep-code
+
+## Going deeper
+
 Everything in Modules 8–9 hit the same wall: real circuits decohere before finishing anything useful. Quantum error correction (QEC) is the escape — the technology that turns noisy physical qubits into near‑perfect *logical* qubits, enabling the deep algorithms (Shor, precise QPE) that NISQ can't run. This lesson builds QEC from the ground up: why quantum errors seem impossible to correct, the trick that makes it possible, the 3‑qubit codes, and the stabilizer language every real code speaks. This is the physics under every "fault‑tolerant quantum computing" roadmap — and understanding it is what QEC‑scientist roles pay for.
 
 ## Start here — the intuition
@@ -7,6 +29,8 @@ Everything in Modules 8–9 hit the same wall: real circuits decohere before fin
 Quantum errors look impossible to fix for three reasons, and one idea dissolves all three. You can't copy a qubit (no‑cloning), you can't look at it to check (measurement destroys superposition), and its errors are *continuous* (a tiny unwanted rotation, not a clean flip). The escape: **don't copy — spread** one logical qubit across several physical ones via entanglement ($\alpha\ket0+\beta\ket1 \to \alpha\ket{000}+\beta\ket{111}$, which is *not* three copies); **don't measure the data — measure the parity between qubits** through ancillas, which reveals *whether an error happened* without revealing $\alpha$ or $\beta$; and that same parity measurement **digitizes** the continuous error, snapping a tiny rotation into either "no error" or "a full, exactly‑correctable flip."
 
 Hold that middle idea above all — **you check for errors without ever reading the data** — because it is the move that makes the entire field possible, and it's just Module 6's ancilla‑parity trick wearing a cape.
+
+> **School-kid analogy.** On a crackly phone line you say your number three times so the listener can take a majority vote. Quantum error correction has a twist: you are not allowed to look at the digits, so instead you check "do digits 1 and 2 match?" without learning what they are.
 
 ## The escape, concretely: the 3-qubit bit-flip code
 
@@ -139,3 +163,7 @@ Break‑even at $p=0.5$ for this toy code: below it logical $\approx3p^2$ is qua
 - ☐ Explain the discretization miracle: continuous error → correctable Pauli.
 - ☐ Define a stabilizer code and connect syndromes to Pauli anticommutation.
 - ☐ Explain the threshold and why it drives the hardware fidelity race.
+
+## In one line
+
+Error correction spreads one qubit over many and checks only whether neighbors agree, so it can fix errors without looking at the data.

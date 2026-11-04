@@ -1,5 +1,26 @@
 # Set up your lab: Python, VS Code, Jupyter & Qiskit
 
+## The simple version
+
+**In plain English.** To practice quantum computing you need a small workshop on your own computer. Python is the programming language. VS Code is the editor where you type. A virtual environment (a private folder of libraries, called .venv) keeps this course's tools apart from everything else. Qiskit is IBM's free library for building and running quantum programs. A free IBM Quantum account lets you send programs to a real quantum chip later.
+
+**The everyday picture: your own shelf in a shared kitchen.**
+
+| In the picture | In the real thing |
+|---|---|
+| The kitchen's stove | Python, which actually runs your code |
+| Your countertop | VS Code, where you write and edit |
+| Your own labeled shelf | The .venv folder, holding this course's library versions |
+| Groceries delivered to your shelf | pip install putting Qiskit, NumPy and friends into the .venv |
+| A recipe card you can cook one step at a time | A Jupyter notebook: run code cell by cell |
+| Booking time in a restaurant's big kitchen | Sending a job to IBM's real hardware, with a queue |
+
+**Where the picture breaks.** If you grab from the wrong shelf in a kitchen, you notice. In software you often don't: an editor pointed at the system Python quietly can't see the libraries you installed into .venv, and you get ModuleNotFoundError. A .venv is also not a sealed box; it's just a folder with its own copy of Python and packages, and the (.venv) label in your terminal is the quickest sign of which one is active.
+
+@@diagram:p2-setup|Why most setup errors happen: pip installs into the Python your terminal is using, and the editor must be pointed at that same .venv Python.
+
+## Going deeper
+
 Professionals are distinguished less by what they know than by having a working environment they trust. Today you build yours: Python, an editor, notebooks, the Qiskit quantum SDK, and a free account that gives you real quantum-hardware time. Everything here is free. Budget 45 minutes; if something breaks, the Gotchas section is your friend — environment problems are the #1 reason beginners quit, and they are always fixable.
 
 You do **not** need to understand the code you'll type today. This lesson is pure plumbing; understanding starts in Module 1.
@@ -10,9 +31,11 @@ You do **not** need to understand the code you'll type today. This lesson is pur
 
 One mental model makes this whole lesson calm. **You're stacking five things in dependency order** — Python, then an editor, then a private environment, then Qiskit, then your IBM account — and each has a *checkpoint* you must pass before moving on. Don't debug layer three while layer one is silently broken. And the single most valuable habit you'll build today: **when something "breaks," ask which Python is running before assuming anything is wrong.** Nearly every beginner failure — the dreaded `ModuleNotFoundError: qiskit` — is not a broken install but a terminal or editor pointed at the wrong Python. The `(.venv)` prefix in your prompt is the dashboard light that answers that question at a glance.
 
+> **School-kid analogy.** Setting up is packing your school bag the night before: the right books (Python 3.12), a pencil case (VS Code), and one labeled folder per subject (a virtual environment) so the math homework never gets mixed into the art folder.
+
 ## 1. Install Python 3.12
 
-Python is the language of quantum software (Module 4 teaches it from zero). Qiskit 2.x requires Python 3.10 or newer; install **3.12** — new enough for everything, old enough that every library supports it.
+Python is the language of quantum software (Module 4 teaches it from zero). Qiskit 2.x requires Python 3.10 or newer (the latest release on 3 Nov 2026 is **2.6.1**, from 22 Oct 2026, per PyPI); install **3.12** — new enough for everything, old enough that every library supports it.
 
 **Windows** (your platform, if you're following on the machine this course lives on):
 
@@ -242,6 +265,13 @@ Typical output includes machines like `ibm_kingston` (156 qubits, Heron r2) and 
 7. Strong answers order by dependency and verify each layer, e.g.: (1) install Python 3.12 + PATH box → `python --version`; (2) install VS Code + Python/Jupyter extensions → extensions listed; (3) `mkdir quantum-work; python -m venv .venv; activate` → `(.venv)` prefix; (4) `pip install qiskit[...] etc.` → import-version check; (5) Jupyter smoke test → `2+2`; (6) IBM account + `save_account` → backend list. Bonus points for including the PowerShell execution-policy fix and "Select Interpreter" as pre-listed remedies — a checklist that anticipates the two most common failures is a professional's checklist.
 ````
 
+## Sources
+
+Checked 3 November 2026. Roadmap items are company *targets*, not results.
+
+- Qiskit on PyPI (release history; 2.6.1 released 22 Oct 2026, requires Python ≥ 3.10): https://pypi.org/project/qiskit/
+- IBM Quantum plans overview (Open Plan: up to 10 minutes per 28-day rolling window): https://quantum.cloud.ibm.com/docs/en/guides/plans-overview
+
 ## Mastery checklist — you are ready to move on when you can
 
 - ☐ Run `python --version` and see Python 3.12 (Checkpoint 1).
@@ -250,3 +280,7 @@ Typical output includes machines like `ibm_kingston` (156 qubits, Heron r2) and 
 - ☐ Save your IBM token with `save_account` and list real backends (Checkpoint 3).
 - ☐ Run the one-qubit smoke test and get `{'0': 0.5, '1': 0.5}`.
 - ☐ Diagnose a `ModuleNotFoundError` by checking which Python is running first.
+
+## In one line
+
+Install Python, make a private .venv shelf, put Qiskit on it, and always check which Python is running when something breaks.

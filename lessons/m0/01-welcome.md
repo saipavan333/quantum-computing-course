@@ -1,5 +1,28 @@
 # Your mission: from zero to quantum professional
 
+## The simple version
+
+**In plain English.** A normal computer stores everything as bits, and each bit is either 0 or 1. A quantum computer uses qubits, which follow the physics of the very small. A qubit holds two numbers called amplitudes, and amplitudes can add up or cancel out like waves. A quantum program arranges that canceling so wrong answers fade and the right answer grows. When you look, you get plain 0s and 1s, so you run the program many times and count. These machines are real today, but they do not yet beat normal computers at any useful business job.
+
+**The everyday picture: ripples on a pond.**
+
+| In the picture | In the real thing |
+|---|---|
+| Dropping pebbles to start ripples | Putting qubits into superposition with gates |
+| Height of the water at each spot | The amplitude of each possible answer |
+| Crest meets crest: a big wave | Constructive interference: an answer's chance grows |
+| Crest meets trough: flat water | Destructive interference: an answer's chance shrinks to zero |
+| Where you place the pebbles | The algorithm: the choice and order of gates |
+| Dropping a cork and seeing where it bobs | Measuring: you get one answer per try |
+
+**Where the picture breaks.** Pond water is a real height in real space, and you can watch the whole pond at once. Amplitudes are complex numbers (they carry a direction as well as a size), and n qubits have 2ⁿ of them, which don't live anywhere in the room. You can never look at all of them: one measurement gives one answer and ends the run. Also, a quantum computer does not "try every answer at once"; without careful interference you would just get a random answer.
+
+@@diagram:p2-welcome|What actually happens when you run a quantum program: a classical laptop sends a circuit, gates arrange interference, each shot gives one bitstring, and the histogram over many shots is your result.
+
+@@viz:qubit-memory
+
+## Going deeper
+
 You're about to learn a field that most people — including most software engineers — find intimidating. Here's the secret they don't tell you: quantum computing is not hard because the ideas are beyond human comprehension. It's hard because it stacks four subjects (math, probability, programming, physics) and most learning material assumes you already know three of them. This course assumes you know **none** of them. Every stone gets turned.
 
 By the end, you will write programs that run on a real 156-qubit quantum processor sitting in a dilution refrigerator near absolute zero, you'll understand *exactly* why they work, and you'll have a portfolio and interview preparation aimed at real quantum jobs.
@@ -12,14 +35,16 @@ Before any math, hold four sentences and the rest of the course has somewhere to
 
 Everything below expands these four. You don't need to understand the worked example yet — you need to see the destination so the climb makes sense.
 
+> **School-kid analogy.** Drop two pebbles in a still pond. Where crest meets crest the water jumps higher; where crest meets trough it goes flat. A quantum computer is a machine for arranging those ripples so the wrong answers land on the flat spots and the right answer lands where the waves pile up. It does not "try every answer at once"; the skill is in the arranging.
+
 ## 1. What a quantum computer actually is
 
 A classical computer stores information in **bits**: each is 0 or 1, always, definitely. Every photo, program, and AI model is a gigantic pile of these definite 0s and 1s, flipped billions of times per second.
 
 A quantum computer stores information in **qubits** (quantum bits) — physical objects small and cold and isolated enough that they obey quantum mechanics, the physics of the very small. Qubits have three abilities bits don't:
 
-1. **Superposition** — a qubit can be in a combination of 0 and 1 at once, described by two numbers called *amplitudes*. Not "secretly 0 or 1 and we don't know which" — genuinely both, in a precise mathematical sense you'll be able to compute with by Module 5.
-2. **Entanglement** — two or more qubits can share a joint state that cannot be described by listing each qubit separately. Measure one, and the other's statistics change instantly. This is the resource behind almost every quantum speedup.
+1. **Superposition** — a qubit can be in a combination of 0 and 1 at once, described by two numbers called *amplitudes*. It is not "secretly 0 or 1 and we don't know which". It is not "both answers at once" either: a measurement still returns one plain 0 or 1. The amplitudes matter because they can add up or cancel before you measure, which you'll compute with by Module 5.
+2. **Entanglement** — two or more qubits can share a joint state that cannot be described by listing each qubit separately. Measure one and you can predict what the other will show, but the far qubit's own statistics do not change, so no message travels. Entanglement is the resource behind almost every quantum speedup.
 3. **Interference** — amplitudes can be negative (and complex), so computational paths can *cancel each other out*. Quantum algorithms are choreography: arrange the computation so wrong answers interfere destructively and right answers interfere constructively.
 
 @@diagram:bit-vs-qubit|A bit is a switch. A qubit is a direction — infinitely many possible states, but a measurement only ever returns 0 or 1.
@@ -49,9 +74,11 @@ Three problem families drive the investment:
 
 You're joining at a genuinely interesting moment — the **NISQ era** (Noisy Intermediate-Scale Quantum) transitioning toward early fault tolerance:
 
-- IBM offers free public access to 156-qubit Heron processors; its roadmap targets **Starling**, a fault-tolerant machine with 200 *logical* qubits running 100 million gates, by 2029.
-- Google's Willow chip demonstrated **below-threshold error correction** — adding qubits now *reduces* logical error rates, the key milestone for scaling.
-- Quantinuum's trapped-ion machines hold record fidelities (two-qubit gates above 99.9%) and demonstrated 12 logical qubits; the company went public on Nasdaq in June 2026 (ticker QNT), raising about 1.68 billion USD at a valuation near 15.6 billion USD — a marker of how much capital is flowing into the field.
+*(Status checked 3 November 2026; sources at the end of this lesson.)*
+
+- IBM's free Open Plan gives up to 10 minutes per 28 days on 156-qubit Heron processors. Its newer 120-qubit **Nighthawk** (November 2025, square lattice, aimed at 7,500-gate circuits in 2026) is a separate system. As of November 2026 we could not confirm that it is on the free plan, so check the plans page before counting on it ⚠ unverified. Its roadmap's 2026 goals are first examples of quantum advantage and a first fault-tolerant module (**Kookaburra**); **Starling**, a fault-tolerant machine with 200 *logical* qubits running 100 million gates, is targeted for 2029. None of the 2026 goals is marked achieved on IBM's roadmap page yet.
+- Google's Willow chip (105 qubits) demonstrated **below-threshold error correction** in December 2024: adding qubits now *reduces* logical error rates, the key milestone for scaling. In October 2025 Google reported a "verifiable quantum advantage" on Willow (the Quantum Echoes experiment, published in *Nature*): about 13,000× faster than its best classical estimate on one physics measurement. That is a scientific task, not a commercial one.
+- Quantinuum's **Helios** (launched November 2025, 98 trapped-ion qubits) reports 99.921% average two-qubit gate fidelity, among the best published for a commercial machine. Its logical-qubit headlines mix different kinds of result: 94 logical qubits in a GHZ demonstration, 50 error-*detected*, and 48 error-*corrected*. Read which kind a headline means. The company went public on Nasdaq in June 2026 (ticker QNT), raising about 1.68 billion USD at a valuation near 15.6 billion USD, a marker of how much capital is flowing into the field.
 - Nobody has yet demonstrated a commercially valuable problem solved better by a quantum computer than by classical methods. Anyone who tells you otherwise is selling something.
 
 That last point is not discouraging — it's *why there are jobs*. The industry is hiring people to close that gap.
@@ -170,6 +197,18 @@ There's no single right answer, but strong contracts share these properties:
 7. A strong plan: weeks 1–2 M0+M1, 3–4 M2, 5 M3, 6–7 M4, 8–9 M5, 10–11 M6, 12–13 M7, 14 M8 (first half), 15 buffer, 16 M8 finish — deliberately deferring M9–M11 to a "season 2" rather than rushing. The right module to let slip is a *later* one (e.g., QML in M9), never a foundation: everything compounds on M1–M5. Justification matters more than the exact layout: foundations are load-bearing; applications can be re-sequenced.
 ````
 
+## Sources
+
+Checked 3 November 2026. Roadmap items are company *targets*, not results.
+
+- IBM Quantum roadmap, 2026 milestones (Nighthawk, Loon, Kookaburra), page updated March 2026: https://www.ibm.com/roadmaps/quantum/2026
+- IBM Quantum roadmap overview, Starling "planned for 2029" to "run 100 million quantum gates on 200 logical qubits" (announced June 2025): https://www.ibm.com/quantum-computing/roadmap
+- Google Quantum AI, "Quantum error correction below the surface code threshold", *Nature* 638, 920–926 (2025), arXiv:2408.13687 (distance 3→5→7, suppression factor Λ = 2.14)
+- Google Research, "A verifiable quantum advantage" (Quantum Echoes on Willow, Oct 2025): https://research.google/blog/a-verifiable-quantum-advantage/
+- Quantinuum, "Introducing Helios" (5 Nov 2025; 98 barium-ion qubits, 99.921% two-qubit fidelity, 48 error-corrected logical qubits claimed): https://quantinuum.com/blog/introducing-helios-the-most-accurate-quantum-computer-in-the-world
+- Quantinuum IPO pricing (3 June 2026, 60 USD/share, about 1.68B USD raised): https://www.iposcoop.com/the-ipo-buzz-quantinuum-priced-upsized-ipo-at-60-5-above-range/ and Quantum Computing Report: https://quantumcomputingreport.com/quantinuum-completes-its-ipo-at-an-upscale-price-and-number-of-shares/
+- IBM Quantum plans overview (Open Plan: up to 10 minutes per 28-day window): https://quantum.cloud.ibm.com/docs/en/guides/plans-overview
+
 ## Mastery checklist — you are ready to move on when you can
 
 - ☐ Name the three abilities a qubit adds over a bit, and why each matters computationally.
@@ -178,3 +217,7 @@ There's no single right answer, but strong contracts share these properties:
 - ☐ Name two realistic entry‑level quantum roles this course targets and their rough pay band.
 - ☐ Commit to the study method: in order, type everything, struggle before solutions, verify in code.
 - ☐ Have written a specific weekly study contract with a floor and a catch‑up rule.
+
+## In one line
+
+A quantum computer arranges waves of possibility so the right answer shows up most often when you measure, and that is useful only for some special problems.

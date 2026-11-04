@@ -1,5 +1,28 @@
 # Entanglement, Bell states & no-cloning
 
+## The simple version
+
+**In plain English.** Two qubits are entangled when their joint state can't be described as one state for each. The classic example is the Bell pair (|00⟩ + |11⟩)/√2, made with one H and one CNOT. Measure each side alone and you get random 0s and 1s, 50/50. Compare notes later and the two always match. Entanglement can't send a message, because one side's own results never change whatever the other side does. You also can't copy an unknown quantum state (no-cloning).
+
+**The everyday picture: two friends with a plan, playing a quiz game.**
+
+| In the picture | In the real thing |
+|---|---|
+| Two friends in separate rooms | Two entangled qubits held by Alice and Bob |
+| The quiz host picks a question for each at random | Each side picks a measurement angle at random |
+| They win if their answers fit the host's rule | The CHSH game |
+| A plan agreed before they left | Any 'hidden answers fixed in advance' explanation |
+| Best possible plan: wins 75% of rounds | Classical limit: S ≤ 2 |
+| Friends sharing a Bell pair: about 85% | Quantum: up to S = 2√2 ≈ 2.83 |
+
+**Where the picture breaks.** A plan can match perfectly on any question fixed in advance, so 'they always agree' alone proves nothing. Only the statistics over randomly chosen questions beat every plan; that is Bell's theorem. Real friends could also phone each other; the qubits can't, and they don't need to. Neither friend can use the pair to send the other a message, because each one's own answers look like fair coin flips no matter what the other does.
+
+@@diagram:p2-entanglement|H then CNOT makes the Bell pair. Each side alone is 50/50; compared, they always match. With random question choices the pair wins the CHSH game 85.4% of the time, above the 75% any plan can reach, yet no message passes between them.
+
+@@viz:chsh-angle
+
+## Going deeper
+
 Schrödinger called entanglement "*the* characteristic trait of quantum mechanics." Einstein called it "spooky action at a distance" and spent years trying to kill it. Experiment sided with Schrödinger — the 2022 Nobel Prize went to the people who proved it. Today you get the working professional's version: the four Bell states, how to create and verify them, what entanglement can and cannot do (no faster-than-light anything — you'll prove it), why quantum data can't be copied, and what a Bell test actually shows.
 
 ## Start here — the intuition
@@ -7,6 +30,8 @@ Schrödinger called entanglement "*the* characteristic trait of quantum mechanic
 Two entangled qubits share a **single joint state**, so tightly linked that they *agree no matter which way you measure them* — yet neither qubit has a state of its own. Each one alone looks like pure white noise (a fair coin in every basis); the information lives entirely in the *correlation between them*.
 
 Three facts fence in what this does and doesn't buy you. You **can't copy** a quantum state (no‑cloning) — which is exactly why quantum cryptography is secure. You **can't signal** faster than light with entanglement (no‑signaling) — measuring your half never changes what your partner sees. But you **can** produce correlations too strong for *any* "they secretly agreed in advance" story — that's Bell's theorem, and you'll watch a Bell pair beat the classical limit in a live cell.
+
+> **School-kid analogy.** Two friends agree on a plan before leaving: a fixed answer for every question anyone might ask them. With a good plan they can match on *any* question decided in advance. Now each is asked one of two questions, picked at random, and they win if their answers fit a set rule. The best plan wins at most 75% of rounds. Friends sharing entangled qubits win about 85%. That gap in the statistics, not the matching itself, is Bell's theorem (CHSH). Even so, neither friend can use it to send a message.
 
 ## The four Bell states
 
@@ -153,3 +178,7 @@ Rotating the *state* by $-\theta$ equals rotating the *measurement* by $+\theta$
 - ☐ Explain the CHSH game and compute the 75% vs 85.4% numbers.
 - ☐ Run the CHSH cell and read the win rate.
 - ☐ Diagnose a Bell source from Z‑ vs X‑agreement (dephasing signature).
+
+## In one line
+
+Entangled qubits share one joint state: alone each looks random, together they agree more than any plan could, and still no message travels.

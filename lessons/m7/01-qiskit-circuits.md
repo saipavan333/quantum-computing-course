@@ -1,5 +1,25 @@
 # Qiskit fundamentals: building & visualizing circuits
 
+## The simple version
+
+**In plain English.** Qiskit is IBM's free Python library for building quantum programs. You make a QuantumCircuit, add gates to it one line at a time, and add measurements at the end. Qiskit can draw the circuit as a picture with one horizontal line per qubit. When you run it, you get back counts: how many times each bit string came out. Qiskit writes bit strings right to left, so qubit 0 is the last character.
+
+**The everyday picture: sheet music for a small band.**
+
+| In the picture | In the real thing |
+|---|---|
+| One line of the staff per instrument | One wire per qubit |
+| Notes written left to right | Gates applied in time order |
+| A chord written across two lines | A two-qubit gate such as CNOT |
+| Writing down the last note each instrument ends on | Measurement at the end |
+| Playing the piece 1,024 times and tallying endings | Running shots and getting a counts dict |
+
+**Where the picture breaks.** Sheet music describes sound you can hear the whole time. A quantum circuit's middle can't be listened to: looking partway through changes the result. And the same circuit gives different endings on different runs, which a band playing perfectly never would.
+
+@@diagram:p2-qiskit-circuits|Four lines build a Bell circuit: H, then CNOT, then measure. 1,024 shots come back as roughly half '00' and half '11', never '01' or '10' on an ideal simulator.
+
+## Going deeper
+
 You've been using Qiskit as a calculator. Now you learn it as a professional instrument — the full `QuantumCircuit` API: registers, measurement plumbing, composition, parameterized circuits (the foundation of Module 9's variational algorithms), and the introspection tools that let you reason about cost. Qiskit 2.x is the industry's most-used quantum SDK; fluency here is a checkbox on real job listings.
 
 @@diagram:qiskit-stack|Where your code sits: you build circuits (SDK) → the transpiler rewrites them for a target → a primitive (Sampler/Estimator) executes on simulator or QPU → results return as counts/expectations. Module 7 walks this stack top to bottom.
@@ -9,6 +29,8 @@ You've been using Qiskit as a calculator. Now you learn it as a professional ins
 Three ideas make Qiskit click. **A circuit has two kinds of bits** — qubits hold quantum state, classical bits catch measurement outcomes, and `measure` is the bridge between them; forgetting the classical bits is the classic first stumble. **Two circuits with the same gate count can cost wildly different amounts** — because what noise actually sees is *depth* (the number of sequential layers), not *size* (the raw operation count), so a shallow circuit survives on hardware where a deep one dissolves. **Circuits are composable, parameterized building blocks** — you write functions that *return* circuits and use symbolic `Parameter` angles, which is the exact design that makes Module 9's variational algorithms possible.
 
 Carry one habit above all: **quote depth, size, and `count_ops` whenever you discuss a circuit's cost.** Depth is the ruler for "will this run on real hardware?" — the question every other Module 7 lesson circles back to.
+
+> **School-kid analogy.** A circuit is sheet music. Each line is an instrument (a qubit), the notes are gates, and you read left to right. Measurement at the end is writing down the last note each instrument ends on, not the whole tune.
 
 ## 1. Circuits, registers, and the two kinds of bits
 
@@ -332,3 +354,7 @@ Depth n versus depth ⌈log₂n⌉ + 1 — at 32 qubits, 32 layers vs 6. The noi
 - ☐ Compose programs from circuit‑returning functions; use `to_gate()` and `inverse()`.
 - ☐ Build a symbolic `Parameter` template and bind it many times.
 - ☐ Test a circuit with statevector assertions on its support and probabilities.
+
+## In one line
+
+In Qiskit you build a circuit line by line, run it many times, and read the answer as counts of bit strings.

@@ -1,5 +1,25 @@
 # Gates as unitary evolution & the phase that matters
 
+## The simple version
+
+**In plain English.** Between preparing and measuring a qubit, gates change its state. Every gate is a reversible rotation: it can always be undone, and the chances still add to 1 afterwards. Multiplying the whole state by a phase, called a global phase, changes nothing you can ever measure. Changing the phase of one part against another, a relative phase, is invisible at first. But after another gate, that relative phase can flip a sure 0 into a sure 1.
+
+**The everyday picture: two runners on a circular track.**
+
+| In the picture | In the real thing |
+|---|---|
+| Both runners | The \|0⟩ and \|1⟩ parts of the state |
+| Where each runner is on the track | Each part's phase |
+| Both runners move ahead by the same amount | A global phase: nothing measurable changes |
+| One runner gets ahead of the other | A relative phase |
+| A referee who only cares about the gap between them | A later gate such as H, which turns the gap into a different result |
+
+**Where the picture breaks.** Runners have real positions you can see at any moment. Phases are not visible to any single measurement; only interference, after a gate, reveals a relative phase. And gates are perfectly reversible rotations, unlike runners who get tired.
+
+@@diagram:p2-evolution|Three states with the same 50/50 chances. After H, the one with a relative minus sign gives 1 for sure, while the one with an overall minus sign behaves exactly like the first.
+
+## Going deeper
+
 Rule 2 says unobserved quantum states evolve unitarily. This lesson makes that rule *yours*: why unitarity is forced (not chosen), what it permits and forbids, and the definitive treatment of the distinction that runs every algorithm — global phase (meaningless) versus relative phase (everything). By the end you'll compute interference through gate sequences as fluently as arithmetic.
 
 ## Start here — the intuition
@@ -7,6 +27,8 @@ Rule 2 says unobserved quantum states evolve unitarily. This lesson makes that r
 While no one is looking, the only moves a quantum state is allowed are **reversible rotations** — that's what "unitary" means, and it's forced on us by a single fact: probabilities must always add to 1, before and after. Nothing can leak. So every gate can be exactly undone, and no gate can "erase" a qubit to $\ket0$ (that would throw information away).
 
 The one subtlety that runs every algorithm is about **phase**, and it splits in two. A phase applied to the *whole* state — **global phase** — is completely invisible; no experiment can ever detect it. But a phase applied to *part* of the state — **relative phase** — is like invisible ink: a plain 0/1 measurement can't see it, yet an interference step (an $H$) *develops* it into a visible difference. Quantum algorithms live in that gap: spread amplitude out, write the answer in invisible phase‑ink, then interfere to make it appear. This lesson makes that precise.
+
+> **School-kid analogy.** Every twist of a Rubik's cube can be undone, and no stickers are lost. Quantum gates are like that (unitary). Turning the whole cube around in your hands does not change the puzzle at all, which is what a global phase is.
 
 ## Why evolution must be unitary
 
@@ -135,3 +157,7 @@ $\gamma = 2\arcsin\sqrt{0.85} \approx 2.346$; the mirror solution is $2\pi - 2.3
 - ☐ Run the live cell and explain why $R_z$ on $\ket0$ does nothing but $R_z$ between two $H$'s does everything.
 - ☐ Say why no gate can reset or copy a qubit.
 - ☐ Describe the three‑beat algorithm template (fan out, write phases, interfere) in one breath.
+
+## In one line
+
+Gates are reversible rotations; a phase on the whole state never matters, but a phase between its parts can change the answer.

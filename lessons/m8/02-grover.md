@@ -1,5 +1,28 @@
 # Grover's search: find a needle in a haystack of a million
 
+## The simple version
+
+**In plain English.** Grover's algorithm searches N unsorted items for one marked item. A normal computer checks items one at a time, about N/2 checks on average. Grover starts with every item equally likely, then repeats a two-step round. First the oracle flips the sign of the marked item, then a 'diffuser' reflects every amplitude about the average, which grows the marked one. After about (π/4)√N rounds the marked item is very likely; for a million items that is about 785 rounds.
+
+**The everyday picture: turning a clock hand up toward 12.**
+
+| In the picture | In the real thing |
+|---|---|
+| 12 o'clock | The marked item |
+| The hand starts just above 3 o'clock | The start: all items equally likely, so the state points almost entirely at 'not marked' |
+| Each round turns the hand the same small step toward 12 | One Grover round (oracle, then diffuser) is a fixed rotation by the angle 2θ |
+| How high the hand points | The marked item's chance: sin² of the hand's angle |
+| Keep turning past 12 and the hand heads down again | Too many rounds: the same correct round now carries the state past the target, and the chance falls (overshoot) |
+| More items: the hand starts nearer 3 and each step is smaller | θ is about 1/√N, so about (π/4)√N rounds reach the top |
+
+**Where the picture breaks.** The hand turns in an abstract two-direction picture, 'marked' versus 'everything else', not in the room, and you can't watch it move: measuring gives one item and ends the run. So you must work out the number of rounds in advance, which needs N and the number of marked items. The speedup is also only quadratic: √N instead of N. That helps for huge searches, but each round on hardware is costly, so it doesn't make everyday search engines obsolete.
+
+@@diagram:p2-grover|8 items, item 3 marked. The oracle flips its sign; reflecting every bar about the mean (dashed line) raises it to 0.884, a 78.1% chance after one round.
+
+@@viz:grover-curve
+
+## Going deeper
+
 Grover's algorithm finds a marked item among $N$ possibilities in about $\tfrac{\pi}{4}\sqrt N$ tries, where classical search needs about $N/2$ on average. A million items: ~804 tries instead of ~500,000. It is the most broadly useful quantum algorithm you will meet — its core move, **amplitude amplification**, is a reusable part that boosts many other algorithms — and it is provably the best any quantum computer can do on unstructured search. We will build it from the picture up, then hand you the professional-grade version.
 
 ## Start here — the intuition
@@ -10,6 +33,8 @@ Two everyday ideas do all the work:
 
 - A **check** — given a box, can you tell if it is the winner? In code this is a function $f(x)=1$ for the winner and $0$ otherwise. Grover calls it the *oracle*.
 - A **nudge** — a way to turn "the winner is marked" into "the winner is louder." This is the *diffuser*, and it is just a reflection. In a moment you will do it as plain arithmetic.
+
+> **School-kid analogy.** Picture a hidden marked card in a shuffled deck and a game where each round turns the marked card's volume up and all the others down. After about $\sqrt{N}$ rounds it is the loudest card. Keep going too long and it gets quieter again.
 
 ## The one picture: a dial you rotate
 
@@ -241,3 +266,7 @@ Why uncomputation is mandatory: after `predicate`, the scratch qubit is *entangl
 - ☐ Build the oracle + diffuser for a 3-qubit winner in code and reach ~95%.
 - ☐ Explain to a skeptic why Grover does not speed up ordinary database search.
 - ☐ Recognize amplitude amplification as the reusable, general form of the trick.
+
+## In one line
+
+Grover repeats 'flip the marked sign, reflect about the average' about √N times to make the marked item the likely result.

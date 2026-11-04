@@ -1,5 +1,25 @@
 # Teleportation & superdense coding
 
+## The simple version
+
+**In plain English.** Teleportation moves a qubit's exact state from Alice to Bob without sending the qubit itself. They first share a Bell pair. Alice measures her qubit together with her half of the pair. This gives two ordinary bits and destroys her copy. She sends the bits by phone, and Bob uses them to pick a fix: X, Z, both or neither. Superdense coding is the reverse trick: one qubit plus a shared pair carries two classical bits.
+
+**The everyday picture: a locked box and a two-digit code.**
+
+| In the picture | In the real thing |
+|---|---|
+| A pair of matched boxes, shared ahead of time | The Bell pair |
+| Alice's secret item | The state ψ, which Alice may not even know |
+| Alice locks her item in and the original crumbles | The Bell measurement destroys her copy |
+| A two-digit code read over the phone | The 2 classical bits |
+| Bob uses the code to open his box the right way | Bob's X/Z correction |
+
+**Where the picture breaks.** In the box story something travels inside the box. In teleportation nothing carrying ψ travels; only two bits do, and without them Bob's half is just random noise. It is also not faster than light, since Bob must wait for the call, and it never makes a copy: the original is destroyed, as no-cloning requires.
+
+@@diagram:p2-protocols|Alice's Bell measurement gives two random bits and leaves her with nothing. After the phone call, Bob's correction turns his half of the pair into the original state.
+
+## Going deeper
+
 Two protocols close this module — not because they're party tricks, but because they're the **resource accounting** of quantum information made vivid: teleportation converts [1 entangled pair + 2 classical bits] into [1 transmitted qubit]; superdense coding converts [1 entangled pair + 1 transmitted qubit] into [2 classical bits]. They're mirror images, they power quantum networking and fault-tolerant computing, and walking through them gate-by-gate is the final exam for Modules 5–6.
 
 ## Start here — the intuition
@@ -9,6 +29,8 @@ Think of entanglement as a kind of **currency** you can spend to move informatio
 **Teleportation** moves an *unknown* qubit's state from Alice to Bob without sending the qubit itself — she can't (no‑cloning forbids copying, and measuring would destroy the two continuous numbers $\alpha, \beta$). The trick: Alice and Bob **pre‑share a Bell pair**. Alice does a joint measurement on her mystery qubit and her half of the pair, phones Bob **2 classical bits**, and Bob applies a simple fix — and now *he* holds the exact state. Nothing traveled faster than the phone call; the entanglement carried the "analog" load, the two bits just said which of four fixes to apply.
 
 **Superdense coding** is the mirror: using a shared Bell pair, Alice packs **2 classical bits** into **1 qubit** she sends to Bob. Neither protocol makes capacity from nothing — each *converts* between qubits, classical bits, and entanglement at strict exchange rates. That ledger‑thinking is the founding move of quantum information.
+
+> **School-kid analogy.** Teleportation is like faxing a secret drawing where the original gets shredded in the process, and the copy stays scrambled until a phone call (two ordinary bits) tells the receiver how to unscramble it. Nothing arrives faster than that phone call.
 
 ## Teleportation, gate by gate
 
@@ -50,7 +72,7 @@ rho2 = np.einsum('abc,dbc->ad', sv, sv.conj())      # trace out q0, q1 -> Bob's 
 q2  = [round(float(np.real(np.trace(rho2 @ M))), 3) for M in (X, Y, Z)]
 inp = [round(np.sin(theta), 3), 0.0, round(np.cos(theta), 3)]
 print("teleported qubit 2 Bloch:", q2)
-print("original input     Bloch:", inp)
+print("original input     Bloch:", [round(float(v), 3) for v in inp])
 print("match (fidelity 1)      :", np.allclose(q2, inp, atol=1e-6))
 ```
 
@@ -158,3 +180,7 @@ Toggling `z(1)` flips the left output bit (q1); toggling `x(1)` flips the right 
 - ☐ Describe superdense coding and run the cell to send all four messages.
 - ☐ State both resource ledgers and why neither breaks Holevo or enables FTL.
 - ☐ Explain entanglement swapping and why "move entanglement first, data last" is loss‑tolerant.
+
+## In one line
+
+Teleportation moves a quantum state using a shared Bell pair and two ordinary bits, destroying the original and never beating light.

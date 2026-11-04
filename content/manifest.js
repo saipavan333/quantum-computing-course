@@ -132,7 +132,9 @@ window.COURSE = {
         { id: "qpe", title: "Quantum phase estimation", mins: 85,
           summary: "The algorithm that powers Shor and quantum chemistry: estimating eigenphases with controlled powers and an inverse QFT, with precision/qubit trade-offs." },
         { id: "shor", title: "Shor's algorithm & why RSA cares", mins: 95,
-          summary: "Factoring via period finding: the number theory, the quantum core, running it in code, and the honest resource estimates for breaking RSA-2048." }
+          summary: "Factoring via period finding: the number theory, the quantum core, running it in code, and the honest resource estimates for breaking RSA-2048." },
+        { id: "hamsim", title: "Hamiltonian simulation & Trotterization", mins: 85,
+          summary: "Turning time evolution into gates: Trotter-Suzuki error laws, the CNOT bill, the noise trade-off (with quantum channels), where it sits in BQP, and how to read a 127-qubit utility claim." }
       ]
     },
     {

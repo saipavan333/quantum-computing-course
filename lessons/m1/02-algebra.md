@@ -1,5 +1,25 @@
 # Algebra: variables, equations & functions
 
+## The simple version
+
+**In plain English.** Algebra lets you work with numbers before you know what they are. You give an unknown a name, like α (alpha), and move it around by fixed rules. A function is a machine that takes a number in and gives a number out. Quantum gates behave like such machines, and doing them in a different order can give a different result. The equation you'll solve most often says a qubit's chances must add up to exactly 1.
+
+**The everyday picture: machines on a factory line.**
+
+| In the picture | In the real thing |
+|---|---|
+| A box with a label on the lid | A variable such as α or β |
+| A machine with one input and one output | A function f(x), later a quantum gate |
+| Feeding one machine's output into the next | Composition: g(f(x)) |
+| Swapping two machines on the line | A different order, often a different answer |
+| Slices that must make one whole pizza | Normalization: α² + β² = 1 |
+
+**Where the picture breaks.** Factory machines handle one item at a time and keep no link between items. Quantum gates act on all of a state's amplitudes together, and they can always be run backwards, which most machines can't. In this lesson the numbers are ordinary real numbers; quantum amplitudes are usually complex, so the rule becomes |α|² + |β|² = 1.
+
+@@diagram:p2-algebra|The same two machines in a different order turn 1 into 5 or 8. Below: knowing one chance (0.3) fixes the other (0.7), because they must make one whole.
+
+## Going deeper
+
 Algebra is the skill of moving symbols around *without knowing what they equal yet*. Quantum computing is written entirely in this language: states are symbols like $\alpha$ and $\beta$, gates are functions, and "find the angle that makes this probability 0.3" is an equation to solve. This lesson makes symbol‑pushing automatic, introduces function notation you'll see everywhere after, and adds the summation symbol $\Sigma$ — the single most common notation in quantum mechanics.
 
 ## Start here — the intuition
@@ -7,6 +27,8 @@ Algebra is the skill of moving symbols around *without knowing what they equal y
 Three algebra ideas carry the whole course. First, the one equation you'll solve forever: **normalization**, $\alpha^2 + \beta^2 = 1$ — the squared amplitudes of a state must total 1, because they're probabilities. Given a relationship between amplitudes, you solve this for the actual probabilities. Second, **functions compose, and order matters**: $f(g(x)) \neq g(f(x))$ in general — the algebraic root of "gate order matters" (Module 6 lives on it). Third, **every quantum gate has an inverse** — because quantum evolution can't destroy information, gates must be reversible functions.
 
 Plus one piece of notation you must read fluently: **$\Sigma$ (sigma)**, compressed addition. A quantum state over $n$ qubits is a sum of $2^n$ pieces; nobody writes them out, so learn to read $\sum_k a_k \ket k$ as "a state is a weighted sum of basis pieces, and the squared weights total 1."
+
+> **School-kid analogy.** A variable is a lunchbox with a name on the lid. You can slide lunchboxes around the table (rearrange the equation) without opening them. Normalization is a pizza: however you slice it, the slices add up to one whole pizza. And order matters the way socks-then-shoes is not shoes-then-socks.
 
 ## The essentials, fast
 
@@ -71,6 +93,10 @@ Quantum‑internship first round: "$\ket\psi$ has $p(0) = 3\,p(1)$. What are the
 {"q":"f(x) = x + 2 and g(x) = 3x. What is g(f(1)), and what does it illustrate?","options":["5 — composition order is irrelevant","9 — apply f first, then g; order matters since f(g(1)) = 5","9 — apply g first, then f","6 — multiply the two functions"],"answer":1,"why":"g(f(1)) = g(3) = 9, while f(g(1)) = f(3) = 5. Inner function first; swapping order changes the answer — exactly like quantum gates."}
 ```
 
+```quiz
+{"q": "Three outcomes have real amplitudes a, 2a and 2a. What is the probability of the first outcome?", "options": ["1/5", "1/9", "1/3", "1/√9"], "answer": 1, "why": "Normalization: a² + (2a)² + (2a)² = 9a² = 1, so a² = 1/9. 1/5 comes from adding the amplitudes (a + 2a + 2a = 5a) instead of their squares; 1/3 assumes all outcomes are equally likely; 1/√9 = 1/3 is the amplitude a, not the probability a²."}
+```
+
 ## Exercises
 
 **Exercise 1 — three‑outcome normalization.** In the live cell, a system has amplitudes $a, 2a, \sqrt3\,a$ (real, positive). Find each probability and confirm they sum to 1.
@@ -110,6 +136,23 @@ $a^2 + 4a^2 + 3a^2 = 8a^2 = 1$, so probabilities are $12.5\%, 50\%, 37.5\%$. The
 7. Multipliers $b=\sqrt2 a, c=\sqrt3 a, d=2a$ give $10a^2 = 1$, $a^2 = 0.1$, and probabilities $0.1, 0.2, 0.3, 0.4$. Any $\sqrt{r_k}$ with ratios proportional to the target probabilities works.
 ````
 
+## Interview questions
+
+1. **(junior)** Why must every quantum gate be an invertible function?
+2. **(mid)** A state has two outcomes and the experiment says outcome 1 is three times as likely as outcome 0. Find real amplitudes that produce this.
+3. **(senior)** Function composition is not commutative. Give a concrete quantum example and explain why it matters to a compiler.
+
+````solution
+1. Quantum evolution is unitary, and unitary maps always have an inverse ($U^{-1} = U^\dagger$). Physically, closed quantum systems do not lose information. So a gate can never be like $x^2$, which sends $2$ and $-2$ to the same output. Measurement is the one non-invertible step, which is why it sits outside the gate model.
+2. Let $p_1 = 3p_0$ and $p_0 + p_1 = 1$, so $p_0 = 1/4$, $p_1 = 3/4$. Amplitudes $\alpha = 1/2$, $\beta = \sqrt3/2$ work, and so do any sign choices ($\pm$). Note we solved for probabilities first and only took square roots at the end, which avoids sign mistakes.
+3. $XZ = -ZX$, so applying $Z$ then $X$ is not the same operation as $X$ then $Z$ (they differ by a sign that becomes a relative phase when controlled or applied to part of a superposition). A transpiler may only reorder gates that commute (for example two $Z$-rotations, or gates on disjoint qubits). Reordering non-commuting gates to shorten a circuit silently changes the computation, which is why commutation analysis is its own optimization pass in Qiskit.
+````
+
+## Sources
+
+- M. A. Nielsen and I. L. Chuang, *Quantum Computation and Quantum Information*, 10th anniversary ed., Cambridge University Press (2010), §2.1 (linear algebra) and §2.2 (unitary evolution).
+- Qiskit transpiler passes (commutation analysis and cancellation): https://quantum.cloud.ibm.com/docs/en/api/qiskit/transpiler_passes
+
 ## Mastery checklist — you are ready to move on when you can
 
 - ☐ Solve a linear equation and substitute back to check.
@@ -118,3 +161,7 @@ $a^2 + 4a^2 + 3a^2 = 8a^2 = 1$, so probabilities are $12.5\%, 50\%, 37.5\%$. The
 - ☐ Compose functions in the right order and explain why order matters.
 - ☐ Run the live cell and read a $\Sigma$ sum in both math and Python.
 - ☐ Say why every gate is invertible and measurement is the exception.
+
+## In one line
+
+Name the unknowns, move them by the rules, keep the order of operations, and make the chances add to 1.

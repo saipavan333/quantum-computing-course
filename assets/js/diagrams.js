@@ -509,7 +509,7 @@
     b += t(470, 170, "orthogonal =", { fill: C.warnT, size: 12, a: "start" });
     b += t(470, 190, "ANTIPODES", { fill: C.warnT, size: 12, a: "start" });
     b += t(470, 210, "(180°, not 90°)", { fill: C.faint, size: 10, a: "start" });
-    return svg(272, b, "Bloch sphere with poles and equator");
+    return svg(284, b, "Bloch sphere with poles and equator");
   })();
 
   // ---- M5: global-vs-relative ----
@@ -870,6 +870,27 @@
     return svg(168, b, "Shor algorithm pipeline");
   })();
 
+  // ---- M8: trotter-step (Hamiltonian simulation) ----
+  D["trotter-step"] = (() => {
+    let b = t(320, 22, "One first-order Trotter step for H = J·ΣZZ + h·ΣX", { bold: true, size: 13 });
+    const ys = [64, 112, 160];
+    ys.forEach((y, q) => { b += t(40, y + 4, "q" + q, { size: 11, a: "start", fill: C.dim }); b += wire(y, 70, 560); });
+    ys.forEach(y => b += gateBox(120, y, "Rx", C.acc));
+    b += t(120, 196, "exp(−i·h·dt·X)", { size: 10, fill: C.accT });
+    b += box(200, ys[0] - 18, 110, ys[1] - ys[0] + 36, { stroke: C.cyan, fill: C.cyanFill });
+    b += t(255, (ys[0] + ys[1]) / 2 - 2, "ZZ(J·dt)", { size: 12, fill: C.cyanT });
+    b += t(255, (ys[0] + ys[1]) / 2 + 14, "CX · Rz · CX", { size: 10, fill: C.cyanT });
+    b += box(330, ys[1] - 18, 110, ys[2] - ys[1] + 36, { stroke: C.cyan, fill: C.cyanFill });
+    b += t(385, (ys[1] + ys[2]) / 2 - 2, "ZZ(J·dt)", { size: 12, fill: C.cyanT });
+    b += t(385, (ys[1] + ys[2]) / 2 + 14, "CX · Rz · CX", { size: 10, fill: C.cyanT });
+    b += box(460, 40, 150, 144, { stroke: C.warn, fill: C.warnFill });
+    b += t(535, 100, "repeat r times", { size: 12, fill: C.warnT });
+    b += t(535, 120, "dt = t / r", { size: 11, fill: C.warnT });
+    b += t(535, 140, "error ~ t²/r · ‖[A,B]‖", { size: 10, fill: C.warnT });
+    b += t(320, 218, "Smaller steps track exp(−iHt) better, but every step costs 2(n−1) CNOTs.", { fill: C.faint, size: 11 });
+    return svg(232, b, "one Trotter step: X rotations then ZZ interactions, repeated r times");
+  })();
+
   // ---- shared circuit-ish diagrams referenced but simple ----
   // ---- M2: basis-change ----
   D["basis-change"] = (() => {
@@ -1101,5 +1122,833 @@
     b += t(320, y + 4, "Best depends on metric, application, and fault-tolerance economics.", { fill: C.faint, size: 11 });
     return svg(y + 24, b, "quantum hardware modality comparison");
   })();
+  // =====================================================================
+  // PASS 2 (Nov 2026): one "how it works" picture per lesson, shown in the
+  // lesson's simple opening. Keys are p2-<lesson id>.
+  // =====================================================================
+  // any-angle arrow: the head's tip sits exactly on (x2,y2)
+  const arr = (x1, y1, x2, y2, o = {}) => {
+    const a = Math.atan2(y2 - y1, x2 - x1), h = 9, s = 0.45, k = v => Math.round(v * 10) / 10;
+    const bx = x2 - 7 * Math.cos(a), by = y2 - 7 * Math.sin(a);
+    return ln(k(x1), k(y1), k(bx), k(by), o) +
+      `<polygon points="${k(x2)},${k(y2)} ${k(x2 - h * Math.cos(a - s))},${k(y2 - h * Math.sin(a - s))} ${k(x2 - h * Math.cos(a + s))},${k(y2 - h * Math.sin(a + s))}" style="fill:${o.stroke || C.line}"/>`;
+  };
+  const lines = (x, y, arrTxt, o = {}) => arrTxt.map((s, i) => s ? t(x, y + i * (o.lh || 15), s, o) : "").join("");
+
+  // ---- P2 M0: welcome — one quantum run, end to end ----
+  D["p2-welcome"] = (() => {
+    let b = t(320, 24, "One quantum program, start to finish", { bold: true, size: 15 });
+    const steps = [
+      ["You write", "a circuit on a", "normal laptop", C.acc, C.accT],
+      ["Qubits start", "at 0, kept near", "absolute zero", C.cyan, C.cyanT],
+      ["Gates steer", "the amplitudes", "(interference)", C.cyan, C.cyanT],
+      ["Measure:", "each qubit", "gives 0 or 1", C.warn, C.warnT],
+      ["Repeat it", "1,000s of times", "and count", C.good, C.goodT]
+    ];
+    const w = 108, g = 18, y = 44, h = 72;
+    steps.forEach((s, i) => {
+      const x = 14 + i * (w + g);
+      b += box(x, y, w, h, { stroke: s[3] }) + t(x + w / 2, y + 23, s[0], { size: 14, bold: true, fill: s[4] });
+      b += t(x + w / 2, y + 43, s[1], { size: 12, fill: C.dim }) + t(x + w / 2, y + 60, s[2], { size: 12, fill: C.dim });
+      if (i < 4) b += arrR(x + w + 2, y + h / 2, x + w + g - 2, { stroke: C.faint });
+    });
+    const hx = 360, hy = 150, bars = [["00", 0.06], ["01", 0.05], ["10", 0.07], ["11", 0.82]];
+    b += arrD(572, y + h + 2, hy - 4, { stroke: C.good });
+    b += box(hx - 16, hy, 280, 132, { stroke: C.boxS, fill: C.card });
+    bars.forEach((bb, i) => {
+      const bh = bb[1] * 90, x = hx + 10 + i * 62;
+      b += box(x, hy + 104 - bh, 36, bh, { r: 3, fill: i === 3 ? C.goodFill : C.box, stroke: i === 3 ? C.good : C.boxS });
+      b += t(x + 18, hy + 124, bb[0], { size: 13, fill: i === 3 ? C.goodT : C.dim });
+    });
+    b += t(hx + 150, hy + 22, "the answer →", { size: 13, fill: C.goodT, a: "end" });
+    b += lines(24, 176, ["Wrong answers cancel out,", "the right one piles up.", "", "The result is this histogram", "of many shots, never one", "magic readout of every answer."], { size: 14, a: "start", fill: C.dim, lh: 19 });
+    return svg(300, b, "five steps of a quantum run ending in a histogram of shots where the correct bitstring is the tallest bar");
+  })();
+
+  // ---- P2 M0: setup — which Python is running? ----
+  D["p2-setup"] = (() => {
+    let b = t(320, 24, "The #1 setup bug: two Pythons, one library", { bold: true, size: 15 });
+    b += box(20, 52, 200, 62, { stroke: C.acc }) + t(120, 77, "Terminal shows (.venv)", { size: 14, bold: true, fill: C.accT }) + t(120, 97, "pip install qiskit …", { size: 13, fill: C.dim });
+    b += box(20, 178, 200, 62, { stroke: C.acc }) + t(120, 203, "VS Code / Jupyter", { size: 14, bold: true, fill: C.accT }) + t(120, 223, "kernel you selected", { size: 13, fill: C.dim });
+    b += box(410, 44, 210, 90, { stroke: C.good, fill: C.goodFill }) + t(515, 70, ".venv Python", { size: 14, bold: true, fill: C.goodT });
+    b += t(515, 90, "qiskit 2.x, qiskit-aer,", { size: 13, fill: C.dim }) + t(515, 106, "numpy, matplotlib", { size: 13, fill: C.dim });
+    b += box(410, 178, 210, 62, { stroke: C.bad }) + t(515, 203, "System Python", { size: 14, bold: true, fill: C.badT }) + t(515, 223, "no qiskit inside", { size: 13, fill: C.dim });
+    b += arr(222, 83, 406, 83, { stroke: C.good }) + t(314, 74, "pip installs land here", { size: 12, fill: C.goodT });
+    b += arr(222, 192, 406, 130, { stroke: C.good }) + t(314, 128, "right pick: import works", { size: 12, fill: C.goodT });
+    b += arr(222, 214, 406, 214, { stroke: C.bad, dash: "5 4" }) + t(314, 232, "wrong pick: import fails", { size: 12, fill: C.badT });
+    b += t(320, 266, "ModuleNotFoundError: qiskit almost always means \"wrong Python\", not \"broken install\".", { size: 12, fill: C.warnT });
+    return svg(284, b, "terminal installs into the venv Python; the editor kernel must point at the same venv or imports fail");
+  })();
+
+  // ---- P2 M1: numbers — square to get chance; each qubit doubles the count ----
+  D["p2-numbers"] = (() => {
+    let b = t(320, 24, "Two number habits quantum uses all the time", { bold: true, size: 15 });
+    b += t(24, 50, "Amplitude → chance: square it", { size: 13, bold: true, fill: C.cyanT, a: "start" });
+    [["+0.707", 64], ["−0.707", 118]].forEach(([v, y]) => {
+      b += box(24, y, 96, 38, { stroke: C.cyan }) + t(72, y + 25, v, { size: 15, bold: true, fill: C.cyanT });
+      b += arrR(122, y + 19, 176, { stroke: C.line }) + t(149, y + 12, "square", { size: 11, fill: C.dim });
+      b += box(178, y, 120, 38, { stroke: C.good, fill: C.goodFill }) + t(238, y + 25, "0.50 = 50%", { size: 14, bold: true, fill: C.goodT });
+    });
+    b += lines(24, 186, ["Different signs, same chance.", "The sign is kept for later:", "it is what lets answers cancel."], { size: 12, fill: C.dim, a: "start", lh: 18 });
+    b += t(340, 50, "Each extra qubit doubles the count", { size: 13, bold: true, fill: C.warnT, a: "start" });
+    const vals = [2, 4, 8, 16, 32], base = 214;
+    vals.forEach((v, i) => {
+      const h = v / 32 * 130, x = 352 + i * 54;
+      b += box(x, base - h, 34, h, { r: 3, fill: C.warnFill, stroke: C.warn });
+      b += t(x + 17, base - h - 6, String(v), { size: 12, fill: C.warnT }) + t(x + 17, base + 18, "n=" + (i + 1), { size: 12, fill: C.dim });
+    });
+    b += t(480, 258, "30 qubits: 2³⁰ = 1,073,741,824 numbers", { size: 12, fill: C.dim });
+    return svg(272, b, "squaring plus or minus 0.707 both give 0.5; bars doubling from 2 to 32 as qubits go from 1 to 5");
+  })();
+
+  // ---- P2 M1: algebra — function machines, order matters; normalization ----
+  D["p2-algebra"] = (() => {
+    let b = t(320, 24, "Functions are machines, and the order matters", { bold: true, size: 15 });
+    const row = (y, m1, m2, out, formula) => {
+      let s = box(20, y, 90, 40, { stroke: C.acc }) + t(65, y + 26, "x = 1", { size: 14, bold: true, fill: C.accT });
+      s += arrR(112, y + 20, 138) + box(140, y, 130, 40, { stroke: C.cyan }) + t(205, y + 26, m1, { size: 14, fill: C.cyanT });
+      s += arrR(272, y + 20, 298) + box(300, y, 130, 40, { stroke: C.cyan }) + t(365, y + 26, m2, { size: 14, fill: C.cyanT });
+      s += arrR(432, y + 20, 458) + box(460, y, 80, 40, { stroke: C.good, fill: C.goodFill }) + t(500, y + 26, out, { size: 15, bold: true, fill: C.goodT });
+      return s + t(552, y + 26, formula, { size: 13, fill: C.dim, a: "start" });
+    };
+    b += row(48, "f: double", "g: add 3", "5", "2x + 3");
+    b += row(104, "g: add 3", "f: double", "8", "2x + 6");
+    b += t(24, 176, "Normalization: if α² = 0.3, then β² = 1 − 0.3 = 0.7", { size: 13, bold: true, fill: C.warnT, a: "start" });
+    b += box(24, 190, 178, 30, { r: 4, fill: C.accFill, stroke: C.acc }) + t(113, 210, "α² = 0.3", { size: 13, fill: C.accT });
+    b += box(202, 190, 414, 30, { r: 4, fill: C.goodFill, stroke: C.good }) + t(409, 210, "β² = 0.7", { size: 13, fill: C.goodT });
+    b += t(320, 244, "A qubit's chances are slices of one whole: they always add to 1.", { size: 12, fill: C.dim });
+    return svg(262, b, "two function machines applied in different orders give 5 and 8; a bar split 0.3 and 0.7 showing normalization");
+  })();
+
+  // ---- P2 M1: trig — the point on the unit circle ----
+  D["p2-trig"] = (() => {
+    const cx = 150, cy = 156, R = 100, th = Math.PI / 3, px = cx + R * Math.cos(th), py = cy - R * Math.sin(th);
+    let b = t(320, 24, "cos and sin are just the x and y of a point on a circle", { bold: true, size: 15 });
+    b += ln(36, cy, 264, cy, { stroke: C.boxS }) + ln(cx, 44, cx, 268, { stroke: C.boxS });
+    b += circ(cx, cy, R, { fill: "none", stroke: C.faint, sw: 1.4 });
+    b += ln(cx, cy, px, cy, { stroke: C.cyan, sw: 4 }) + ln(cx, cy, cx, py, { stroke: C.warn, sw: 4 });
+    b += ln(px, py, px, cy, { stroke: C.cyan, dash: "4 3" }) + ln(px, py, cx, py, { stroke: C.warn, dash: "4 3" });
+    b += arr(cx, cy, px, py, { stroke: C.accT, sw: 2.4 }) + circ(px, py, 5, { fill: C.acc, stroke: C.accT });
+    b += t(176, 146, "θ", { size: 14, fill: C.accT });
+    b += t(175, cy + 20, "cos θ", { size: 13, fill: C.cyanT }) + t(cx - 8, 116, "sin θ", { size: 13, fill: C.warnT, a: "end" });
+    b += t(cx + R + 4, cy - 6, "1", { size: 12, fill: C.dim, a: "start" });
+    b += lines(300, 70, ["At θ = 60°:", "x = cos θ = 0.500", "y = sin θ = 0.866", "x² + y² = 0.250 + 0.750 = 1"], { size: 14, fill: C.tx, a: "start", lh: 22 });
+    b += lines(300, 178, ["A qubit uses the same rule:", "amplitudes cos(θ/2) and sin(θ/2),", "chances cos²(θ/2) + sin²(θ/2) = 1."], { size: 13, fill: C.goodT, a: "start", lh: 20 });
+    return svg(284, b, "unit circle with a point at 60 degrees; its x is cos theta 0.5 and its y is sin theta 0.866; squares add to 1");
+  })();
+
+  // ---- P2 M1: vectors2d — tip-to-tail addition and the dot product ----
+  D["p2-vectors2d"] = (() => {
+    const ox = 60, oy = 244, s = 40, P = (x, y) => [ox + x * s, oy - y * s];
+    let b = t(320, 24, "Adding arrows, and asking how much they agree", { bold: true, size: 15 });
+    for (let i = 0; i <= 6; i++) b += ln(ox + i * s, 84, ox + i * s, oy, { stroke: C.cardEdge, sw: 1 });
+    for (let j = 0; j <= 4; j++) b += ln(ox, oy - j * s, ox + 6 * s, oy - j * s, { stroke: C.cardEdge, sw: 1 });
+    const [ux, uy] = P(3, 1), [sx, sy] = P(4, 3), [vx, vy] = P(1, 2);
+    b += ln(ox, oy, vx, vy, { stroke: C.faint, dash: "4 3" });
+    b += arr(ox, oy, ux, uy, { stroke: C.cyan, sw: 2.6 }) + t(ux - 30, uy + 26, "u = (3, 1)", { size: 13, fill: C.cyanT });
+    b += arr(ux, uy, sx, sy, { stroke: C.warn, sw: 2.6 }) + t(sx + 8, sy + 44, "v = (1, 2)", { size: 13, fill: C.warnT, a: "start" });
+    b += arr(ox, oy, sx, sy, { stroke: C.good, sw: 2.6 }) + t(sx - 40, sy - 8, "u + v = (4, 3)", { size: 13, fill: C.goodT });
+    b += lines(340, 70, ["Add: walk u, then walk v.", "(3, 1) + (1, 2) = (4, 3)"], { size: 14, fill: C.tx, a: "start", lh: 22 });
+    b += lines(340, 140, ["Dot product u·v:", "3×1 + 1×2 = 5", "= |u|·|v|·cos(angle)", "= √10 · √5 · cos 45° = 5"], { size: 13, fill: C.accT, a: "start", lh: 20 });
+    b += lines(340, 236, ["Arrows at 90° give 0:", "they share nothing."], { size: 13, fill: C.dim, a: "start", lh: 19 });
+    return svg(270, b, "grid with vector u (3,1), vector v (1,2) placed tip to tail, and their sum (4,3); dot product worked as 5");
+  })();
+
+  // ---- P2 M2: complex — multiplying by i is a quarter turn ----
+  D["p2-complex"] = (() => {
+    const ox = 170, oy = 170, s = 36;
+    let b = t(320, 24, "A complex number is an arrow; multiplying by i turns it 90°", { bold: true, size: 15 });
+    b += ln(30, oy, 320, oy, { stroke: C.boxS }) + ln(ox, 44, ox, 270, { stroke: C.boxS });
+    b += t(312, oy + 18, "real", { size: 12, fill: C.dim, a: "end" }) + t(ox + 8, 54, "imaginary", { size: 12, fill: C.dim, a: "start" });
+    b += arr(ox, oy, ox + 3 * s, oy - 1 * s, { stroke: C.cyan, sw: 2.6 }) + t(ox + 3 * s - 4, oy - s - 14, "z = 3 + 1i", { size: 13, fill: C.cyanT });
+    b += arr(ox, oy, ox - 1 * s, oy - 3 * s, { stroke: C.good, sw: 2.6 }) + t(ox - s - 6, oy - 3 * s, "i·z = −1 + 3i", { size: 13, fill: C.goodT, a: "end" });
+    b += `<path d="M217.4,154.2 A50,50 0 0,0 154.2,122.6" style="fill:none;stroke:${C.warn};stroke-width:1.6;stroke-dasharray:4 3"/>`;
+    b += t(206, 124, "90°", { size: 12, fill: C.warnT });
+    b += lines(350, 70, ["z = 3 + 1i: 3 right, 1 up", "i·z = −1 + 3i", "", "Same length: √10 ≈ 3.16", "Angle grew by 90°", "", "i × i = −1:", "two quarter turns = a half turn"], { size: 14, fill: C.tx, a: "start", lh: 22 });
+    return svg(284, b, "complex plane with z = 3 + 1i and i times z = -1 + 3i, the same length rotated by 90 degrees");
+  })();
+
+  // ---- P2 M2: euler — multiplying adds the angles ----
+  D["p2-euler"] = (() => {
+    const cx = 160, cy = 152, R = 100, P = d => [cx + R * Math.cos(d * Math.PI / 180), cy - R * Math.sin(d * Math.PI / 180)];
+    let b = t(320, 24, "e^(iθ) is the point at angle θ, and multiplying adds the angles", { bold: true, size: 15 });
+    b += ln(40, cy, 280, cy, { stroke: C.boxS }) + ln(cx, 40, cx, 268, { stroke: C.boxS }) + circ(cx, cy, R, { fill: "none", stroke: C.faint, sw: 1.4 });
+    const [ax, ay] = P(30), [bx, by] = P(45), [px, py] = P(75);
+    b += arr(cx, cy, ax, ay, { stroke: C.cyan, sw: 2.4 }) + t(ax + 8, ay + 6, "e^(i·30°)", { size: 13, fill: C.cyanT, a: "start" });
+    b += arr(cx, cy, bx, by, { stroke: C.warn, sw: 2, dash: "5 4" }) + t(bx + 8, by - 4, "e^(i·45°)", { size: 13, fill: C.warnT, a: "start" });
+    b += arr(cx, cy, px, py, { stroke: C.good, sw: 2.8 }) + t(px - 6, py - 10, "e^(i·75°)", { size: 13, fill: C.goodT, a: "end" });
+    b += t(cx - R - 6, cy - 6, "−1", { size: 12, fill: C.dim, a: "end" }) + t(cx + R + 6, cy - 6, "1", { size: 12, fill: C.dim, a: "start" });
+    b += lines(330, 76, ["e^(i·30°) × e^(i·45°) = e^(i·75°)", "Lengths: 1 × 1 = 1, still on the circle", "", "e^(i·75°) = cos 75° + i·sin 75°", "         = 0.259 + 0.966i", "", "e^(iπ) = −1: a half turn"], { size: 13, fill: C.tx, a: "start", lh: 22 });
+    return svg(284, b, "unit circle with arrows at 30, 45 and 75 degrees; multiplying the first two gives the third");
+  })();
+
+  // ---- P2 M2: matrices — rows dotted with the input ----
+  D["p2-matrices"] = (() => {
+    let b = t(320, 24, "Matrix × vector: each output is one row dotted with the input", { bold: true, size: 15 });
+    b += box(40, 56, 150, 88, { stroke: C.boxS }) + box(46, 64, 138, 28, { r: 6, fill: C.cyanFill, stroke: C.cyan }) + box(46, 106, 138, 28, { r: 6, fill: C.warnFill, stroke: C.warn });
+    b += t(85, 83, "0", { size: 15, fill: C.cyanT }) + t(145, 83, "1", { size: 15, fill: C.cyanT }) + t(85, 125, "1", { size: 15, fill: C.warnT }) + t(145, 125, "0", { size: 15, fill: C.warnT });
+    b += box(220, 56, 70, 88, { stroke: C.acc }) + t(255, 88, "0.8", { size: 15, fill: C.accT }) + t(255, 124, "0.6", { size: 15, fill: C.accT });
+    b += t(315, 106, "=", { size: 20, bold: true });
+    b += box(340, 56, 70, 88, { stroke: C.good, fill: C.goodFill }) + t(375, 88, "0.6", { size: 15, bold: true, fill: C.cyanT }) + t(375, 124, "0.8", { size: 15, bold: true, fill: C.warnT });
+    b += arrR(412, 83, 440, { stroke: C.cyan }) + t(446, 88, "0×0.8 + 1×0.6 = 0.6", { size: 13, fill: C.cyanT, a: "start" });
+    b += arrR(412, 120, 440, { stroke: C.warn }) + t(446, 125, "1×0.8 + 0×0.6 = 0.8", { size: 13, fill: C.warnT, a: "start" });
+    b += t(115, 166, "matrix (the gate)", { size: 12, fill: C.dim }) + t(255, 166, "input", { size: 12, fill: C.dim }) + t(375, 166, "output", { size: 12, fill: C.dim });
+    b += t(320, 206, "This matrix is the quantum NOT gate, X: it swaps the two amplitudes.", { size: 13, fill: C.tx });
+    b += t(320, 230, "Chances before: 0.64 and 0.36. After: 0.36 and 0.64.", { size: 12, fill: C.dim });
+    return svg(250, b, "the X matrix multiplied by the vector 0.8, 0.6 gives 0.6, 0.8, with each output computed as a row dot product");
+  })();
+
+  // ---- P2 M2: vector spaces — one arrow, two rulers ----
+  D["p2-vector-spaces"] = (() => {
+    const ox = 170, oy = 150, L0 = 150, d = Math.PI / 4;
+    let b = t(320, 24, "One state, measured with two different rulers", { bold: true, size: 15 });
+    b += arr(ox - 150, oy, ox + L0, oy, { stroke: C.boxS }) + t(ox + L0 - 2, oy + 18, "|0⟩", { size: 13, fill: C.dim, a: "end" });
+    b += arr(ox, oy + 120, ox, oy - 112, { stroke: C.boxS }) + t(ox - 8, oy - 100, "|1⟩", { size: 13, fill: C.dim, a: "end" });
+    const pp = [ox + 140 * Math.cos(d), oy - 140 * Math.sin(d)], pm = [ox + 140 * Math.cos(d), oy + 140 * Math.sin(d)];
+    b += arr(ox, oy, pp[0], pp[1], { stroke: C.acc, dash: "6 4" }) + t(pp[0] + 6, pp[1] + 4, "|+⟩", { size: 13, fill: C.accT, a: "start" });
+    b += arr(ox, oy, pm[0], pm[1], { stroke: C.acc, dash: "6 4" }) + t(pm[0] + 6, pm[1] + 4, "|−⟩", { size: 13, fill: C.accT, a: "start" });
+    const a = Math.PI / 6, Lp = 140, tip = [ox + Lp * Math.cos(a), oy - Lp * Math.sin(a)];
+    const fp = 0.9659 * Lp, fm = 0.2588 * Lp;
+    b += ln(tip[0], tip[1], ox + fp * Math.cos(d), oy - fp * Math.sin(d), { stroke: C.good, dash: "3 3" });
+    b += ln(tip[0], tip[1], ox + fm * Math.cos(d), oy + fm * Math.sin(d), { stroke: C.warn, dash: "3 3" });
+    b += arr(ox, oy, tip[0], tip[1], { stroke: C.cyan, sw: 2.8 }) + t(tip[0] + 8, tip[1] + 14, "ψ", { size: 15, bold: true, fill: C.cyanT, a: "start" });
+    b += lines(360, 62, ["Standard ruler |0⟩, |1⟩:", "ψ = (0.866, 0.500)", "chances 0.75 and 0.25"], { size: 13, fill: C.tx, a: "start", lh: 20 });
+    b += lines(360, 140, ["Tilted ruler |+⟩, |−⟩:", "ψ = (0.966, 0.259)", "chances 0.933 and 0.067"], { size: 13, fill: C.accT, a: "start", lh: 20 });
+    b += lines(360, 218, ["The arrow never moved.", "Only the ruler changed."], { size: 13, fill: C.goodT, a: "start", lh: 20 });
+    return svg(286, b, "a state arrow at 30 degrees with coordinates in the 0/1 basis and in the plus/minus basis");
+  })();
+
+  // ---- P2 M2: dirac — bra meets ket, out comes one number ----
+  D["p2-dirac"] = (() => {
+    let b = t(320, 24, "Bra + ket = bracket: one number that measures overlap", { bold: true, size: 15 });
+    b += box(24, 70, 150, 40, { stroke: C.acc }) + t(99, 96, "0.707   0.707", { size: 15, fill: C.accT });
+    b += box(200, 50, 50, 80, { stroke: C.cyan }) + t(225, 82, "1", { size: 15, fill: C.cyanT }) + t(225, 114, "0", { size: 15, fill: C.cyanT });
+    b += t(99, 134, "bra ⟨+| (a row)", { size: 12, fill: C.dim }) + t(225, 150, "ket |0⟩", { size: 12, fill: C.dim });
+    b += arrR(256, 90, 290) + box(292, 70, 150, 40, { stroke: C.boxS }) + t(367, 95, "0.707·1 + 0.707·0", { size: 13 });
+    b += arrR(444, 90, 470) + box(472, 70, 80, 40, { stroke: C.good, fill: C.goodFill }) + t(512, 96, "0.707", { size: 15, bold: true, fill: C.goodT });
+    b += t(512, 128, "overlap ⟨+|0⟩", { size: 12, fill: C.dim });
+    b += arrD(512, 136, 162, { stroke: C.warn }) + box(452, 164, 120, 36, { stroke: C.warn, fill: C.warnFill }) + t(512, 187, "square: 0.50", { size: 13, bold: true, fill: C.warnT });
+    b += lines(24, 180, ["The squared overlap is the chance that a", "qubit in |0⟩ is found as |+⟩ when you", "measure in the plus/minus basis."], { size: 13, fill: C.tx, a: "start", lh: 19 });
+    b += t(320, 248, "A state overlaps itself completely: ⟨ψ|ψ⟩ = 1. Opposite states overlap 0.", { size: 12, fill: C.dim });
+    return svg(264, b, "row vector bra plus meets column vector ket zero; the products add to 0.707, which squares to a 0.5 chance");
+  })();
+
+  // ---- P2 M2: eigen — the X gate's own directions ----
+  D["p2-eigen"] = (() => {
+    let b = t(320, 24, "Eigenvectors keep their line; the eigenvalue is the stretch", { bold: true, size: 15 });
+    const panels = [
+      ["|0⟩ → X → |1⟩", [1, 0], [0, 1], "direction changed:", "not an eigenvector", C.bad, C.badT],
+      ["|+⟩ → X → |+⟩", [0.707, 0.707], [0.707, 0.707], "same arrow:", "eigenvalue λ = +1", C.good, C.goodT],
+      ["|−⟩ → X → −|−⟩", [0.707, -0.707], [-0.707, 0.707], "flipped on its line:", "eigenvalue λ = −1", C.warn, C.warnT]
+    ];
+    panels.forEach((p, i) => {
+      const cx = 110 + i * 210, cy = 136, s = 66;
+      b += t(cx, 52, p[0], { size: 13, bold: true, fill: p[6] });
+      b += ln(cx - 76, cy, cx + 76, cy, { stroke: C.cardEdge }) + ln(cx, cy - 66, cx, cy + 66, { stroke: C.cardEdge });
+      if (i === 2) b += ln(cx - 80 * 0.707, cy - 80 * 0.707, cx + 80 * 0.707, cy + 80 * 0.707, { stroke: C.boxS, dash: "3 4" });
+      b += arr(cx, cy, cx + s * p[1][0], cy - s * p[1][1], { stroke: C.faint, sw: 4 });
+      b += arr(cx, cy, cx + s * p[2][0], cy - s * p[2][1], { stroke: p[5], sw: 2.4 });
+      b += t(cx, 226, p[3], { size: 12, fill: C.dim }) + t(cx, 243, p[4], { size: 12, fill: p[6] });
+    });
+    b += t(320, 266, "Gray arrow: before. Colored arrow: after the X gate. For any gate, |λ| = 1.", { size: 12, fill: C.dim });
+    return svg(280, b, "three panels: X turns |0> into |1>, leaves |+> unchanged with eigenvalue +1, and flips |-> with eigenvalue -1");
+  })();
+
+  // ---- P2 M3: probability — a tree: multiply along, add across ----
+  D["p2-probability"] = (() => {
+    let b = t(320, 24, "Two measurements: multiply along a path, add the leaves you want", { bold: true, size: 15 });
+    const node = (x, y, s, col, colT) => circ(x, y, 17, { fill: C.box, stroke: col }) + t(x, y + 5, s, { size: 14, bold: true, fill: colT });
+    b += node(60, 150, "start", C.boxS, C.dim).replace('font-size:14px', 'font-size:10px');
+    b += arr(76, 143, 211, 92, { stroke: C.cyan }) + t(130, 104, "0.7", { size: 13, fill: C.cyanT });
+    b += arr(76, 157, 211, 208, { stroke: C.warn }) + t(130, 206, "0.3", { size: 13, fill: C.warnT });
+    b += node(230, 85, "0", C.cyan, C.cyanT) + node(230, 215, "1", C.warn, C.warnT);
+    const leaves = [[55, "00", "0.7 × 0.5 = 0.35", 85], [115, "01", "0.7 × 0.5 = 0.35", 85], [185, "10", "0.3 × 0.5 = 0.15", 215], [245, "11", "0.3 × 0.5 = 0.15", 215]];
+    leaves.forEach(([y, s, v, py], i) => {
+      b += arr(247, py + (y < py ? -6 : 6), 383, y, { stroke: C.line }) + t(320, (py + y) / 2 + (y < py ? -6 : 14), "0.5", { size: 12, fill: C.dim });
+      b += node(400, y, s, i % 2 ? C.good : C.boxS, i % 2 ? C.goodT : C.tx) + t(426, y + 5, v, { size: 13, fill: i % 2 ? C.goodT : C.dim, a: "start" });
+    });
+    b += t(320, 282, "P(second qubit = 1) = 0.35 + 0.15 = 0.50 (the green leaves)", { size: 13, fill: C.goodT });
+    return svg(296, b, "probability tree: first outcome 0 with 0.7 or 1 with 0.3, then 0 or 1 with 0.5 each; leaf probabilities 0.35, 0.35, 0.15, 0.15");
+  })();
+
+  // ---- P2 M3: sampling — four times the shots, half the error bar ----
+  D["p2-sampling"] = (() => {
+    const X = v => 140 + (v - 0.38) / 0.24 * 460;
+    let b = t(320, 24, "Estimating a 50% chance from shots: 4× the shots, half the error", { bold: true, size: 15 });
+    b += ln(X(0.5), 44, X(0.5), 226, { stroke: C.good, dash: "4 4" }) + t(X(0.5), 244, "true value 0.50", { size: 12, fill: C.goodT });
+    [0.4, 0.45, 0.55, 0.6].forEach(v => { b += ln(X(v), 222, X(v), 230, { stroke: C.faint }) + t(X(v), 244, v.toFixed(2), { size: 11, fill: C.faint }); });
+    [[100, 60], [400, 104], [1600, 148], [6400, 192]].forEach(([n, y]) => {
+      const h = 1.96 * Math.sqrt(0.25 / n);
+      b += t(24, y + 5, "n = " + n.toLocaleString("en-US"), { size: 13, fill: C.tx, a: "start" });
+      b += ln(X(0.5 - h), y, X(0.5 + h), y, { stroke: C.cyan, sw: 4 }) + ln(X(0.5 - h), y - 8, X(0.5 - h), y + 8, { stroke: C.cyan }) + ln(X(0.5 + h), y - 8, X(0.5 + h), y + 8, { stroke: C.cyan });
+      b += t(X(0.5 + h) + 10, y + 5, "± " + h.toFixed(3), { size: 12, fill: C.cyanT, a: "start" });
+    });
+    b += t(320, 270, "Bars show ±1.96 × √(p(1−p)/n), the usual 95% range, for p = 0.5.", { size: 12, fill: C.dim });
+    return svg(284, b, "error bars around 0.5 shrinking from plus or minus 0.098 at 100 shots to 0.012 at 6400 shots");
+  })();
+
+  // ---- P2 M4: python basics — a loop traced step by step ----
+  D["p2-python-basics"] = (() => {
+    let b = t(320, 24, "A loop, traced one step at a time", { bold: true, size: 15 });
+    b += box(20, 44, 290, 150, { stroke: C.acc, fill: C.card });
+    const code = [["total = 0", 40], ["for k in range(1, 5):", 40], ["total = total + k", 72], ["print(total)", 40]];
+    code.forEach(([s, x], i) => { b += t(x + 24, 78 + i * 30, s, { size: 14, fill: i === 2 ? C.warnT : C.accT, a: "start" }); });
+    b += t(36, 78 + 0 * 30, "1", { size: 11, fill: C.faint }) + t(36, 108, "2", { size: 11, fill: C.faint }) + t(36, 138, "3", { size: 11, fill: C.faint }) + t(36, 168, "4", { size: 11, fill: C.faint });
+    b += ln(52, 134, 52, 112, { stroke: C.warn }) + triU(52, 104, { stroke: C.warn }) + ln(52, 134, 60, 134, { stroke: C.warn });
+    b += t(165, 214, "lines 2–3 repeat while k = 1, 2, 3, 4", { size: 12, fill: C.warnT });
+    b += box(340, 44, 280, 186, { stroke: C.boxS, fill: C.card });
+    b += t(390, 70, "pass", { size: 13, bold: true, fill: C.dim }) + t(480, 70, "k", { size: 13, bold: true, fill: C.dim }) + t(570, 70, "total", { size: 13, bold: true, fill: C.dim });
+    b += ln(352, 80, 608, 80, { stroke: C.boxS });
+    [[1, 1, 1], [2, 2, 3], [3, 3, 6], [4, 4, 10]].forEach(([p, k, tt], i) => {
+      const y = 104 + i * 28;
+      b += t(390, y, String(p), { size: 14, fill: C.tx }) + t(480, y, String(k), { size: 14, fill: C.cyanT }) + t(570, y, String(tt), { size: 14, bold: true, fill: C.warnT });
+    });
+    b += t(480, 220, "print shows 10", { size: 13, bold: true, fill: C.goodT });
+    b += t(320, 254, "A variable is a name for a value; each pass of the loop rebinds total to a new value.", { size: 12, fill: C.dim });
+    return svg(270, b, "four-line Python loop on the left and a trace table on the right where total goes 1, 3, 6, 10");
+  })();
+
+  // ---- P2 M4: python structures — shots list to counts dict to probabilities ----
+  D["p2-python-structures"] = (() => {
+    let b = t(320, 24, "From raw shots to a counts dict to probabilities", { bold: true, size: 15 });
+    b += box(14, 52, 182, 54, { stroke: C.acc }) + t(105, 74, "list: shots", { size: 12, fill: C.dim }) + t(105, 95, "['0','1','1','0','1']", { size: 13, fill: C.accT });
+    b += arrR(198, 79, 240, { stroke: C.line }) + t(219, 70, "loop", { size: 11, fill: C.dim });
+    b += box(242, 52, 170, 54, { stroke: C.cyan }) + t(327, 74, "dict: counts", { size: 12, fill: C.dim }) + t(327, 95, "{'0': 2, '1': 3}", { size: 14, fill: C.cyanT });
+    b += arrR(414, 79, 452, { stroke: C.line }) + t(433, 70, "÷ 5", { size: 11, fill: C.dim });
+    b += box(454, 52, 172, 54, { stroke: C.good, fill: C.goodFill }) + t(540, 74, "dict: probs", { size: 12, fill: C.dim }) + t(540, 95, "{'0': 0.4, '1': 0.6}", { size: 14, fill: C.goodT });
+    b += t(320, 140, "Asking a dict for a key it doesn't have:", { size: 13, bold: true, fill: C.tx });
+    b += box(40, 156, 260, 50, { stroke: C.bad }) + t(170, 178, "counts['11']", { size: 14, fill: C.badT }) + t(170, 197, "KeyError: '11' (program stops)", { size: 12, fill: C.dim });
+    b += box(340, 156, 260, 50, { stroke: C.good }) + t(470, 178, "counts.get('11', 0)", { size: 14, fill: C.goodT }) + t(470, 197, "0 (safe default)", { size: 12, fill: C.dim });
+    b += t(320, 236, "Qiskit returns results as exactly this kind of counts dict.", { size: 12, fill: C.dim });
+    return svg(252, b, "a list of shots becomes a counts dictionary and then a probabilities dictionary; missing keys raise KeyError unless you use get");
+  })();
+
+  // ---- P2 M4: python OOP — one blueprint, separate objects ----
+  D["p2-python-oop"] = (() => {
+    let b = t(320, 24, "One class (blueprint), many objects, each with its own data", { bold: true, size: 15 });
+    b += box(200, 42, 240, 72, { stroke: C.acc, fill: C.accFill }) + t(320, 64, "class Qubit", { size: 14, bold: true, fill: C.accT });
+    b += t(320, 84, "attribute: state = '0'", { size: 12, fill: C.dim }) + t(320, 102, "method: apply_x() flips state", { size: 12, fill: C.dim });
+    b += arr(270, 116, 150, 156, { stroke: C.acc }) + arr(370, 116, 490, 156, { stroke: C.acc });
+    b += t(170, 132, "q1 = Qubit()", { size: 12, fill: C.accT, a: "end" }) + t(470, 132, "q2 = Qubit()", { size: 12, fill: C.accT, a: "start" });
+    b += box(60, 158, 180, 62, { stroke: C.warn }) + t(150, 182, "q1", { size: 14, bold: true, fill: C.warnT }) + t(150, 204, "state: '0' → '1'", { size: 13, fill: C.warnT });
+    b += box(400, 158, 180, 62, { stroke: C.cyan }) + t(490, 182, "q2", { size: 14, bold: true, fill: C.cyanT }) + t(490, 204, "state: '0' (unchanged)", { size: 13, fill: C.cyanT });
+    b += t(150, 242, "after q1.apply_x()", { size: 12, fill: C.warnT });
+    b += t(320, 266, "Inside apply_x, self is q1, so only q1's state changes.", { size: 12, fill: C.dim });
+    return svg(280, b, "a Qubit class creates two objects; calling apply_x on q1 changes only q1's state");
+  })();
+
+  // ---- P2 M4: numpy — one call over the whole array; a gate as matrix @ vector ----
+  D["p2-numpy"] = (() => {
+    let b = t(320, 24, "Why NumPy is fast, and what a gate looks like in it", { bold: true, size: 15 });
+    b += t(160, 52, "Plain Python loop", { size: 13, bold: true, fill: C.badT });
+    for (let i = 0; i < 4; i++) {
+      const x = 30 + i * 66;
+      b += box(x, 64, 50, 34, { stroke: C.bad }) + t(x + 25, 86, "x" + i, { size: 13, fill: C.badT });
+      if (i < 3) b += arrR(x + 52, 81, x + 64, { stroke: C.faint });
+    }
+    b += t(160, 120, "each item: look up types, then add", { size: 12, fill: C.dim });
+    b += t(480, 52, "NumPy array", { size: 13, bold: true, fill: C.goodT });
+    b += box(340, 64, 280, 34, { stroke: C.good, fill: C.goodFill }) + t(480, 86, "x0  x1  x2  x3  …  (one block)", { size: 13, fill: C.goodT });
+    b += t(480, 120, "one call; the loop runs in compiled C", { size: 12, fill: C.dim });
+    b += ln(20, 140, 620, 140, { stroke: C.cardEdge });
+    b += t(320, 166, "A gate on a state: X @ psi", { size: 13, bold: true, fill: C.tx });
+    b += box(140, 180, 90, 56, { stroke: C.acc }) + t(185, 203, "0    1", { size: 14, fill: C.accT }) + t(185, 225, "1    0", { size: 14, fill: C.accT });
+    b += t(250, 214, "@", { size: 16, bold: true }) + box(270, 180, 50, 56, { stroke: C.cyan }) + t(295, 203, "1", { size: 14, fill: C.cyanT }) + t(295, 225, "0", { size: 14, fill: C.cyanT });
+    b += t(340, 214, "=", { size: 16, bold: true }) + box(360, 180, 50, 56, { stroke: C.good }) + t(385, 203, "0", { size: 14, fill: C.goodT }) + t(385, 225, "1", { size: 14, fill: C.goodT });
+    b += t(185, 254, "shape (2, 2)", { size: 12, fill: C.dim }) + t(295, 254, "(2,)", { size: 12, fill: C.dim }) + t(385, 254, "(2,)", { size: 12, fill: C.dim });
+    b += t(510, 214, "|0⟩ becomes |1⟩", { size: 13, fill: C.goodT });
+    return svg(268, b, "a Python loop handles items one by one while NumPy processes the whole array in one call; the X matrix times [1, 0] gives [0, 1]");
+  })();
+
+  // ---- P2 M5: quantum world — random single results, a steady pattern, and collapse ----
+  D["p2-quantum-world"] = (() => {
+    let b = t(320, 24, "Same preparation, random single results, a steady pattern", { bold: true, size: 15 });
+    b += box(14, 50, 150, 52, { stroke: C.cyan }) + t(89, 72, "prepare the", { size: 12, fill: C.dim }) + t(89, 91, "same state", { size: 14, bold: true, fill: C.cyanT });
+    b += arrR(166, 76, 196) + box(198, 50, 96, 52, { stroke: C.warn }) + t(246, 81, "measure", { size: 14, bold: true, fill: C.warnT });
+    b += arrR(296, 76, 326);
+    const shots = "0 1 1 0 1 0 0 1 1 0".split(" ");
+    shots.forEach((s, i) => { b += box(330 + i * 29, 60, 24, 32, { r: 5, stroke: s === "1" ? C.acc : C.boxS }) + t(342 + i * 29, 82, s, { size: 14, bold: true, fill: s === "1" ? C.accT : C.tx }); });
+    b += t(474, 116, "each shot: one plain 0 or 1, unpredictable", { size: 12, fill: C.dim });
+    b += box(330, 128, 290, 46, { stroke: C.good, fill: C.goodFill }) + t(475, 157, "many shots: about 50% 0s, 50% 1s", { size: 13, bold: true, fill: C.goodT });
+    b += ln(20, 192, 620, 192, { stroke: C.cardEdge });
+    b += t(24, 218, "Measure again straight away:", { size: 13, bold: true, fill: C.tx, a: "start" });
+    b += box(24, 230, 120, 36, { stroke: C.acc }) + t(84, 253, "got 1", { size: 14, fill: C.accT });
+    b += arrR(146, 248, 186) + box(188, 230, 140, 36, { stroke: C.acc }) + t(258, 253, "again: 1, 1, 1 …", { size: 14, fill: C.accT });
+    b += t(350, 244, "The state has collapsed to |1⟩.", { size: 13, fill: C.warnT, a: "start" }) + t(350, 263, "The 50/50 superposition is gone.", { size: 13, fill: C.dim, a: "start" });
+    return svg(284, b, "a superposition measured repeatedly gives random 0s and 1s that average to 50/50; measuring again after a result repeats it");
+  })();
+
+  // ---- P2 M5: qubit — amplitudes, squaring, sampling, collapse ----
+  D["p2-qubit"] = (() => {
+    let b = t(320, 24, "The Born rule: from amplitudes to a result", { bold: true, size: 15 });
+    const st = [["amplitudes", "α = 0.6", "β = 0.8", C.cyan, C.cyanT], ["square sizes", "|α|² = 0.36", "|β|² = 0.64", C.acc, C.accT], ["random pick", "0 w.p. 36%", "1 w.p. 64%", C.warn, C.warnT], ["after: state", "say we got 1", "now |1⟩", C.good, C.goodT]];
+    st.forEach((s, i) => {
+      const x = 14 + i * 157;
+      b += box(x, 48, 140, 92, { stroke: s[3] }) + t(x + 70, 70, s[0], { size: 12, fill: C.dim });
+      b += t(x + 70, 98, s[1], { size: 14, bold: true, fill: s[4] }) + t(x + 70, 124, s[2], { size: 14, bold: true, fill: s[4] });
+      if (i < 3) b += arrR(x + 142, 94, x + 155, { stroke: C.line });
+    });
+    b += t(320, 166, "0.36 + 0.64 = 1, so these two amplitudes make a valid state.", { size: 13, fill: C.tx });
+    b += ln(20, 184, 620, 184, { stroke: C.cardEdge });
+    b += t(320, 210, "Now flip the sign: α = 0.6, β = −0.8", { size: 13, bold: true, fill: C.warnT });
+    b += t(320, 234, "Same chances, 36% and 64%. Measuring in this basis can't tell the two apart,", { size: 12, fill: C.dim });
+    b += t(320, 254, "but a gate before the measurement can make them interfere differently.", { size: 12, fill: C.dim });
+    return svg(272, b, "amplitudes 0.6 and 0.8 square to chances 0.36 and 0.64, a random result is drawn and the state collapses; flipping a sign keeps the chances");
+  })();
+
+  // ---- P2 M5: bloch — the tip's height sets the chances ----
+  D["p2-bloch"] = (() => {
+    const cx = 170, cy = 150, R = 105, th = Math.PI / 3, ph = Math.PI / 2;
+    const P = (x, y, z) => [cx + R * (0.92 * y - 0.42 * x), cy - R * (0.92 * z - 0.28 * x)];
+    let b = t(320, 24, "Bloch sphere: the arrow's height decides the chances", { bold: true, size: 15 });
+    b += circ(cx, cy, R, { fill: "none", stroke: C.faint, sw: 1.4 });
+    let eq = []; for (let k = 0; k <= 48; k++) { const a = k / 48 * 2 * Math.PI; eq.push(P(Math.cos(a), Math.sin(a), 0).map(v => v.toFixed(1)).join(",")); }
+    b += `<polyline points="${eq.join(" ")}" style="fill:none;stroke:${C.boxS};stroke-width:1.2;stroke-dasharray:4 3"/>`;
+    const [zx, zy] = P(0, 0, 1.18), [nx, ny] = P(0, 0, -1.18);
+    b += ln(nx, ny, zx, zy, { stroke: C.boxS }) + t(zx + 12, zy + 8, "|0⟩", { size: 13, fill: C.goodT, a: "start" }) + t(nx + 12, ny + 4, "|1⟩", { size: 13, fill: C.warnT, a: "start" });
+    const [xx, xy] = P(1.25, 0, 0), [yx, yy] = P(0, 1.22, 0);
+    b += ln(cx, cy, xx, xy, { stroke: C.boxS, dash: "3 3" }) + t(xx - 6, xy + 14, "|+⟩", { size: 12, fill: C.dim, a: "end" });
+    b += ln(cx, cy, yx, yy, { stroke: C.boxS, dash: "3 3" }) + t(yx + 4, yy - 6, "|+i⟩", { size: 12, fill: C.dim, a: "start" });
+    const v = [Math.sin(th) * Math.cos(ph), Math.sin(th) * Math.sin(ph), Math.cos(th)], [vx, vy] = P(v[0], v[1], v[2]), [hx, hy] = P(0, 0, v[2]);
+    b += ln(vx, vy, hx, hy, { stroke: C.good, dash: "4 3" }) + circ(hx, hy, 4, { fill: C.good, stroke: C.good });
+    b += arr(cx, cy, vx, vy, { stroke: C.cyan, sw: 2.8 }) + t(vx + 8, vy - 4, "ψ", { size: 15, bold: true, fill: C.cyanT, a: "start" });
+    b += lines(330, 66, ["θ = 60° down from |0⟩, φ = 90° around", "height of the tip: z = cos θ = 0.50"], { size: 13, fill: C.tx, a: "start", lh: 20 });
+    b += lines(330, 124, ["P(0) = (1 + z) / 2 = cos²(θ/2) = 0.75", "P(1) = (1 − z) / 2 = sin²(θ/2) = 0.25"], { size: 13, fill: C.goodT, a: "start", lh: 20 });
+    b += lines(330, 182, ["φ does not change these chances.", "It shows up when a gate turns the", "sphere, or if you measure along x or y."], { size: 13, fill: C.dim, a: "start", lh: 20 });
+    return svg(284, b, "Bloch sphere with a state at theta 60 degrees; the height of its tip, z = 0.5, gives P(0) = 0.75");
+  })();
+
+  // ---- P2 M5: evolution — relative phase changes the outcome, global phase doesn't ----
+  D["p2-evolution"] = (() => {
+    let b = t(320, 24, "Which phase matters? Run each state through H and measure", { bold: true, size: 15 });
+    b += t(110, 52, "state before H", { size: 12, fill: C.dim }) + t(300, 52, "chances before", { size: 12, fill: C.dim }) + t(530, 52, "after H: chances", { size: 12, fill: C.dim });
+    const rows = [["(|0⟩ + |1⟩)/√2", "|0⟩ for sure", C.good, C.goodT, "start"], ["(|0⟩ − |1⟩)/√2", "|1⟩ for sure", C.warn, C.warnT, "relative phase −1"], ["−(|0⟩ + |1⟩)/√2", "|0⟩ for sure", C.good, C.goodT, "global phase −1"]];
+    rows.forEach((r, i) => {
+      const y = 64 + i * 62;
+      b += box(20, y, 180, 44, { stroke: C.cyan }) + t(110, y + 27, r[0], { size: 14, fill: C.cyanT });
+      b += box(230, y, 140, 44, { stroke: C.boxS }) + t(300, y + 27, "50% / 50%", { size: 14, fill: C.tx });
+      b += arrR(372, y + 22, 418, { stroke: C.line }) + t(395, y + 14, "H", { size: 13, bold: true, fill: C.accT });
+      b += box(420, y, 200, 44, { stroke: r[2], fill: C.box }) + t(520, y + 27, r[1], { size: 14, bold: true, fill: r[3] });
+      if (i) b += t(110, y + 56, r[4], { size: 11, fill: r[3] });
+    });
+    b += t(320, 266, "Rows 1 and 2 match before H but end opposite. Rows 1 and 3 are the same physical state.", { size: 12, fill: C.dim });
+    return svg(282, b, "three states with equal chances; after a Hadamard the relative-phase state ends in 1 while the global-phase state behaves like the first");
+  })();
+
+  // ---- P2 M6: single gates — X, H, Z as half-turns of the Bloch arrow (x–z slice) ----
+  D["p2-single-gates"] = (() => {
+    let b = t(320, 24, "Gates turn the Bloch arrow: X, H and Z are half-turns about different axes", { bold: true, size: 15 });
+    const P = [["X: |0⟩ → |1⟩", 0, 180, "axis x", 0], ["H: |0⟩ → |+⟩", 0, 90, "axis between x and z", 45], ["Z: |+⟩ → |−⟩", 90, 270, "axis z (out of page)", null]];
+    P.forEach((p, i) => {
+      const cx = 110 + i * 210, cy = 140, R = 64;
+      const pt = d => [cx + R * Math.sin(d * Math.PI / 180), cy - R * Math.cos(d * Math.PI / 180)];
+      b += t(cx, 56, p[0], { size: 14, bold: true, fill: C.accT });
+      b += circ(cx, cy, R, { fill: "none", stroke: C.faint, sw: 1.3 });
+      b += t(cx, cy - R - 6, "|0⟩", { size: 11, fill: C.dim }) + t(cx, cy + R + 15, "|1⟩", { size: 11, fill: C.dim });
+      b += t(cx + R + 4, cy + 4, "|+⟩", { size: 11, fill: C.dim, a: "start" }) + t(cx - R - 4, cy + 4, "|−⟩", { size: 11, fill: C.dim, a: "end" });
+      if (p[4] === null) b += circ(cx, cy, 6, { fill: "none", stroke: C.warn, sw: 1.6 }) + circ(cx, cy, 1.8, { fill: C.warn, stroke: C.warn });
+      else { const a = p[4] * Math.PI / 180, dx = (R + 10) * Math.cos(a), dy = (R + 10) * Math.sin(a); b += ln(cx - dx, cy + dy, cx + dx, cy - dy, { stroke: C.warn, dash: "5 4" }); }
+      const [bx0, by0] = pt(p[1]), [bx1, by1] = pt(p[2]);
+      b += arr(cx, cy, bx0, by0, { stroke: C.faint, sw: 3.5 }) + arr(cx, cy, bx1, by1, { stroke: C.cyan, sw: 2.6 });
+      b += t(cx, 238, p[3], { size: 12, fill: C.warnT });
+    });
+    b += t(320, 266, "Gray: before. Cyan: after. Dashed or dotted: the axis the gate turns 180° around.", { size: 12, fill: C.dim });
+    return svg(280, b, "three slices of the Bloch sphere: X flips |0> to |1>, H turns |0> to |+>, Z turns |+> to |->");
+  })();
+
+  // ---- P2 M6: tensor — every amplitude times every amplitude ----
+  D["p2-tensor"] = (() => {
+    let b = t(320, 24, "Two separate qubits combine by multiplying every pair of amplitudes", { bold: true, size: 15 });
+    b += t(60, 70, "qubit A", { size: 12, fill: C.dim }) + t(60, 96, "0.6 |0⟩", { size: 14, fill: C.cyanT }) + t(60, 150, "0.8 |1⟩", { size: 14, fill: C.cyanT });
+    b += t(240, 56, "qubit B:  0.707 |0⟩", { size: 13, fill: C.warnT }) + t(400, 56, "0.707 |1⟩", { size: 13, fill: C.warnT });
+    const cells = [["|00⟩", "0.424", "18%", 0, 0], ["|01⟩", "0.424", "18%", 1, 0], ["|10⟩", "0.566", "32%", 0, 1], ["|11⟩", "0.566", "32%", 1, 1]];
+    cells.forEach(([k, a, p, c, r]) => {
+      const x = 180 + c * 160, y = 70 + r * 54;
+      b += box(x, y, 150, 46, { stroke: C.acc, fill: C.accFill }) + t(x + 40, y + 28, k, { size: 14, bold: true, fill: C.accT }) + t(x + 110, y + 22, a, { size: 13, fill: C.tx }) + t(x + 110, y + 39, p, { size: 12, fill: C.dim });
+    });
+    b += t(500, 100, "0.6 × 0.707", { size: 12, fill: C.dim, a: "start" }) + t(500, 154, "0.8 × 0.707", { size: 12, fill: C.dim, a: "start" });
+    b += t(320, 200, "4 amplitudes; their squares add to 1 (0.18 + 0.18 + 0.32 + 0.32).", { size: 13, fill: C.goodT });
+    b += t(320, 230, "An entangled state such as (|00⟩ + |11⟩)/√2 cannot be made this way:", { size: 12, fill: C.warnT });
+    b += t(320, 248, "it would need A0·B1 = 0 while A0·B0 and A1·B1 are both non-zero.", { size: 12, fill: C.dim });
+    return svg(264, b, "a 2 by 2 grid of products of qubit A amplitudes 0.6 and 0.8 with qubit B amplitudes 0.707, giving four two-qubit amplitudes");
+  })();
+
+  // ---- P2 M6: two-qubit gates — what CNOT, CZ and SWAP do to basis states ----
+  D["p2-two-qubit-gates"] = (() => {
+    let b = t(320, 24, "Two-qubit gates on the four basis states (control written first)", { bold: true, size: 15 });
+    const tabs = [["CNOT", ["00 → 00", "01 → 01", "10 → 11", "11 → 10"], "flips the 2nd bit if the 1st is 1", C.cyan, C.cyanT],
+      ["CZ", ["00 → 00", "01 → 01", "10 → 10", "11 → −11"], "minus sign only on 11", C.warn, C.warnT],
+      ["SWAP", ["00 → 00", "01 → 10", "10 → 01", "11 → 11"], "trades the two qubits", C.good, C.goodT]];
+    tabs.forEach((tb, i) => {
+      const x = 20 + i * 210, w = 190;
+      b += box(x, 44, w, 190, { stroke: tb[3] }) + t(x + w / 2, 68, tb[0], { size: 15, bold: true, fill: tb[4] });
+      tb[1].forEach((r, j) => { const hot = r.split(" → ")[0] !== r.split(" → ")[1]; b += t(x + w / 2, 100 + j * 28, "|" + r.replace(" → ", "⟩ → |").replace("−", "−|").replace("|−|", "−|") + "⟩", { size: 15, fill: hot ? tb[4] : C.dim, bold: hot }); });
+      b += t(x + w / 2, 222, tb[2], { size: 12, fill: C.dim });
+    });
+    b += t(320, 262, "On a superposition these act on every part at once, which is how CNOT creates entanglement.", { size: 12, fill: C.tx });
+    return svg(278, b, "truth tables: CNOT flips the second bit when the first is 1, CZ adds a minus sign to 11, SWAP exchanges 01 and 10");
+  })();
+
+  // ---- P2 M6: entanglement — perfect match, random alone, beats any plan, no signal ----
+  D["p2-entanglement"] = (() => {
+    let b = t(320, 24, "A Bell pair: random on each side, matched together, no message sent", { bold: true, size: 15 });
+    b += t(30, 60, "|0⟩", { size: 13, fill: C.dim }) + t(30, 110, "|0⟩", { size: 13, fill: C.dim });
+    b += ln(46, 56, 300, 56, { stroke: C.line }) + ln(46, 106, 300, 106, { stroke: C.line });
+    b += box(80, 40, 40, 32, { stroke: C.acc, fill: C.accFill }) + t(100, 61, "H", { size: 14, bold: true, fill: C.accT });
+    b += circ(170, 56, 5, { fill: C.cyan, stroke: C.cyan }) + ln(170, 56, 170, 106, { stroke: C.cyan }) + circ(170, 106, 11, { fill: "none", stroke: C.cyan }) + ln(159, 106, 181, 106, { stroke: C.cyan }) + ln(170, 95, 170, 117, { stroke: C.cyan });
+    b += t(240, 86, "(|00⟩ + |11⟩)/√2", { size: 14, bold: true, fill: C.cyanT });
+    b += box(320, 40, 300, 30, { stroke: C.boxS }) + t(470, 60, "Alice alone: 0 or 1, 50/50", { size: 13, fill: C.tx });
+    b += box(320, 76, 300, 30, { stroke: C.boxS }) + t(470, 96, "Bob alone: 0 or 1, 50/50", { size: 13, fill: C.tx });
+    b += box(320, 112, 300, 30, { stroke: C.good, fill: C.goodFill }) + t(470, 132, "compared later: always the same", { size: 13, bold: true, fill: C.goodT });
+    b += t(320, 170, "Random questions, CHSH game win rate:", { size: 13, bold: true, fill: C.tx });
+    const X = v => 150 + v * 420;
+    b += ln(X(0), 188, X(1), 188, { stroke: C.faint }) + t(X(0), 184, "0%", { size: 10, fill: C.faint }) + t(X(1), 184, "100%", { size: 10, fill: C.faint });
+    b += box(X(0), 196, X(0.75) - X(0), 22, { r: 3, fill: C.box, stroke: C.boxS }) + t(142, 212, "best plan", { size: 12, fill: C.dim, a: "end" }) + t(X(0.75) + 6, 212, "75% (S ≤ 2)", { size: 12, fill: C.dim, a: "start" });
+    b += box(X(0), 224, X(0.8536) - X(0), 22, { r: 3, fill: C.cyanFill, stroke: C.cyan }) + t(142, 240, "Bell pair", { size: 12, fill: C.cyanT, a: "end" }) + t(X(0.8536) + 6, 240, "85.4% (S = 2√2)", { size: 12, fill: C.cyanT, a: "start" });
+    b += t(320, 270, "Whatever Alice does, Bob's own results stay 50/50, so no message travels.", { size: 12, fill: C.warnT });
+    return svg(284, b, "H and CNOT make a Bell pair; each side alone is random, together they match; the pair wins the CHSH game 85.4 percent against 75 percent for any plan");
+  })();
+
+  // ---- P2 M6: protocols — teleportation timeline ----
+  D["p2-protocols"] = (() => {
+    let b = t(320, 24, "Teleportation: a qubit's state moves, using a shared pair and 2 ordinary bits", { bold: true, size: 15 });
+    b += box(14, 48, 180, 70, { stroke: C.acc }) + t(104, 72, "Alice holds", { size: 12, fill: C.dim }) + t(104, 94, "ψ + her half", { size: 14, bold: true, fill: C.accT }) + t(104, 110, "of a Bell pair", { size: 12, fill: C.dim });
+    b += arrR(196, 83, 226) + box(228, 48, 170, 70, { stroke: C.warn }) + t(313, 72, "Bell measurement", { size: 13, bold: true, fill: C.warnT }) + t(313, 92, "gives 2 random bits", { size: 12, fill: C.dim }) + t(313, 108, "ψ is gone from Alice", { size: 12, fill: C.badT });
+    b += arrR(400, 83, 430) + box(432, 48, 194, 70, { stroke: C.boxS }) + t(529, 72, "phone call", { size: 12, fill: C.dim }) + t(529, 94, "2 bits, e.g. 1 0", { size: 14, bold: true }) + t(529, 110, "no faster than light", { size: 12, fill: C.dim });
+    b += arrD(529, 120, 156, { stroke: C.line });
+    b += box(432, 158, 194, 70, { stroke: C.cyan }) + t(529, 182, "Bob fixes his half:", { size: 12, fill: C.dim }) + t(529, 204, "X and/or Z, chosen", { size: 14, bold: true, fill: C.cyanT }) + t(529, 220, "by the 2 bits", { size: 12, fill: C.dim });
+    b += arrL(430, 193, 360, { stroke: C.good }) + box(214, 166, 144, 54, { stroke: C.good, fill: C.goodFill }) + t(286, 199, "Bob now has ψ", { size: 14, bold: true, fill: C.goodT });
+    b += lines(20, 158, ["Before the call, Bob's half", "is random noise to him.", "One state in, one state out:", "nothing was copied."], { size: 12, fill: C.dim, a: "start", lh: 17 });
+    b += t(320, 260, "Superdense coding runs it the other way: 1 qubit + a shared pair carries 2 bits.", { size: 12, fill: C.tx });
+    return svg(276, b, "teleportation steps: Bell measurement on Alice's side gives two bits, sent by phone, and Bob's correction recreates the state");
+  })();
+
+  // ---- P2 M7: qiskit circuits — four lines of code become a circuit and a counts dict ----
+  D["p2-qiskit-circuits"] = (() => {
+    let b = t(320, 24, "Four lines of Qiskit, the circuit they build, and what comes back", { bold: true, size: 15 });
+    b += box(14, 44, 236, 140, { stroke: C.acc, fill: C.card });
+    ["qc = QuantumCircuit(2)", "qc.h(0)", "qc.cx(0, 1)", "qc.measure_all()"].forEach((s, i) => { b += t(28, 74 + i * 30, s, { size: 14, fill: C.accT, a: "start" }); });
+    b += arrR(252, 114, 282, { stroke: C.line });
+    b += t(300, 74, "q0", { size: 13, fill: C.dim }) + t(300, 134, "q1", { size: 13, fill: C.dim });
+    b += ln(316, 70, 560, 70, { stroke: C.line }) + ln(316, 130, 560, 130, { stroke: C.line });
+    b += box(340, 54, 34, 32, { stroke: C.acc, fill: C.accFill }) + t(357, 75, "H", { size: 14, bold: true, fill: C.accT });
+    b += circ(410, 70, 5, { fill: C.cyan, stroke: C.cyan }) + ln(410, 70, 410, 130, { stroke: C.cyan }) + circ(410, 130, 11, { fill: "none", stroke: C.cyan }) + ln(399, 130, 421, 130, { stroke: C.cyan }) + ln(410, 119, 410, 141, { stroke: C.cyan });
+    [70, 130].forEach(y => { b += box(470, y - 16, 40, 32, { stroke: C.warn }) + `<path d="M478,${y + 6} A12,12 0 0,1 502,${y + 6}" style="fill:none;stroke:${C.warn};stroke-width:1.6"/>` + ln(490, y + 6, 500, y - 8, { stroke: C.warn }); });
+    b += t(357, 164, "superpose", { size: 11, fill: C.dim }) + t(410, 164, "entangle", { size: 11, fill: C.dim }) + t(490, 164, "measure", { size: 11, fill: C.dim });
+    b += ln(20, 200, 620, 200, { stroke: C.cardEdge });
+    b += t(24, 228, "Run 1,024 shots and you get a counts dict, roughly:", { size: 13, fill: C.tx, a: "start" });
+    b += box(380, 210, 240, 30, { stroke: C.good, fill: C.goodFill }) + t(500, 230, "{'00': ~512, '11': ~512}", { size: 14, bold: true, fill: C.goodT });
+    b += t(320, 264, "Never '01' or '10' on an ideal simulator. Qiskit reads bit strings right to left (q0 last).", { size: 11, fill: C.dim });
+    return svg(278, b, "Qiskit code for a Bell circuit, the drawn circuit with H, CNOT and two measurements, and a counts dictionary of about 512 00s and 512 11s");
+  })();
+
+  // ---- P2 M7: simulation — exact statevector vs sampled shots, and the memory bill ----
+  D["p2-simulation"] = (() => {
+    let b = t(320, 24, "Two ways to simulate the same Bell circuit", { bold: true, size: 15 });
+    const vals = [0.707, 0, 0, 0.707], lab = ["00", "01", "10", "11"];
+    b += box(14, 44, 296, 168, { stroke: C.cyan, fill: C.card }) + t(162, 66, "Statevector: exact amplitudes", { size: 13, bold: true, fill: C.cyanT });
+    vals.forEach((v, i) => { const h = v * 100, x = 40 + i * 66; b += box(x, 180 - h, 40, h, { r: 3, fill: C.cyanFill, stroke: C.cyan }); b += t(x + 20, 198, lab[i], { size: 12, fill: C.dim }) + t(x + 20, 172 - h, v ? "0.707" : "0", { size: 11, fill: C.tx }); });
+    b += box(330, 44, 296, 168, { stroke: C.warn, fill: C.card }) + t(478, 66, "Sampler: 1,024 shots, counts", { size: 13, bold: true, fill: C.warnT });
+    [0.49, 0, 0, 0.51].forEach((v, i) => { const h = v * 180, x = 356 + i * 66; b += box(x, 180 - h, 40, h, { r: 3, fill: C.warnFill, stroke: C.warn }); b += t(x + 20, 198, lab[i], { size: 12, fill: C.dim }); });
+    b += t(478, 86, "close to 50/50, but never exactly", { size: 11, fill: C.dim });
+    b += t(162, 86, "squares give exactly 0.5 and 0.5", { size: 11, fill: C.dim });
+    b += t(320, 240, "Statevector memory: 2ⁿ amplitudes × 16 bytes. 30 qubits ≈ 17.2 GB; 40 qubits ≈ 17.6 TB.", { size: 12, fill: C.tx });
+    b += t(320, 262, "Use statevector to debug small circuits; use shots to see what hardware will show you.", { size: 12, fill: C.dim });
+    return svg(276, b, "statevector simulation shows exact amplitudes 0.707 on 00 and 11; sampling shows counts near half and half");
+  })();
+
+  // ---- P2 M7: transpilation — route a gate between unconnected qubits ----
+  D["p2-transpilation"] = (() => {
+    let b = t(320, 24, "Transpiling: rewrite your circuit for the real chip's wiring and gates", { bold: true, size: 15 });
+    b += t(24, 56, "Chip wiring (a line):", { size: 13, bold: true, fill: C.tx, a: "start" });
+    [0, 1, 2].forEach(i => { const x = 220 + i * 110; b += circ(x, 52, 16, { fill: C.box, stroke: C.cyan }) + t(x, 57, "Q" + i, { size: 12, bold: true, fill: C.cyanT }); if (i < 2) b += ln(x + 16, 52, x + 94, 52, { stroke: C.cyan, sw: 2.5 }); });
+    b += t(540, 57, "no Q0–Q2 link", { size: 12, fill: C.badT, a: "start" });
+    const steps = [["1. You wrote", "CX(Q0, Q2)", "but Q0 and Q2 aren't wired", C.acc, C.accT],
+      ["2. Routing", "SWAP(Q1, Q2), CX(Q0, Q1)", "a SWAP costs 3 two-qubit gates", C.warn, C.warnT],
+      ["3. Translation", "H → RZ · SX · RZ", "only native gates: rz, sx, x, ecr or cz", C.cyan, C.cyanT],
+      ["4. Optimization", "merge and cancel gates", "fewer gates = less error", C.good, C.goodT]];
+    steps.forEach((s, i) => {
+      const y = 82 + i * 44;
+      b += box(20, y, 600, 38, { stroke: s[3] }) + t(34, y + 24, s[0], { size: 13, bold: true, fill: s[4], a: "start" });
+      b += t(170, y + 24, s[1], { size: 13, fill: C.tx, a: "start" }) + t(606, y + 24, s[2], { size: 12, fill: C.dim, a: "end" });
+      if (i < 3) b += arrD(320, y + 39, y + 43, { stroke: C.faint });
+    });
+    b += t(320, 274, "Layout and routing usually decide most of the final error budget.", { size: 12, fill: C.dim });
+    return svg(286, b, "a chip with qubits in a line; a CX between unconnected qubits is routed with a SWAP, translated to native gates and optimized");
+  })();
+
+  // ---- P2 M7: real hardware — every gate takes a small bite out of success ----
+  D["p2-real-hardware"] = (() => {
+    let b = t(320, 24, "On real chips, every two-qubit gate takes a bite out of your result", { bold: true, size: 15 });
+    b += t(320, 50, "If each two-qubit gate fails 0.2% of the time (error 2×10⁻³), success ≈ 0.998^G", { size: 13, fill: C.tx });
+    const rows = [[10, 0.998 ** 10], [100, 0.998 ** 100], [500, 0.998 ** 500], [1000, 0.998 ** 1000], [3000, 0.998 ** 3000]];
+    rows.forEach(([g, p], i) => {
+      const y = 72 + i * 36, w = p * 400;
+      b += t(120, y + 19, "G = " + g.toLocaleString("en-US") + " gates", { size: 13, fill: C.tx, a: "end" });
+      b += box(134, y, 400, 26, { r: 4, fill: C.box, stroke: C.boxS }) + box(134, y, Math.max(2, w), 26, { r: 4, fill: p > 0.5 ? C.goodFill : p > 0.1 ? C.warnFill : C.badFill, stroke: p > 0.5 ? C.good : p > 0.1 ? C.warn : C.bad });
+      b += t(544, y + 19, (100 * p).toFixed(1) + "%", { size: 13, bold: true, fill: p > 0.5 ? C.goodT : p > 0.1 ? C.warnT : C.badT, a: "start" });
+    });
+    b += t(320, 264, "A rough rule (ignores 1-qubit gates, readout and idle time), but it shows why depth matters.", { size: 11, fill: C.dim });
+    return svg(278, b, "bars showing estimated success of 98 percent at 10 gates down to 0.2 percent at 3000 gates for 0.2 percent error per gate");
+  })();
+
+  // ---- P2 M7: quantum SWE — three kinds of tests ----
+  D["p2-quantum-swe"] = (() => {
+    let b = t(320, 24, "Testing quantum code: exact, statistical, and on hardware", { bold: true, size: 15 });
+    const lv = [["Unit tests on statevectors", "exact: assert amplitudes match, to 1e-9", "many, fast, every commit", C.good, C.goodT, 560],
+      ["Statistical tests on shots", "assert |p̂ − 0.5| < 3σ, σ = √(0.25/4000) ≈ 0.008", "some, seconds, every commit", C.warn, C.warnT, 460],
+      ["Hardware smoke tests", "one small circuit, loose tolerance", "few, minutes to hours of queue, weekly", C.bad, C.badT, 360]];
+    lv.forEach((l, i) => {
+      const w = l[5], x = 320 - w / 2, y = 48 + i * 66;
+      b += box(x, y, w, 56, { stroke: l[3] }) + t(320, y + 20, l[0], { size: 14, bold: true, fill: l[4] });
+      b += t(320, y + 37, l[1], { size: 12, fill: C.tx }) + t(320, y + 51, l[2], { size: 11, fill: C.dim });
+    });
+    b += t(320, 260, "Seed simulators so tests repeat, keep circuits in Git, and run the cheap layers in CI.", { size: 12, fill: C.dim });
+    return svg(276, b, "three layers of tests: exact statevector unit tests, statistical shot tests with a 3 sigma tolerance, and rare hardware smoke tests");
+  })();
+
+  // ---- P2 M8: Deutsch–Jozsa — signs stamped by the oracle, averaged by H ----
+  D["p2-deutsch-jozsa"] = (() => {
+    let b = t(320, 24, "One oracle call: stamp signs, then let H average them", { bold: true, size: 15 });
+    const rows = [["constant f (all 0)", [1, 1, 1, 1], "average = +1", "reads 00: constant", C.good, C.goodT], ["balanced f (f = first bit)", [1, 1, -1, -1], "average = 0", "not 00: balanced", C.warn, C.warnT]];
+    rows.forEach((r, i) => {
+      const y = 60 + i * 104, mid = y + 38;
+      b += t(24, y, r[0], { size: 13, bold: true, fill: r[5], a: "start" });
+      b += ln(24, mid, 300, mid, { stroke: C.boxS });
+      r[1].forEach((s, j) => { const x = 40 + j * 64, h = 30; b += box(x, s > 0 ? mid - h : mid, 40, h, { r: 3, fill: s > 0 ? C.cyanFill : C.badFill, stroke: s > 0 ? C.cyan : C.bad }); b += t(x + 20, mid + (s > 0 ? 18 : -36), ["00", "01", "10", "11"][j], { size: 11, fill: C.dim }); });
+      b += arrR(310, mid, 360, { stroke: C.line }) + t(335, mid - 8, "H⊗H", { size: 12, fill: C.accT });
+      b += box(366, mid - 22, 120, 44, { stroke: r[4] }) + t(426, mid - 2, r[2], { size: 13, bold: true, fill: r[5] }) + t(426, mid + 15, "= amp. of 00", { size: 11, fill: C.dim });
+      b += arrR(488, mid, 506, { stroke: C.line }) + t(512, mid + 5, r[3], { size: 12, fill: r[5], a: "start" });
+    });
+    b += t(320, 272, "Bars are amplitudes of the 4 inputs after the oracle: + for f(x) = 0, − for f(x) = 1.", { size: 12, fill: C.dim });
+    return svg(286, b, "constant function leaves all four signs positive so the average is 1; a balanced one makes two negative so the average is 0");
+  })();
+
+  // ---- P2 M8: Grover — one round: oracle flips, diffuser reflects about the mean ----
+  D["p2-grover"] = (() => {
+    let b = t(320, 24, "One Grover round on 8 items (marked item: 3)", { bold: true, size: 15 });
+    const s8 = 1 / Math.sqrt(8), panels = [["start: all equal", Array(8).fill(s8), "each 0.354, P = 12.5%"],
+      ["oracle flips the marked sign", [s8, s8, s8, -s8, s8, s8, s8, s8], "mean = 0.265"],
+      ["reflect about the mean", [0.177, 0.177, 0.177, 0.884, 0.177, 0.177, 0.177, 0.177], "marked 0.884, P = 78.1%"]];
+    panels.forEach((p, i) => {
+      const x0 = 18 + i * 208, mid = 150, sc = 100;
+      b += t(x0 + 96, 52, p[0], { size: 12, bold: true, fill: i === 2 ? C.goodT : C.tx });
+      b += ln(x0, mid, x0 + 192, mid, { stroke: C.boxS });
+      p[1].forEach((a, j) => { const h = Math.abs(a) * sc, x = x0 + 4 + j * 23.5; b += box(x, a >= 0 ? mid - h : mid, 17, h, { r: 2, fill: j === 3 ? C.warnFill : C.cyanFill, stroke: j === 3 ? C.warn : C.cyan }); });
+      if (i === 1) b += ln(x0, mid - 0.265 * sc, x0 + 192, mid - 0.265 * sc, { stroke: C.good, dash: "4 3" });
+      b += t(x0 + 96, 214, p[2], { size: 12, fill: i === 2 ? C.goodT : C.dim });
+      if (i < 2) b += arrR(x0 + 194, 100, x0 + 206, { stroke: C.faint });
+    });
+    b += t(320, 248, "Repeat about (π/4)√N times: 2 rounds give 94.5%, a 3rd overshoots to 33.0%.", { size: 13, fill: C.tx });
+    b += t(320, 270, "For a million items that is about 785 rounds instead of about 500,000 checks.", { size: 12, fill: C.dim });
+    return svg(284, b, "three bar charts: equal amplitudes, the marked one flipped negative, then reflection about the mean makes the marked amplitude 0.884");
+  })();
+
+  // ---- P2 M8: QFT — a repeating pattern in, sharp peaks out ----
+  D["p2-qft"] = (() => {
+    let b = t(320, 24, "The QFT turns a repeating pattern into sharp peaks", { bold: true, size: 15 });
+    const inp = [1, 0, 1, 0, 1, 0, 1, 0].map(v => v * 0.5), out = [0.707, 0, 0, 0, 0.707, 0, 0, 0];
+    const row = (vals, y, col, colF, lab, sc) => {
+      let s = t(24, y - 46, lab, { size: 13, bold: true, fill: C.tx, a: "start" }) + ln(60, y, 600, y, { stroke: C.boxS });
+      vals.forEach((v, j) => { const x = 74 + j * 66, h = v * sc; if (h > 0) s += box(x, y - h, 36, h, { r: 3, fill: colF, stroke: col }); s += t(x + 18, y + 16, String(j), { size: 12, fill: C.dim }); });
+      return s;
+    };
+    b += row(inp, 112, C.acc, C.accFill, "Input: amplitude on 0, 2, 4, 6 (period r = 2, N = 8)", 80);
+    b += arrD(320, 136, 160, { stroke: C.line }) + t(334, 153, "QFT", { size: 13, bold: true, fill: C.accT, a: "start" });
+    b += row(out, 232, C.good, C.goodFill, "Output: peaks at 0 and 4, the multiples of N/r = 4", 80);
+    b += t(320, 270, "Measure, read the peak spacing, and the period r falls out. Shor relies on this.", { size: 12, fill: C.dim });
+    return svg(284, b, "input amplitudes on every second position become two output peaks at 0 and 4 after the quantum Fourier transform");
+  })();
+
+  // ---- P2 M8: QPE — phase kickback winds each counting qubit; QFT† reads the binary ----
+  D["p2-qpe"] = (() => {
+    let b = t(320, 24, "Phase estimation: each counting qubit picks up the phase × 1, 2, 4 …", { bold: true, size: 15 });
+    b += t(320, 48, "Hidden phase φ = 0.625 of a full turn (binary 0.101)", { size: 13, fill: C.warnT });
+    const q = [["U¹", 0.625, "0.625 turn"], ["U²", 0.25, "1.25 → 0.25 turn"], ["U⁴", 0.5, "2.5 → 0.5 turn"]];
+    q.forEach((d, i) => {
+      const cx = 100 + i * 150, cy = 130, R = 40, a = 2 * Math.PI * d[1];
+      b += circ(cx, cy, R, { fill: "none", stroke: C.boxS });
+      b += arr(cx, cy, cx + R * Math.cos(a), cy - R * Math.sin(a), { stroke: C.cyan, sw: 2.4 });
+      b += t(cx, 78, "qubit " + (i + 1) + ": " + d[0], { size: 12, bold: true, fill: C.accT }) + t(cx, 192, d[2], { size: 12, fill: C.dim });
+    });
+    b += arrR(468, 130, 500, { stroke: C.line }) + box(502, 104, 120, 52, { stroke: C.good, fill: C.goodFill }) + t(562, 126, "QFT† reads", { size: 12, fill: C.dim }) + t(562, 146, "101 → 5/8", { size: 14, bold: true, fill: C.goodT });
+    b += t(320, 228, "Each doubling of U shifts the binary point one place, so qubit k holds one bit of φ.", { size: 12, fill: C.tx });
+    b += t(320, 250, "If φ needs more bits, you get one of the two nearest 3-bit values at least 81% of the time.", { size: 11, fill: C.dim });
+    return svg(266, b, "three dials showing phases 0.625, 0.25 and 0.5 turns for U, U squared and U to the fourth; the inverse QFT reads 101 meaning 5/8");
+  })();
+
+  // ---- P2 M8: Shor — period finding for 15, then the 2025 scale ----
+  D["p2-shor"] = (() => {
+    let b = t(320, 24, "Shor's algorithm on N = 15: the quantum part finds one period", { bold: true, size: 15 });
+    const seq = [1, 7, 4, 13, 1, 7, 4, 13];
+    b += t(24, 58, "7ˣ mod 15 for x = 0 … 7:", { size: 13, fill: C.tx, a: "start" });
+    seq.forEach((v, i) => { const x = 210 + i * 50; b += box(x, 40, 42, 30, { r: 5, stroke: i < 4 ? C.cyan : C.boxS, fill: i < 4 ? C.cyanFill : C.box }) + t(x + 21, 60, String(v), { size: 14, bold: true, fill: i < 4 ? C.cyanT : C.dim }); });
+    b += t(373, 88, "repeats every 4: period r = 4 (found by QPE + QFT)", { size: 12, fill: C.cyanT });
+    const st = [["7^(r/2) = 7² = 49", C.acc, C.accT], ["gcd(49 − 1, 15) = 3", C.good, C.goodT], ["gcd(49 + 1, 15) = 5", C.good, C.goodT]];
+    st.forEach((s, i) => { const x = 20 + i * 205; b += box(x, 104, 190, 38, { stroke: s[1] }) + t(x + 95, 128, s[0], { size: 13, bold: true, fill: s[2] }); if (i < 2) b += arrR(x + 192, 123, x + 203, { stroke: C.faint }); });
+    b += t(320, 166, "15 = 3 × 5. Only the period-finding step needs a quantum computer.", { size: 13, fill: C.tx });
+    b += ln(20, 182, 620, 182, { stroke: C.cardEdge });
+    b += t(320, 206, "RSA-2048, best published estimate (Gidney 2025):", { size: 13, bold: true, fill: C.warnT });
+    b += t(320, 228, "about 1,500 error-corrected (logical) qubits, under 1 million physical qubits, under a week", { size: 12, fill: C.tx });
+    b += t(320, 250, "Today's largest machines have hundreds to a few thousand noisy qubits: about a 1,000× gap.", { size: 12, fill: C.dim });
+    return svg(266, b, "the sequence 7 to the x mod 15 repeats with period 4; gcd steps give factors 3 and 5; RSA-2048 needs about 1500 logical and under a million physical qubits");
+  })();
+
+  // ---- P2 M8: hamsim — slice the evolution into alternating steps ----
+  D["p2-hamsim"] = (() => {
+    let b = t(320, 24, "Trotterization: approximate e^(−iHt) with many thin alternating slices", { bold: true, size: 15 });
+    b += t(24, 56, "H = A + B   (A: the X terms, B: the ZZ terms; they don't commute)", { size: 13, fill: C.tx, a: "start" });
+    b += box(24, 70, 592, 34, { stroke: C.good, fill: C.goodFill }) + t(320, 92, "exact: e^(−iHt), one smooth evolution (hard to build as gates)", { size: 13, fill: C.goodT });
+    const rr = [[1, 82], [4, 130], [8, 178]];
+    rr.forEach(([r, y]) => {
+      const w = 592 / (2 * r);
+      b += t(24, y + 42, "r = " + r, { size: 12, fill: C.dim, a: "start" });
+      for (let k = 0; k < 2 * r; k++) b += box(70 + k * (546 / (2 * r)), y + 30, 546 / (2 * r) - 2, 24, { r: 3, fill: k % 2 ? C.warnFill : C.cyanFill, stroke: k % 2 ? C.warn : C.cyan });
+    });
+    b += t(110, 252, "cyan: e^(−iA·dt)", { size: 12, fill: C.cyanT }) + t(260, 252, "gold: e^(−iB·dt)", { size: 12, fill: C.warnT }) + t(470, 252, "dt = t / r", { size: 12, fill: C.dim });
+    b += t(320, 274, "Double r: 1st-order error halves, 2nd-order error quarters, CNOT count doubles.", { size: 12, fill: C.tx });
+    return svg(286, b, "the exact evolution bar compared with 1, 4 and 8 rounds of alternating A and B slices");
+  })();
+
+  // ---- P2 M9: noise — T1 and T2 pull the Bloch arrow inward ----
+  D["p2-noise"] = (() => {
+    const cx = 150, cy = 150, R = 110, T1 = 100, T2 = 80;
+    let b = t(320, 24, "Noise shrinks the Bloch arrow: |+⟩ left alone for t microseconds", { bold: true, size: 15 });
+    b += circ(cx, cy, R, { fill: "none", stroke: C.faint, sw: 1.3 }) + ln(cx - R - 8, cy, cx + R + 8, cy, { stroke: C.boxS }) + ln(cx, cy - R - 8, cx, cy + R + 8, { stroke: C.boxS });
+    b += t(cx - 10, cy - R + 4, "|0⟩ (ground)", { size: 12, fill: C.goodT, a: "end" }) + t(cx + R + 4, cy + 18, "|+⟩", { size: 12, fill: C.dim, a: "start" });
+    let pts = [];
+    for (let k = 0; k <= 60; k++) { const tt = k * 5, x = Math.exp(-tt / T2), z = 1 - Math.exp(-tt / T1); pts.push((cx + R * x).toFixed(1) + "," + (cy - R * z).toFixed(1)); }
+    b += `<polyline points="${pts.join(" ")}" style="fill:none;stroke:${C.warn};stroke-width:1.6;stroke-dasharray:4 3"/>`;
+    [0, 25, 50, 100, 200].forEach(tt => {
+      const x = Math.exp(-tt / T2), z = 1 - Math.exp(-tt / T1), px = cx + R * x, py = cy - R * z;
+      b += circ(px, py, 4, { fill: C.warn, stroke: C.warn }) + t(px + 8, py + (tt ? 4 : -8), "t=" + tt, { size: 11, fill: C.warnT, a: "start" });
+    });
+    b += arr(cx, cy, cx + R * Math.exp(-50 / T2), cy - R * (1 - Math.exp(-50 / T1)), { stroke: C.cyan, sw: 2.4 });
+    b += lines(320, 66, ["T1 = 100 µs: energy leaks, the arrow", "sags toward |0⟩:  z = 1 − e^(−t/T1)", "", "T2 = 80 µs: the phase blurs, the arrow", "shrinks sideways:  x = e^(−t/T2)", "", "At t = 50 µs: x = 0.54, z = 0.39,", "so a gate that needed |+⟩ now sees", "a weaker, tilted arrow."], { size: 13, fill: C.tx, a: "start", lh: 19 });
+    b += t(470, 264, "T2 can never be more than 2 × T1.", { size: 12, fill: C.dim });
+    return svg(280, b, "x-z slice of the Bloch sphere; a state starting at |+> follows a curve inward and up toward |0> as T1 and T2 act");
+  })();
+
+  // ---- P2 M9: VQE — quantum energy, classical optimizer, repeat ----
+  D["p2-vqe"] = (() => {
+    let b = t(320, 24, "VQE: a quantum chip measures energy, a classical optimizer tunes the knobs", { bold: true, size: 15 });
+    b += box(20, 48, 190, 70, { stroke: C.cyan }) + t(115, 72, "quantum circuit", { size: 12, fill: C.dim }) + t(115, 94, "prepare |ψ(θ)⟩", { size: 14, bold: true, fill: C.cyanT }) + t(115, 110, "shallow, a few knobs θ", { size: 11, fill: C.dim });
+    b += arrR(212, 83, 246) + box(248, 48, 150, 70, { stroke: C.warn }) + t(323, 72, "measure", { size: 12, fill: C.dim }) + t(323, 96, "energy E(θ)", { size: 14, bold: true, fill: C.warnT });
+    b += arrR(400, 83, 434) + box(436, 48, 184, 70, { stroke: C.acc }) + t(528, 72, "classical optimizer", { size: 12, fill: C.dim }) + t(528, 96, "suggest better θ", { size: 14, bold: true, fill: C.accT });
+    b += ln(528, 120, 528, 136, { stroke: C.acc }) + ln(528, 136, 115, 136, { stroke: C.acc }) + arrU(115, 136, 120, { stroke: C.acc }) + t(320, 150, "repeat until the energy stops dropping", { size: 12, fill: C.accT });
+    const x0 = 60, x1 = 580, Y = th => 190 + 60 * (1 - Math.cos(th)) / 2, X = th => x0 + th / (2 * Math.PI) * (x1 - x0);
+    let pts = []; for (let k = 0; k <= 60; k++) { const th = k / 60 * 2 * Math.PI; pts.push(X(th).toFixed(1) + "," + Y(th).toFixed(1)); }
+    b += `<polyline points="${pts.join(" ")}" style="fill:none;stroke:${C.cyan};stroke-width:2"/>`;
+    [0.6, 1.4, 2.2, 2.8, Math.PI].forEach((th, i) => { b += circ(X(th), Y(th), 4.5, { fill: i === 4 ? C.good : C.warn, stroke: "none" }); });
+    b += t(X(Math.PI), 262, "lowest energy = best answer", { size: 12, fill: C.goodT });
+    b += t(36, 184, "E", { size: 12, fill: C.dim }) + t(320, 182, "energy vs one knob θ: each step slides downhill", { size: 11, fill: C.dim });
+    return svg(276, b, "VQE loop between a quantum circuit, an energy measurement and a classical optimizer, and an energy curve with steps descending to the minimum");
+  })();
+
+  // ---- P2 M9: QAOA — Max-Cut on a 4-node ring ----
+  D["p2-qaoa"] = (() => {
+    let b = t(320, 24, "QAOA on Max-Cut: split the nodes so as many edges as possible cross", { bold: true, size: 15 });
+    const N = [[90, 70], [210, 70], [210, 190], [90, 190]], col = [C.cyan, C.warn, C.cyan, C.warn];
+    [[0, 1], [1, 2], [2, 3], [3, 0]].forEach(([a, c]) => { b += ln(N[a][0], N[a][1], N[c][0], N[c][1], { stroke: C.good, sw: 3 }); });
+    N.forEach((p, i) => { b += circ(p[0], p[1], 18, { fill: C.box, stroke: col[i], sw: 2.4 }) + t(p[0], p[1] + 5, String(i), { size: 14, bold: true, fill: col[i] === C.cyan ? C.cyanT : C.warnT }); });
+    b += t(150, 236, "cyan set vs gold set: all 4 edges cut (best)", { size: 12, fill: C.goodT });
+    b += t(150, 254, "bit string 0101 or 1010", { size: 12, fill: C.dim });
+    const lay = [["start: H on every qubit", "all splits equally likely", C.boxS, C.tx], ["cost layer, angle γ", "phases each split by its cut size", C.warn, C.warnT], ["mixer layer, angle β", "lets amplitude flow between splits", C.cyan, C.cyanT], ["repeat p times, then measure", "optimizer tunes all γ and β", C.acc, C.accT]];
+    lay.forEach((l, i) => { const y = 48 + i * 50; b += box(300, y, 320, 42, { stroke: l[2] }) + t(314, y + 18, l[0], { size: 13, bold: true, fill: l[3], a: "start" }) + t(314, y + 34, l[1], { size: 11, fill: C.dim, a: "start" }); if (i < 3) b += arrD(460, y + 43, y + 49, { stroke: C.faint }); });
+    b += t(460, 264, "More rounds p: better splits, but deeper circuits.", { size: 11, fill: C.dim });
+    return svg(276, b, "a four-node ring split into two colors so all four edges are cut, beside the QAOA layer sequence");
+  })();
+
+  // ---- P2 M9: QML — the pipeline and the reality check ----
+  D["p2-qml"] = (() => {
+    let b = t(320, 24, "Quantum machine learning: where the quantum part sits", { bold: true, size: 15 });
+    const st = [["data x", "a row of numbers", C.boxS, C.tx], ["feature map", "x sets gate angles", C.cyan, C.cyanT], ["quantum part", "kernel overlaps or a trained circuit", C.acc, C.accT], ["classical model", "e.g. an SVM decides", C.warn, C.warnT], ["label", "cat / dog", C.good, C.goodT]];
+    st.forEach((s, i) => { const x = 12 + i * 126, w = 112; b += box(x, 48, w, 62, { stroke: s[2] }) + t(x + w / 2, 72, s[0], { size: 13, bold: true, fill: s[3] }); b += t(x + w / 2, 92, s[1].length > 18 ? s[1].slice(0, 15) : s[1], { size: 10, fill: C.dim }); if (s[1].length > 18) b += t(x + w / 2, 104, s[1].slice(16), { size: 10, fill: C.dim }); if (i < 4) b += arrR(x + w + 1, 79, x + 125, { stroke: C.faint }); });
+    b += ln(20, 130, 620, 130, { stroke: C.cardEdge });
+    b += t(320, 156, "What the evidence says (2026):", { size: 13, bold: true, fill: C.tx });
+    b += lines(40, 182, ["• 160 datasets, 12 models: classical models generally won (Bowles, Ahmed, Schuld 2024).", "• Training can stall on flat landscapes (barren plateaus, McClean 2018).", "• Proven speedups exist, but for contrived or quantum-native data (Liu 2021; Huang 2022)."], { size: 12, fill: C.dim, a: "start", lh: 22 });
+    b += t(320, 262, "Treat 'quantum AI' claims as hypotheses to test against a strong classical baseline.", { size: 12, fill: C.warnT });
+    return svg(276, b, "pipeline from data through a feature map and quantum part to a classical model and label, with a summary of the evidence");
+  })();
+
+  // ---- P2 M10: QEC — 3-bit repetition code: parity checks find the flip ----
+  D["p2-qec"] = (() => {
+    let b = t(320, 24, "Repetition code: store a bit 3 times, find a flip without reading it", { bold: true, size: 15 });
+    const q = [["0", C.cyan, C.cyanT], ["1", C.bad, C.badT], ["0", C.cyan, C.cyanT]];
+    b += t(24, 70, "logical 0 = 000", { size: 13, fill: C.dim, a: "start" }) + t(24, 90, "noise flips q1:", { size: 13, fill: C.badT, a: "start" });
+    q.forEach((d, i) => { const x = 200 + i * 120; b += circ(x, 80, 22, { fill: C.box, stroke: d[1], sw: 2.4 }) + t(x, 86, d[0], { size: 16, bold: true, fill: d[2] }) + t(x, 120, "q" + i, { size: 12, fill: C.dim }); });
+    [["Z0·Z1 check", 260, "1 (differ)"], ["Z1·Z2 check", 380, "1 (differ)"]].forEach(([n, x, v]) => { b += box(x - 50, 136, 100, 46, { stroke: C.warn, fill: C.warnFill }) + t(x, 155, n, { size: 12, fill: C.warnT }) + t(x, 173, v, { size: 13, bold: true, fill: C.warnT }); b += ln(x - 30, 136, x - 50, 104, { stroke: C.warn }) + ln(x + 30, 136, x + 50, 104, { stroke: C.warn }); });
+    b += arrR(432, 159, 470, { stroke: C.line }) + box(472, 136, 150, 46, { stroke: C.good, fill: C.goodFill }) + t(547, 155, "syndrome 1,1", { size: 12, fill: C.goodT }) + t(547, 173, "→ flip q1 back", { size: 13, bold: true, fill: C.goodT });
+    b += t(320, 210, "Logical error = 3p² − 2p³ (two or more of the three flip):", { size: 13, fill: C.tx });
+    b += t(320, 232, "p = 1% → 0.03%     p = 10% → 2.8%     it helps only while p < 50%", { size: 13, bold: true, fill: C.accT });
+    b += t(320, 258, "Checks compare neighbors, never the value itself, so the encoded state survives the check.", { size: 12, fill: C.dim });
+    return svg(272, b, "three data qubits 0 1 0 with two parity checks both reading 1, which points to the middle qubit; logical error 3p squared minus 2p cubed");
+  })();
+
+  // ---- P2 M10: surface code — a grid of local checks; bigger grid, fewer logical errors ----
+  D["p2-surface-code"] = (() => {
+    let b = t(320, 24, "Surface code: a grid of data qubits watched by local checks", { bold: true, size: 15 });
+    const ox = 60, oy = 60, s = 60;
+    for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) { const x = ox + 30 + j * s, y = oy + 30 + i * s, hot = (i === 0 && j === 1) || (i === 1 && j === 1); b += box(x - 14, y - 14, 28, 28, { r: 4, stroke: hot ? C.bad : C.acc, fill: hot ? C.badFill : C.box }); }
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { const x = ox + j * s, y = oy + i * s, err = i === 1 && j === 2; b += circ(x, y, 10, { fill: err ? C.badFill : C.box, stroke: err ? C.bad : C.cyan, sw: 2 }); }
+    b += t(ox + 60, oy + 150, "d = 3: 9 data qubits (dots)", { size: 12, fill: C.cyanT }) + t(ox + 60, oy + 168, "+ inner checks (squares)", { size: 12, fill: C.dim });
+    b += t(ox + 60, oy + 190, "an error flips checks that touch it", { size: 12, fill: C.badT });
+    b += t(440, 60, "Model: p_L ≈ 0.1 × (p / 1%)^((d+1)/2)", { size: 13, bold: true, fill: C.tx });
+    b += t(440, 80, "at physical error p = 0.1%:", { size: 12, fill: C.dim });
+    [[3, "0.001", 18], [5, "0.0001", 50], [7, "0.00001", 98]].forEach(([d, pl, n], i) => {
+      const y = 100 + i * 40;
+      b += box(290, y, 300, 32, { stroke: C.good }) + t(306, y + 21, "d = " + d, { size: 13, bold: true, fill: C.goodT, a: "start" }) + t(380, y + 21, "p_L ≈ " + pl, { size: 13, fill: C.tx, a: "start" }) + t(580, y + 21, "~" + n + " qubits", { size: 12, fill: C.dim, a: "end" });
+    });
+    b += t(440, 242, "Each step in d: 10× fewer errors, ~2d² qubits each.", { size: 12, fill: C.dim });
+    b += t(440, 262, "Above the ~1% threshold, bigger codes make things worse.", { size: 12, fill: C.warnT });
+    return svg(276, b, "a 3 by 3 grid of data qubits with checks in between, one error lighting two checks; a table of logical error falling as distance grows");
+  })();
+
+  // ---- P2 M10: FTQC — the fault-tolerant stack and the T-gate factory ----
+  D["p2-ftqc"] = (() => {
+    let b = t(320, 24, "A fault-tolerant computer, layer by layer", { bold: true, size: 15 });
+    const L = [["your algorithm (e.g. Shor, chemistry)", C.good, C.goodT, 52], ["logical gates: Clifford gates are cheap", C.acc, C.accT, 106], ["logical qubits: surface-code patches", C.cyan, C.cyanT, 160], ["physical qubits: noisy, ~0.1% error per gate", C.boxS, C.tx, 214]];
+    L.forEach(([s, c, ct, y], i) => { b += box(20, y, 400, 42, { stroke: c }) + t(220, y + 26, s, { size: 13, bold: true, fill: ct }); if (i < 3) b += arrU(220, y + 52, y + 44, { stroke: C.faint }); });
+    b += box(450, 96, 170, 110, { stroke: C.warn, fill: C.warnFill }) + t(535, 120, "magic-state", { size: 13, bold: true, fill: C.warnT }) + t(535, 138, "factory", { size: 13, bold: true, fill: C.warnT });
+    b += t(535, 160, "makes the T gates", { size: 12, fill: C.tx }) + t(535, 178, "that can't be built", { size: 12, fill: C.dim }) + t(535, 194, "from the safe parts", { size: 12, fill: C.dim });
+    b += arrL(448, 127, 424, { stroke: C.warn });
+    b += t(320, 272, "Most of the machine's qubits and time go to the T-gate factories, so T count is the cost that matters.", { size: 11, fill: C.dim });
+    return svg(284, b, "stack from physical qubits to logical qubits to logical gates to the algorithm, with a magic-state factory feeding T gates");
+  })();
+
+  // ---- P2 M11: landscape — how to read a hardware headline ----
+  D["p2-landscape"] = (() => {
+    let b = t(320, 24, "Reading a hardware headline: ask these questions in order", { bold: true, size: 15 });
+    const q = [["\"1,000 qubits!\"", "the headline", C.boxS, C.tx], ["2-qubit error?", "0.1% means ~1,000 gates before a likely error", C.warn, C.warnT], ["connectivity and speed?", "who can talk to whom, and how fast", C.cyan, C.cyanT], ["logical qubits?", "error-corrected, and at what overhead", C.acc, C.accT], ["checked by others?", "peer review, open data, a classical rebuttal", C.good, C.goodT]];
+    q.forEach(([h, d, c, ct], i) => { const y = 44 + i * 44, w = 600 - i * 50, x = 320 - w / 2; b += box(x, y, w, 36, { stroke: c }) + t(x + 14, y + 23, h, { size: 13, bold: true, fill: ct, a: "start" }) + t(x + w - 14, y + 23, d, { size: 12, fill: C.dim, a: "end" }); });
+    b += t(320, 272, "Superconducting, trapped-ion, neutral-atom and photonic machines each win on different rows.", { size: 12, fill: C.tx });
+    return svg(286, b, "a funnel of five questions for judging a quantum hardware announcement, from qubit count to independent verification");
+  })();
+
+  // ---- P2 M11: capstones — three projects, three tracks ----
+  D["p2-capstones"] = (() => {
+    let b = t(320, 24, "Three portfolio projects, each proving a different skill", { bold: true, size: 15 });
+    const P = [["Hardware benchmarking", "systems / software", "runs real devices, tracks drift", C.cyan, C.cyanT], ["VQE chemistry study", "applications / research", "honest comparison to exact answers", C.acc, C.accT], ["QEC threshold study", "theory / error correction", "simulates codes, finds the threshold", C.good, C.goodT]];
+    P.forEach(([n, tr, d, c, ct], i) => { const x = 14 + i * 210; b += box(x, 46, 194, 92, { stroke: c }) + t(x + 97, 70, n, { size: 13, bold: true, fill: ct }) + t(x + 97, 92, tr, { size: 12, fill: C.dim }) + t(x + 97, 116, d, { size: 11, fill: C.tx }); });
+    const S = ["working code", "tests", "README + plot", "a 2-minute story"];
+    S.forEach((s, i) => { const x = 40 + i * 150; b += box(x, 176, 130, 38, { stroke: C.boxS }) + t(x + 65, 200, s, { size: 13, fill: C.tx }); if (i < 3) b += arrR(x + 132, 195, x + 148, { stroke: C.faint }); });
+    b += t(320, 160, "every project ships the same four things:", { size: 12, fill: C.dim });
+    b += t(320, 248, "One finished project beats three half-built ones. Start with the job you want.", { size: 12, fill: C.warnT });
+    return svg(266, b, "three capstone projects for systems, applications and theory tracks, each delivering code, tests, a README with a plot, and a short story");
+  })();
+
+  // ---- P2 M11: career — from course to offer ----
+  D["p2-career"] = (() => {
+    let b = t(320, 24, "From this course to a quantum job offer", { bold: true, size: 15 });
+    const S = [["skills", "Modules 0–10", C.acc, C.accT], ["proof", "capstone portfolio", C.cyan, C.cyanT], ["story", "resume + GitHub", C.warn, C.warnT], ["practice", "interview bank", C.good, C.goodT], ["offer", "", C.good, C.goodT]];
+    S.forEach(([h, d, c, ct], i) => { const x = 14 + i * 126; b += box(x, 48, 110, 56, { stroke: c }) + t(x + 55, 72, h, { size: 14, bold: true, fill: ct }) + (d ? t(x + 55, 92, d, { size: 11, fill: C.dim }) : ""); if (i < 4) b += arrR(x + 112, 76, x + 124, { stroke: C.faint }); });
+    b += t(320, 140, "The main job families:", { size: 13, bold: true, fill: C.tx });
+    const J = [["quantum software engineer", "SDKs, compilers, tooling"], ["algorithms / research scientist", "new methods, papers"], ["applications / solutions", "industry problems, clients"], ["hardware / experimental", "labs, control, calibration"]];
+    J.forEach(([h, d], i) => { const x = 20 + (i % 2) * 305, y = 156 + Math.floor(i / 2) * 50; b += box(x, y, 295, 42, { stroke: C.boxS }) + t(x + 14, y + 18, h, { size: 13, bold: true, fill: C.accT, a: "start" }) + t(x + 14, y + 34, d, { size: 11, fill: C.dim, a: "start" }); });
+    b += t(320, 274, "A data or software engineer usually enters through the software and applications doors.", { size: 12, fill: C.dim });
+    return svg(286, b, "a path from skills to proof to story to practice to an offer, and four quantum job families");
+  })();
+
+  // @@P2-INSERT
   window.DIAGRAMS = Object.assign(window.DIAGRAMS || {}, D);
 })();

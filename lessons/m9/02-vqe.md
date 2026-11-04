@@ -1,5 +1,25 @@
 # VQE: the variational workhorse
 
+## The simple version
+
+**In plain English.** The variational quantum eigensolver (VQE) looks for the lowest energy of a molecule, which tells chemists how it holds together. A short quantum circuit with adjustable angles prepares a guess state and measures its energy. A normal computer then nudges the angles to lower that energy and asks again. The loop repeats until the energy stops dropping. Keeping the quantum part short makes it fit today's noisy hardware.
+
+**The everyday picture: finding the bottom of a dark valley with a walkie-talkie.**
+
+| In the picture | In the real thing |
+|---|---|
+| A hiker in the valley who can only read their altitude | The quantum circuit measuring the energy E(θ) |
+| Your position in the valley | The circuit's adjustable angles θ |
+| A guide on the radio saying 'step left' | The classical optimizer |
+| The valley floor | The ground-state energy |
+| Only paths the hiker is allowed on | The ansatz: the family of states the circuit can make |
+
+**Where the picture breaks.** A hiker reads the altitude exactly; each energy reading from shots is noisy, so the guide sometimes steps the wrong way. If the allowed paths never reach the true floor, VQE finds the best point on those paths, not the real answer. And on big problems the valley can be almost flat almost everywhere (a barren plateau), so the guide gets no useful direction.
+
+@@diagram:p2-vqe|The VQE loop: the quantum circuit prepares |ψ(θ)⟩, its energy is measured, and a classical optimizer picks better angles. Below, each step slides the energy downhill toward the minimum.
+
+## Going deeper
+
 The Variational Quantum Eigensolver is the most important NISQ-era algorithm — the one that might deliver real value on today's noisy hardware, and the one most quantum-applications job postings actually want. Its idea is beautiful and pragmatic: since deep algorithms like QPE need fault tolerance we don't have, let a *shallow* quantum circuit and a *classical* optimizer collaborate. The quantum computer does the one thing it's good at (evaluating an energy for a given state); the classical computer does the optimization. VQE finds the lowest eigenvalue of a Hamiltonian — which, for a molecule, is its ground-state energy, the number chemistry is built on.
 
 ## Start here — the intuition
@@ -7,6 +27,8 @@ The Variational Quantum Eigensolver is the most important NISQ-era algorithm —
 Imagine finding the lowest point in a dark, fog-filled valley. You can't see the whole landscape — it's astronomically vast — but you *can* stand at one spot and read your altitude. So you read it, take a step downhill, read again, repeat. That loop finds the valley floor without ever seeing the whole map.
 
 VQE is exactly this. The "landscape" is every possible quantum state (exponentially huge). The "altitude" at a state is its **energy**, $\langle\psi|H|\psi\rangle$ — and a quantum computer is a very good altimeter for it. A **classical** optimizer plays the hiker, using altitude readings to adjust the circuit's knobs (angles) and walk downhill. The lowest altitude it reaches is the **ground-state energy** — for a molecule, its most stable configuration, the number chemists actually want. Quantum computer = altimeter; classical computer = hiker.
+
+> **School-kid analogy.** You are finding the lowest point of a dark valley with an altimeter. The quantum computer is the altimeter (it measures the energy), and an ordinary computer decides which way to step next.
 
 ## The variational principle — why downhill works
 
@@ -155,3 +177,7 @@ The entangling gate is what lets the ansatz represent correlated (entangled) gro
 - ☐ Describe the ansatz trade-off (hardware-efficient vs UCCSD) in terms of depth, expressibility, and noise.
 - ☐ Explain a barren plateau and why it's a scaling obstacle.
 - ☐ Give the noiseless-first debugging habit and why it isolates the real problem.
+
+## In one line
+
+VQE lets a quantum circuit measure energies while a normal computer tunes it downhill to the lowest one.

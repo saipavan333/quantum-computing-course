@@ -1,5 +1,25 @@
 # Tensor products: how qubits combine
 
+## The simple version
+
+**In plain English.** Two qubits side by side need four amplitudes, one each for 00, 01, 10 and 11. If the qubits are independent, multiply each amplitude of one by each amplitude of the other. That multiplying is called the tensor product, written ⊗. Three qubits need 8 amplitudes, and n qubits need 2ⁿ. Some joint states can't be split back into one state per qubit, and those are called entangled.
+
+**The everyday picture: a menu of shirts and trousers.**
+
+| In the picture | In the real thing |
+|---|---|
+| 2 shirts and 2 trousers | Two qubits, each with a 0 and a 1 option |
+| Every outfit you can make: 2 × 2 = 4 | The four basis states 00, 01, 10, 11 |
+| How likely each shirt and each trouser is | Each qubit's own amplitudes |
+| The chance of one outfit = shirt chance × trouser chance | The tensor product: amplitude of 'ab' = A_a × B_b |
+| An outfit rule like 'only ever both blue or both red' | An entangled state: no shirt and trouser chances can produce it |
+
+**Where the picture breaks.** Outfit chances are plain probabilities. In the tensor product you multiply amplitudes, which can be negative or complex, and only then square. Also, the outfit picture makes entanglement sound like a dress code someone agreed on in advance; real entanglement does things no advance agreement can, as the entanglement lesson shows.
+
+@@diagram:p2-tensor|Qubit A (0.6, 0.8) and qubit B (0.707, 0.707) combine into four amplitudes by multiplying every pair. An entangled state like (|00⟩ + |11⟩)/√2 can't come out of such a grid.
+
+## Going deeper
+
 Rule 4, finally: systems combine by **tensor product**. This one operation explains why $n$ qubits need $2^n$ amplitudes, how single-qubit gates act inside big registers, and what it even *means* for qubits to be independent — setting up next lesson's punchline (states that *refuse* to factor: entanglement). It also contains the single most bug-generating convention in practical quantum computing — Qiskit's qubit ordering — which you'll conquer today, once, permanently.
 
 ## Start here — the intuition
@@ -7,6 +27,8 @@ Rule 4, finally: systems combine by **tensor product**. This one operation expla
 Combining qubits means **multiplying their descriptions together**. One qubit needs 2 numbers; two qubits need $2\times2 = 4$; three need 8; $n$ need $2^n$. Every qubit you add *doubles* the amplitude count — and that is the entire source of quantum computing's exponential state space (and why a laptop dies simulating ~30–40 qubits).
 
 Most combined states are "boring" in a good way: they **factor** into "this qubit is doing X and that qubit is doing Y" — a **product state**, where the qubits are independent. But — and this is the whole point of Module 6 — *some* states refuse to factor. The pair has a perfectly definite joint state while *neither qubit alone has a state of its own*. Those are **entangled** states, and the tensor‑product arithmetic is what tells product from entangled. (Plus one convention that causes every beginner's first "wrong" histogram: Qiskit numbers qubit 0 as the **rightmost** bit.)
+
+> **School-kid analogy.** 2 shirts and 3 pairs of trousers make 6 outfits. Combining systems multiplies the possibilities, so 2 qubits give 4 combinations, 3 give 8, and 10 give 1,024.
 
 ## The tensor product
 
@@ -123,3 +145,7 @@ $q_1$ pinned to 1, $q_0$ equatorial → labels `'10'` and `'11'`, each $0.5$. Th
 - ☐ Run the live cell and read little‑endian labels correctly.
 - ☐ State Qiskit's ordering and the three‑step protocol (probe, document, `[::-1]`).
 - ☐ Explain why "what is qubit 1's state?" is malformed for an entangled pair.
+
+## In one line
+
+Independent qubits combine by multiplying every amplitude by every amplitude, and states that can't be split that way are entangled.

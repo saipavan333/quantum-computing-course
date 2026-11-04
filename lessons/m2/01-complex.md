@@ -1,5 +1,27 @@
 # Complex numbers & the complex plane
 
+## The simple version
+
+**In plain English.** Ordinary numbers sit on a line, so they can only point left (negative) or right (positive). A complex number is a point on a flat plane instead, so it can point in any direction. You write it as a + bi, where a is how far right and b is how far up. The letter i is a special number with i × i = −1. Quantum amplitudes are complex numbers, and their direction, called the phase, is what lets them cancel or add up.
+
+**The everyday picture: an arrow on a compass card.**
+
+| In the picture | In the real thing |
+|---|---|
+| How long the arrow is | The modulus \|z\|, from Pythagoras: √(a² + b²) |
+| Which way the arrow points | The phase (argument) of z |
+| Steps east and steps north | The real part a and the imaginary part b |
+| Turning the arrow a quarter turn left | Multiplying by i |
+| Two quarter turns: now facing backwards | i × i = −1 |
+
+**Where the picture breaks.** A compass arrow points to a place in the real world. The 'up' direction of the complex plane is not a real place; it is a second number line that only exists in the math. Also, for a qubit only the length decides chances; the phase is invisible in a single measurement until two amplitudes meet and interfere.
+
+@@diagram:p2-complex|z = 3 + 1i and i·z = −1 + 3i have the same length, √10, but i·z is turned 90° further. Multiplying by i is a quarter turn.
+
+@@viz:complex-multiply
+
+## Going deeper
+
 Quantum amplitudes are not just positive or negative — they are **complex numbers**. This isn't optional decoration: interference patterns observed in real experiments cannot be reproduced with real‑valued amplitudes alone. The good news: complex numbers are a *simplification* once you see them geometrically — a complex number is just a 2D arrow that knows how to multiply.
 
 ## Start here — the intuition
@@ -7,6 +29,8 @@ Quantum amplitudes are not just positive or negative — they are **complex numb
 Picture an arrow in a plane. It has a **length** and a **direction (angle)**. That's a complex number: the length is its *magnitude*, the angle is its *phase*. Quantum computing needs the angle — because interference depends on a continuous phase, not just "plus or minus." Real numbers only have two directions (right = positive, left = negative); complex numbers have a full circle of them, and that circle is where quantum information hides.
 
 One rule does almost all the work: to turn an amplitude into a **probability**, you take its magnitude and square it, written $|z|^2 = z\,z^*$ (the number times its "mirror image," the conjugate). This is *always* a non‑negative real number — exactly what a probability must be. And the single most common bug in all of quantum code is writing $z^2$ (which stays complex and can go negative) when you meant $|z|^2$.
+
+> **School-kid analogy.** Ordinary numbers live in a corridor: you can only go forward or back. Complex numbers live on a whole floor, so you can also go sideways. Multiplying by $i$ is just "turn left 90°". Do it twice and you face backwards, which is why $i^2 = -1$.
 
 ## The imaginary unit and the complex plane
 
@@ -86,6 +110,10 @@ Quantum‑hardware jobs often list RF/microwave engineering, because superconduc
 {"q":"Two qubit states have amplitude pairs (1/√2, 1/√2) and (1/√2, i/√2). Which statement is correct?","options":["They are the same state written differently","They give identical statistics if measured immediately, but are physically different states that later gates can distinguish","The second is invalid because amplitudes must be real","The second has probabilities summing to more than 1"],"answer":1,"why":"Both give 50/50 now (|i/√2|² = 1/2), but the relative phase i is real physical information — an interference experiment (Module 6) separates them cleanly."}
 ```
 
+```quiz
+{"q": "You multiply both amplitudes of a qubit state by i (a global phase). What happens to the measurement probabilities?", "options": ["They all multiply by i", "They all multiply by −1 (because i² = −1)", "Nothing — |i·z|² = |z|², so every probability is unchanged", "They swap between 0 and 1"], "answer": 2, "why": "|i·z|² = |i|²·|z|² = 1·|z|² — a global phase never changes any measurement. Probabilities are real and non-negative, so they can't become 'multiplied by i'. The −1 answer squares the phase instead of taking its modulus squared. Swapping outcomes needs an X gate, not a phase. Only *relative* phase (one amplitude multiplied, not both) is physical."}
+```
+
 ## Exercises
 
 **Exercise 1 — arithmetic workout.** In the live cell, with $z = 2 + i$ and $w = 1 - 3i$, compute $z + w^*$, $zw$, $|zw|$ (directly and via $|z||w|$), and $z/w$; check each against a hand calculation.
@@ -133,6 +161,23 @@ Norm$^2 = |1+i|^2 + 4 = 6$; $p(0) = \tfrac26 = \tfrac13$, $p(1) = \tfrac23$. The
 7. E.g. $\alpha = \tfrac{i}{2}$ ($|\alpha|^2 = \tfrac14$), $\beta = \tfrac{\sqrt3}{2}\cdot\tfrac{1+i}{\sqrt2}$ ($|\beta|^2 = \tfrac34$): sum 1, statistics 25/75, both amplitudes non‑real.
 ````
 
+## Interview questions
+
+1. **(junior)** Why is the probability $|z|^2$ and not $z^2$?
+2. **(mid)** Why does quantum mechanics need complex amplitudes at all? Give an example two real amplitudes cannot reproduce.
+3. **(senior)** Two paths reach a detector with amplitudes $\tfrac12$ and $\tfrac12 e^{i\varphi}$. Derive the detection probability and explain what a calibration drift in $\varphi$ does.
+
+````solution
+1. $z^2$ is a complex number in general (for $z = 3+4i$ it is $-7+24i$), so it cannot be a probability. $|z|^2 = z\bar z = a^2 + b^2$ is always real and non-negative. The conjugate is what removes the phase.
+2. Relative phases other than $\pm1$ matter. $\ket+ = (\ket0+\ket1)/\sqrt2$ and $\ket{+i} = (\ket0+i\ket1)/\sqrt2$ give identical 50/50 statistics in the $Z$ basis. In the $X$ basis $\ket+$ is certain and $\ket{+i}$ is 50/50; in the $Y$ basis it is the other way round. Real amplitudes cannot describe the $Y$ axis of the Bloch sphere, so you lose a third of the state space.
+3. $p = |\tfrac12 + \tfrac12 e^{i\varphi}|^2 = \tfrac14(2 + 2\cos\varphi) = \tfrac12(1+\cos\varphi) = \cos^2(\varphi/2)$. At $\varphi = 0$ the paths add ($p=1$), at $\varphi=\pi$ they cancel ($p=0$). A slow drift in $\varphi$ (for example a qubit frequency shift) shows up as fringes sliding over time, so phase-sensitive circuits like Ramsey experiments are how drifts get detected and recalibrated.
+````
+
+## Sources
+
+- M. A. Nielsen and I. L. Chuang, *Quantum Computation and Quantum Information*, 10th anniversary ed., Cambridge University Press (2010), §2.1 (complex vector spaces) and §1.2.
+- Python `complex` and `cmath` (abs, phase, polar): https://docs.python.org/3/library/cmath.html
+
 ## Mastery checklist — you are ready to move on when you can
 
 - ☐ Convert $a+bi$ to a point, and compute its modulus and conjugate.
@@ -141,3 +186,7 @@ Norm$^2 = |1+i|^2 + 4 = 6$; $p(0) = \tfrac26 = \tfrac13$, $p(1) = \tfrac23$. The
 - ☐ Run the live cell and explain why `z**2` is the wrong probability.
 - ☐ Explain why quantum needs complex amplitudes (continuous phase) in one sentence.
 - ☐ Normalize a complex state and say why the phase didn't change the probabilities.
+
+## In one line
+
+A complex number is an arrow with a length and a direction, and multiplying by i turns it a quarter turn.

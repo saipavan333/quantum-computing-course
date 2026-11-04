@@ -151,6 +151,7 @@ a:hover { text-decoration: underline; }
 .lesson-body h3 { font-size: 1.24rem; margin: 32px 0 10px; color: #dfe6ff; }
 .lesson-body p { margin: 15px 0; }
 .lesson-body li { margin: 8px 0; }
+.lesson-body a { overflow-wrap: anywhere; } /* long source URLs must wrap on phones */
 .lesson-body blockquote {
   margin: 18px 0; padding: 12px 18px; border-left: 3px solid var(--acc);
   background: rgba(124, 92, 255, .07); border-radius: 0 8px 8px 0; color: #d6dcea;
