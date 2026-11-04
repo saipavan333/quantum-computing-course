@@ -1,5 +1,27 @@
 # Trigonometry & the unit circle
 
+## The simple version
+
+**In plain English.** Picture a point walking around a circle whose radius is 1. Cosine (cos) is how far right or left the point is. Sine (sin) is how high or low it is. Because the point stays on that circle, cos² + sin² always equals 1. That is exactly the rule a qubit's two chances must follow. So one angle can describe a simple qubit state, and Module 5 adds a second angle for the rest.
+
+**The everyday picture: a seat on a Ferris wheel.**
+
+| In the picture | In the real thing |
+|---|---|
+| The wheel, radius one | The unit circle |
+| How far your seat has turned | The angle θ, measured in radians in code |
+| Your sideways distance from the center | cos θ |
+| Your height above or below the center | sin θ |
+| Sideways² + height² = radius² | cos²θ + sin²θ = 1, the same shape as 'chances add to 1' |
+
+**Where the picture breaks.** On a Ferris wheel the seat really is somewhere in space. A qubit state is not a seat in the room; the circle is a bookkeeping picture. Also, a qubit uses half the angle, cos(θ/2) and sin(θ/2), and a full description needs a second angle for phase, which a flat wheel can't show.
+
+@@diagram:p2-trig|At 60°, the point sits at x = 0.5 and y = 0.866. Square and add: exactly 1. A qubit's amplitudes reuse this rule with half the angle.
+
+@@viz:born-circle
+
+## Going deeper
+
 Here is a spoiler worth the whole module: **every possible state of a qubit is described by two angles** — write them $\theta$ and $\varphi$ — and the probabilities of measuring 0 or 1 are $\cos^2(\theta/2)$ and $\sin^2(\theta/2)$. That's Module 5's Bloch sphere, and it is pure trigonometry. Learn sine and cosine as *coordinates on a circle* (not as triangle ratios to memorize) and quantum states will feel geometric instead of algebraic.
 
 ## Start here — the intuition
@@ -168,3 +190,7 @@ $\theta \approx 1.159$ rad. A second solution $\theta' = 2\pi - 1.159$ gives the
 - ☐ Explain why $\cos^2 + \sin^2 = 1$ makes $(\cos\tfrac\theta2, \sin\tfrac\theta2)$ a free qubit state.
 - ☐ Run the live cell and invert a target probability into a gate angle.
 - ☐ Define "phase" as an angular shift and connect it to interference.
+
+## In one line
+
+Cosine and sine are the x and y of a point on a circle of radius 1, so their squares always add to 1, just like a qubit's chances.

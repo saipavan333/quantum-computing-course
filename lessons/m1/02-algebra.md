@@ -1,5 +1,25 @@
 # Algebra: variables, equations & functions
 
+## The simple version
+
+**In plain English.** Algebra lets you work with numbers before you know what they are. You give an unknown a name, like α (alpha), and move it around by fixed rules. A function is a machine that takes a number in and gives a number out. Quantum gates behave like such machines, and doing them in a different order can give a different result. The equation you'll solve most often says a qubit's chances must add up to exactly 1.
+
+**The everyday picture: machines on a factory line.**
+
+| In the picture | In the real thing |
+|---|---|
+| A box with a label on the lid | A variable such as α or β |
+| A machine with one input and one output | A function f(x), later a quantum gate |
+| Feeding one machine's output into the next | Composition: g(f(x)) |
+| Swapping two machines on the line | A different order, often a different answer |
+| Slices that must make one whole pizza | Normalization: α² + β² = 1 |
+
+**Where the picture breaks.** Factory machines handle one item at a time and keep no link between items. Quantum gates act on all of a state's amplitudes together, and they can always be run backwards, which most machines can't. In this lesson the numbers are ordinary real numbers; quantum amplitudes are usually complex, so the rule becomes |α|² + |β|² = 1.
+
+@@diagram:p2-algebra|The same two machines in a different order turn 1 into 5 or 8. Below: knowing one chance (0.3) fixes the other (0.7), because they must make one whole.
+
+## Going deeper
+
 Algebra is the skill of moving symbols around *without knowing what they equal yet*. Quantum computing is written entirely in this language: states are symbols like $\alpha$ and $\beta$, gates are functions, and "find the angle that makes this probability 0.3" is an equation to solve. This lesson makes symbol‑pushing automatic, introduces function notation you'll see everywhere after, and adds the summation symbol $\Sigma$ — the single most common notation in quantum mechanics.
 
 ## Start here — the intuition
@@ -141,3 +161,7 @@ $a^2 + 4a^2 + 3a^2 = 8a^2 = 1$, so probabilities are $12.5\%, 50\%, 37.5\%$. The
 - ☐ Compose functions in the right order and explain why order matters.
 - ☐ Run the live cell and read a $\Sigma$ sum in both math and Python.
 - ☐ Say why every gate is invertible and measurement is the exception.
+
+## In one line
+
+Name the unknowns, move them by the rules, keep the order of operations, and make the chances add to 1.

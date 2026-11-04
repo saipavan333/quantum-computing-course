@@ -380,3 +380,4 @@ html.loaded #app { opacity: 1; transition: opacity .5s ease; }
 .viz-range input[type=range] { width: 100%; accent-color: #22d3ee; }
 .viz-range select { background: var(--panel2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px 10px; font-family: inherit; }
 @media (max-width: 520px) { .simple-panel { padding: 2px 12px 14px; margin-left: -6px; margin-right: -6px; } .simple-panel .diagram-wrap { margin-left: -8px; margin-right: -8px; } .viz { padding: 10px; } .viz-range { min-width: 100%; } }
+.viz .vz { max-width: 640px; margin: 0 auto; }

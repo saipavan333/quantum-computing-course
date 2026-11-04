@@ -1,5 +1,24 @@
 # Numbers, fractions, exponents & logarithms
 
+## The simple version
+
+**In plain English.** Quantum computing reuses a handful of numbers over and over. One is 1/√2, about 0.707, which is the amplitude of a fair 50/50 qubit. Square an amplitude and you get a chance: 0.707 × 0.707 is about 0.5. Another is 2ⁿ, the number of amplitudes that n qubits carry, which doubles with every extra qubit. Tiny numbers like 0.001 (written 10⁻³) describe error rates, and logarithms simply undo powers.
+
+**The everyday picture: rice grains doubling on a chessboard.**
+
+| In the picture | In the real thing |
+|---|---|
+| One square of the board | One qubit added to the machine |
+| Grains on a square: 1, 2, 4, 8 … | Amplitudes to track: 2ⁿ for n qubits |
+| Square 31 holds over a billion grains | 30 qubits already need 2³⁰ ≈ 1.07 billion numbers |
+| Counting how many doublings got you there | A logarithm: log₂(1,073,741,824) = 30 |
+
+**Where the picture breaks.** Rice grains are things you can pick up one by one. Amplitudes are not little objects inside the chip, and you can't read them out one at a time. The chessboard is also only about growth; it says nothing about squaring an amplitude to get a chance, which is the other habit this lesson builds.
+
+@@diagram:p2-numbers|Left: squaring turns an amplitude into a chance, and the sign disappears. Right: each extra qubit doubles how many numbers describe the state.
+
+## Going deeper
+
 Every formula in quantum computing is built from a small set of number operations, and the field has favorites it uses constantly: $\tfrac{1}{\sqrt{2}}$, $2^n$, $10^{-3}$, $\log_2 N$. This lesson rebuilds them from zero — not as school drills, but as the working vocabulary you'll use to read hardware spec sheets and algorithm complexities. If school math left scars, good news: you only need a curated slice of it, and you'll use every piece within weeks.
 
 ## Start here — the intuition
@@ -161,3 +180,7 @@ Per‑gate success $0.995$; overall $\approx e^{-100\times0.005} = e^{-0.5} \app
 - ☐ Read and multiply scientific‑notation error rates.
 - ☐ Use $\log_2 N$ to get the qubits needed to index $N$ items.
 - ☐ Run the live cell and explain why $1/\sqrt2$ squared is a 50% probability.
+
+## In one line
+
+Square an amplitude to get a chance, and remember that every extra qubit doubles the numbers you need.

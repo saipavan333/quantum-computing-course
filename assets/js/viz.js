@@ -112,6 +112,42 @@
     }
     F.on(draw); draw();
   };
+  /* =====================================================================
+     M1 trig — a unit arrow as a pair of amplitudes: (cos a, sin a) -> chances cos²a, sin²a
+     ===================================================================== */
+  V["born-circle"] = function (host) {
+    var F = frame(host, "Turn the arrow: its x and y become a qubit's two amplitudes", 480, 260,
+      [{ type: "range", id: "a", label: "Angle a =", min: 0, max: 360, step: 1, value: 60 }],
+      "Unit circle with an arrow at angle a and bars for cos squared and sin squared");
+    function draw() {
+      var deg = F.val("a"), a = deg * Math.PI / 180, c = Math.cos(a), s = Math.sin(a);
+      F.out("a", deg + "°");
+      var cx = 120, cy = 135, Rr = 95, px = cx + Rr * c, py = cy - Rr * s;
+      var o = L(cx - 110, cy, cx + 110, cy, "var(--border)", 1.2) + L(cx, cy - 110, cx, cy + 110, "var(--border)", 1.2);
+      o += C(cx, cy, Rr, "none", "var(--faint)", 1.4);
+      o += L(cx, cy, px, cy, "var(--acc2)", 4) + L(cx, cy, cx, py, "var(--warn)", 4);
+      o += L(px, py, px, cy, "var(--acc2)", 1.2, "4 3") + L(px, py, cx, py, "var(--warn)", 1.2, "4 3");
+      o += A(cx, cy, px, py, "#b9a9ff", 2.6) + C(px, py, 5, "var(--acc)", "#b9a9ff");
+      o += T(cx, 255, "x = cos a = " + f(c), { s: 13, c: "var(--acc2)" });
+      // bars: chances
+      var bx = 290, bw = 60, base = 200, H = 150;
+      [[c * c, "cos²a", "var(--acc2)"], [s * s, "sin²a", "var(--warn)"]].forEach(function (q, i) {
+        var x = bx + i * 90, h = q[0] * H;
+        o += R(x, base - H, bw, H, "none", "var(--border)", 4) + R(x, base - h, bw, h, q[2], "none", 4);
+        o += T(x + bw / 2, base + 20, q[1], { s: 13, c: q[2] }) + T(x + bw / 2, base - h - 8, f(q[0], 3), { s: 13, b: true });
+      });
+      o += T(365, 30, "cos²a + sin²a = " + f(c * c + s * s, 3), { s: 14, b: true, c: "var(--good)" });
+      o += T(365, 246, "y = sin a = " + f(s), { s: 13, c: "var(--warn)" });
+      F.draw(o);
+      F.read.innerHTML = "Read the two coordinates as amplitudes. Squaring them gives two chances, <b>" + pct(c * c) + "</b> and <b>" + pct(s * s) +
+        "</b>, and they always add to 100% because the point stays on a circle of radius 1. " +
+        (c < 0 || s < 0 ? "Notice a negative coordinate still gives a positive chance; the minus sign only shows up later, when amplitudes add or cancel." : "Try an angle past 90°: a coordinate turns negative, but its chance stays positive.");
+    }
+    F.on(draw); draw();
+  };
+
+  /* @@VIZ-INSERT */
+
   /* ---------- mount + simple-section styling ---------- */
   QCC.onRender(function (root, ctx) {
     if (!ctx || ctx.view !== "lesson") return;

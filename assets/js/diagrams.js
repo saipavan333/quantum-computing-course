@@ -1180,6 +1180,80 @@
     return svg(284, b, "terminal installs into the venv Python; the editor kernel must point at the same venv or imports fail");
   })();
 
+  // ---- P2 M1: numbers — square to get chance; each qubit doubles the count ----
+  D["p2-numbers"] = (() => {
+    let b = t(320, 24, "Two number habits quantum uses all the time", { bold: true, size: 15 });
+    b += t(24, 50, "Amplitude → chance: square it", { size: 13, bold: true, fill: C.cyanT, a: "start" });
+    [["+0.707", 64], ["−0.707", 118]].forEach(([v, y]) => {
+      b += box(24, y, 96, 38, { stroke: C.cyan }) + t(72, y + 25, v, { size: 15, bold: true, fill: C.cyanT });
+      b += arrR(122, y + 19, 176, { stroke: C.line }) + t(149, y + 12, "square", { size: 11, fill: C.dim });
+      b += box(178, y, 120, 38, { stroke: C.good, fill: C.goodFill }) + t(238, y + 25, "0.50 = 50%", { size: 14, bold: true, fill: C.goodT });
+    });
+    b += lines(24, 186, ["Different signs, same chance.", "The sign is kept for later:", "it is what lets answers cancel."], { size: 12, fill: C.dim, a: "start", lh: 18 });
+    b += t(340, 50, "Each extra qubit doubles the count", { size: 13, bold: true, fill: C.warnT, a: "start" });
+    const vals = [2, 4, 8, 16, 32], base = 214;
+    vals.forEach((v, i) => {
+      const h = v / 32 * 130, x = 352 + i * 54;
+      b += box(x, base - h, 34, h, { r: 3, fill: C.warnFill, stroke: C.warn });
+      b += t(x + 17, base - h - 6, String(v), { size: 12, fill: C.warnT }) + t(x + 17, base + 18, "n=" + (i + 1), { size: 12, fill: C.dim });
+    });
+    b += t(480, 258, "30 qubits: 2³⁰ = 1,073,741,824 numbers", { size: 12, fill: C.dim });
+    return svg(272, b, "squaring plus or minus 0.707 both give 0.5; bars doubling from 2 to 32 as qubits go from 1 to 5");
+  })();
+
+  // ---- P2 M1: algebra — function machines, order matters; normalization ----
+  D["p2-algebra"] = (() => {
+    let b = t(320, 24, "Functions are machines, and the order matters", { bold: true, size: 15 });
+    const row = (y, m1, m2, out, formula) => {
+      let s = box(20, y, 90, 40, { stroke: C.acc }) + t(65, y + 26, "x = 1", { size: 14, bold: true, fill: C.accT });
+      s += arrR(112, y + 20, 138) + box(140, y, 130, 40, { stroke: C.cyan }) + t(205, y + 26, m1, { size: 14, fill: C.cyanT });
+      s += arrR(272, y + 20, 298) + box(300, y, 130, 40, { stroke: C.cyan }) + t(365, y + 26, m2, { size: 14, fill: C.cyanT });
+      s += arrR(432, y + 20, 458) + box(460, y, 80, 40, { stroke: C.good, fill: C.goodFill }) + t(500, y + 26, out, { size: 15, bold: true, fill: C.goodT });
+      return s + t(552, y + 26, formula, { size: 13, fill: C.dim, a: "start" });
+    };
+    b += row(48, "f: double", "g: add 3", "5", "2x + 3");
+    b += row(104, "g: add 3", "f: double", "8", "2x + 6");
+    b += t(24, 176, "Normalization: if α² = 0.3, then β² = 1 − 0.3 = 0.7", { size: 13, bold: true, fill: C.warnT, a: "start" });
+    b += box(24, 190, 178, 30, { r: 4, fill: C.accFill, stroke: C.acc }) + t(113, 210, "α² = 0.3", { size: 13, fill: C.accT });
+    b += box(202, 190, 414, 30, { r: 4, fill: C.goodFill, stroke: C.good }) + t(409, 210, "β² = 0.7", { size: 13, fill: C.goodT });
+    b += t(320, 244, "A qubit's chances are slices of one whole: they always add to 1.", { size: 12, fill: C.dim });
+    return svg(262, b, "two function machines applied in different orders give 5 and 8; a bar split 0.3 and 0.7 showing normalization");
+  })();
+
+  // ---- P2 M1: trig — the point on the unit circle ----
+  D["p2-trig"] = (() => {
+    const cx = 150, cy = 156, R = 100, th = Math.PI / 3, px = cx + R * Math.cos(th), py = cy - R * Math.sin(th);
+    let b = t(320, 24, "cos and sin are just the x and y of a point on a circle", { bold: true, size: 15 });
+    b += ln(36, cy, 264, cy, { stroke: C.boxS }) + ln(cx, 44, cx, 268, { stroke: C.boxS });
+    b += circ(cx, cy, R, { fill: "none", stroke: C.faint, sw: 1.4 });
+    b += ln(cx, cy, px, cy, { stroke: C.cyan, sw: 4 }) + ln(cx, cy, cx, py, { stroke: C.warn, sw: 4 });
+    b += ln(px, py, px, cy, { stroke: C.cyan, dash: "4 3" }) + ln(px, py, cx, py, { stroke: C.warn, dash: "4 3" });
+    b += arr(cx, cy, px, py, { stroke: C.accT, sw: 2.4 }) + circ(px, py, 5, { fill: C.acc, stroke: C.accT });
+    b += t(176, 146, "θ", { size: 14, fill: C.accT });
+    b += t(175, cy + 20, "cos θ", { size: 13, fill: C.cyanT }) + t(cx - 8, 116, "sin θ", { size: 13, fill: C.warnT, a: "end" });
+    b += t(cx + R + 4, cy - 6, "1", { size: 12, fill: C.dim, a: "start" });
+    b += lines(300, 70, ["At θ = 60°:", "x = cos θ = 0.500", "y = sin θ = 0.866", "x² + y² = 0.250 + 0.750 = 1"], { size: 14, fill: C.tx, a: "start", lh: 22 });
+    b += lines(300, 178, ["A qubit uses the same rule:", "amplitudes cos(θ/2) and sin(θ/2),", "chances cos²(θ/2) + sin²(θ/2) = 1."], { size: 13, fill: C.goodT, a: "start", lh: 20 });
+    return svg(284, b, "unit circle with a point at 60 degrees; its x is cos theta 0.5 and its y is sin theta 0.866; squares add to 1");
+  })();
+
+  // ---- P2 M1: vectors2d — tip-to-tail addition and the dot product ----
+  D["p2-vectors2d"] = (() => {
+    const ox = 60, oy = 244, s = 40, P = (x, y) => [ox + x * s, oy - y * s];
+    let b = t(320, 24, "Adding arrows, and asking how much they agree", { bold: true, size: 15 });
+    for (let i = 0; i <= 6; i++) b += ln(ox + i * s, 84, ox + i * s, oy, { stroke: C.cardEdge, sw: 1 });
+    for (let j = 0; j <= 4; j++) b += ln(ox, oy - j * s, ox + 6 * s, oy - j * s, { stroke: C.cardEdge, sw: 1 });
+    const [ux, uy] = P(3, 1), [sx, sy] = P(4, 3), [vx, vy] = P(1, 2);
+    b += ln(ox, oy, vx, vy, { stroke: C.faint, dash: "4 3" });
+    b += arr(ox, oy, ux, uy, { stroke: C.cyan, sw: 2.6 }) + t(ux - 30, uy + 26, "u = (3, 1)", { size: 13, fill: C.cyanT });
+    b += arr(ux, uy, sx, sy, { stroke: C.warn, sw: 2.6 }) + t(sx + 8, sy + 44, "v = (1, 2)", { size: 13, fill: C.warnT, a: "start" });
+    b += arr(ox, oy, sx, sy, { stroke: C.good, sw: 2.6 }) + t(sx - 40, sy - 8, "u + v = (4, 3)", { size: 13, fill: C.goodT });
+    b += lines(340, 70, ["Add: walk u, then walk v.", "(3, 1) + (1, 2) = (4, 3)"], { size: 14, fill: C.tx, a: "start", lh: 22 });
+    b += lines(340, 140, ["Dot product u·v:", "3×1 + 1×2 = 5", "= |u|·|v|·cos(angle)", "= √10 · √5 · cos 45° = 5"], { size: 13, fill: C.accT, a: "start", lh: 20 });
+    b += lines(340, 236, ["Arrows at 90° give 0:", "they share nothing."], { size: 13, fill: C.dim, a: "start", lh: 19 });
+    return svg(270, b, "grid with vector u (3,1), vector v (1,2) placed tip to tail, and their sum (4,3); dot product worked as 5");
+  })();
+
   // @@P2-INSERT
   window.DIAGRAMS = Object.assign(window.DIAGRAMS || {}, D);
 })();
