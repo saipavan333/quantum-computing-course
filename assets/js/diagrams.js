@@ -1354,6 +1354,112 @@
     return svg(280, b, "three panels: X turns |0> into |1>, leaves |+> unchanged with eigenvalue +1, and flips |-> with eigenvalue -1");
   })();
 
+  // ---- P2 M3: probability — a tree: multiply along, add across ----
+  D["p2-probability"] = (() => {
+    let b = t(320, 24, "Two measurements: multiply along a path, add the leaves you want", { bold: true, size: 15 });
+    const node = (x, y, s, col, colT) => circ(x, y, 17, { fill: C.box, stroke: col }) + t(x, y + 5, s, { size: 14, bold: true, fill: colT });
+    b += node(60, 150, "start", C.boxS, C.dim).replace('font-size:14px', 'font-size:10px');
+    b += arr(76, 143, 211, 92, { stroke: C.cyan }) + t(130, 104, "0.7", { size: 13, fill: C.cyanT });
+    b += arr(76, 157, 211, 208, { stroke: C.warn }) + t(130, 206, "0.3", { size: 13, fill: C.warnT });
+    b += node(230, 85, "0", C.cyan, C.cyanT) + node(230, 215, "1", C.warn, C.warnT);
+    const leaves = [[55, "00", "0.7 × 0.5 = 0.35", 85], [115, "01", "0.7 × 0.5 = 0.35", 85], [185, "10", "0.3 × 0.5 = 0.15", 215], [245, "11", "0.3 × 0.5 = 0.15", 215]];
+    leaves.forEach(([y, s, v, py], i) => {
+      b += arr(247, py + (y < py ? -6 : 6), 383, y, { stroke: C.line }) + t(320, (py + y) / 2 + (y < py ? -6 : 14), "0.5", { size: 12, fill: C.dim });
+      b += node(400, y, s, i % 2 ? C.good : C.boxS, i % 2 ? C.goodT : C.tx) + t(426, y + 5, v, { size: 13, fill: i % 2 ? C.goodT : C.dim, a: "start" });
+    });
+    b += t(320, 282, "P(second qubit = 1) = 0.35 + 0.15 = 0.50 (the green leaves)", { size: 13, fill: C.goodT });
+    return svg(296, b, "probability tree: first outcome 0 with 0.7 or 1 with 0.3, then 0 or 1 with 0.5 each; leaf probabilities 0.35, 0.35, 0.15, 0.15");
+  })();
+
+  // ---- P2 M3: sampling — four times the shots, half the error bar ----
+  D["p2-sampling"] = (() => {
+    const X = v => 140 + (v - 0.38) / 0.24 * 460;
+    let b = t(320, 24, "Estimating a 50% chance from shots: 4× the shots, half the error", { bold: true, size: 15 });
+    b += ln(X(0.5), 44, X(0.5), 226, { stroke: C.good, dash: "4 4" }) + t(X(0.5), 244, "true value 0.50", { size: 12, fill: C.goodT });
+    [0.4, 0.45, 0.55, 0.6].forEach(v => { b += ln(X(v), 222, X(v), 230, { stroke: C.faint }) + t(X(v), 244, v.toFixed(2), { size: 11, fill: C.faint }); });
+    [[100, 60], [400, 104], [1600, 148], [6400, 192]].forEach(([n, y]) => {
+      const h = 1.96 * Math.sqrt(0.25 / n);
+      b += t(24, y + 5, "n = " + n.toLocaleString("en-US"), { size: 13, fill: C.tx, a: "start" });
+      b += ln(X(0.5 - h), y, X(0.5 + h), y, { stroke: C.cyan, sw: 4 }) + ln(X(0.5 - h), y - 8, X(0.5 - h), y + 8, { stroke: C.cyan }) + ln(X(0.5 + h), y - 8, X(0.5 + h), y + 8, { stroke: C.cyan });
+      b += t(X(0.5 + h) + 10, y + 5, "± " + h.toFixed(3), { size: 12, fill: C.cyanT, a: "start" });
+    });
+    b += t(320, 270, "Bars show ±1.96 × √(p(1−p)/n), the usual 95% range, for p = 0.5.", { size: 12, fill: C.dim });
+    return svg(284, b, "error bars around 0.5 shrinking from plus or minus 0.098 at 100 shots to 0.012 at 6400 shots");
+  })();
+
+  // ---- P2 M4: python basics — a loop traced step by step ----
+  D["p2-python-basics"] = (() => {
+    let b = t(320, 24, "A loop, traced one step at a time", { bold: true, size: 15 });
+    b += box(20, 44, 290, 150, { stroke: C.acc, fill: C.card });
+    const code = [["total = 0", 40], ["for k in range(1, 5):", 40], ["total = total + k", 72], ["print(total)", 40]];
+    code.forEach(([s, x], i) => { b += t(x + 24, 78 + i * 30, s, { size: 14, fill: i === 2 ? C.warnT : C.accT, a: "start" }); });
+    b += t(36, 78 + 0 * 30, "1", { size: 11, fill: C.faint }) + t(36, 108, "2", { size: 11, fill: C.faint }) + t(36, 138, "3", { size: 11, fill: C.faint }) + t(36, 168, "4", { size: 11, fill: C.faint });
+    b += ln(52, 134, 52, 112, { stroke: C.warn }) + triU(52, 104, { stroke: C.warn }) + ln(52, 134, 60, 134, { stroke: C.warn });
+    b += t(165, 214, "lines 2–3 repeat while k = 1, 2, 3, 4", { size: 12, fill: C.warnT });
+    b += box(340, 44, 280, 186, { stroke: C.boxS, fill: C.card });
+    b += t(390, 70, "pass", { size: 13, bold: true, fill: C.dim }) + t(480, 70, "k", { size: 13, bold: true, fill: C.dim }) + t(570, 70, "total", { size: 13, bold: true, fill: C.dim });
+    b += ln(352, 80, 608, 80, { stroke: C.boxS });
+    [[1, 1, 1], [2, 2, 3], [3, 3, 6], [4, 4, 10]].forEach(([p, k, tt], i) => {
+      const y = 104 + i * 28;
+      b += t(390, y, String(p), { size: 14, fill: C.tx }) + t(480, y, String(k), { size: 14, fill: C.cyanT }) + t(570, y, String(tt), { size: 14, bold: true, fill: C.warnT });
+    });
+    b += t(480, 220, "print shows 10", { size: 13, bold: true, fill: C.goodT });
+    b += t(320, 254, "A variable is a name for a value; each pass of the loop rebinds total to a new value.", { size: 12, fill: C.dim });
+    return svg(270, b, "four-line Python loop on the left and a trace table on the right where total goes 1, 3, 6, 10");
+  })();
+
+  // ---- P2 M4: python structures — shots list to counts dict to probabilities ----
+  D["p2-python-structures"] = (() => {
+    let b = t(320, 24, "From raw shots to a counts dict to probabilities", { bold: true, size: 15 });
+    b += box(14, 52, 182, 54, { stroke: C.acc }) + t(105, 74, "list: shots", { size: 12, fill: C.dim }) + t(105, 95, "['0','1','1','0','1']", { size: 13, fill: C.accT });
+    b += arrR(198, 79, 240, { stroke: C.line }) + t(219, 70, "loop", { size: 11, fill: C.dim });
+    b += box(242, 52, 170, 54, { stroke: C.cyan }) + t(327, 74, "dict: counts", { size: 12, fill: C.dim }) + t(327, 95, "{'0': 2, '1': 3}", { size: 14, fill: C.cyanT });
+    b += arrR(414, 79, 452, { stroke: C.line }) + t(433, 70, "÷ 5", { size: 11, fill: C.dim });
+    b += box(454, 52, 172, 54, { stroke: C.good, fill: C.goodFill }) + t(540, 74, "dict: probs", { size: 12, fill: C.dim }) + t(540, 95, "{'0': 0.4, '1': 0.6}", { size: 14, fill: C.goodT });
+    b += t(320, 140, "Asking a dict for a key it doesn't have:", { size: 13, bold: true, fill: C.tx });
+    b += box(40, 156, 260, 50, { stroke: C.bad }) + t(170, 178, "counts['11']", { size: 14, fill: C.badT }) + t(170, 197, "KeyError: '11' (program stops)", { size: 12, fill: C.dim });
+    b += box(340, 156, 260, 50, { stroke: C.good }) + t(470, 178, "counts.get('11', 0)", { size: 14, fill: C.goodT }) + t(470, 197, "0 (safe default)", { size: 12, fill: C.dim });
+    b += t(320, 236, "Qiskit returns results as exactly this kind of counts dict.", { size: 12, fill: C.dim });
+    return svg(252, b, "a list of shots becomes a counts dictionary and then a probabilities dictionary; missing keys raise KeyError unless you use get");
+  })();
+
+  // ---- P2 M4: python OOP — one blueprint, separate objects ----
+  D["p2-python-oop"] = (() => {
+    let b = t(320, 24, "One class (blueprint), many objects, each with its own data", { bold: true, size: 15 });
+    b += box(200, 42, 240, 72, { stroke: C.acc, fill: C.accFill }) + t(320, 64, "class Qubit", { size: 14, bold: true, fill: C.accT });
+    b += t(320, 84, "attribute: state = '0'", { size: 12, fill: C.dim }) + t(320, 102, "method: apply_x() flips state", { size: 12, fill: C.dim });
+    b += arr(270, 116, 150, 156, { stroke: C.acc }) + arr(370, 116, 490, 156, { stroke: C.acc });
+    b += t(170, 132, "q1 = Qubit()", { size: 12, fill: C.accT, a: "end" }) + t(470, 132, "q2 = Qubit()", { size: 12, fill: C.accT, a: "start" });
+    b += box(60, 158, 180, 62, { stroke: C.warn }) + t(150, 182, "q1", { size: 14, bold: true, fill: C.warnT }) + t(150, 204, "state: '0' → '1'", { size: 13, fill: C.warnT });
+    b += box(400, 158, 180, 62, { stroke: C.cyan }) + t(490, 182, "q2", { size: 14, bold: true, fill: C.cyanT }) + t(490, 204, "state: '0' (unchanged)", { size: 13, fill: C.cyanT });
+    b += t(150, 242, "after q1.apply_x()", { size: 12, fill: C.warnT });
+    b += t(320, 266, "Inside apply_x, self is q1, so only q1's state changes.", { size: 12, fill: C.dim });
+    return svg(280, b, "a Qubit class creates two objects; calling apply_x on q1 changes only q1's state");
+  })();
+
+  // ---- P2 M4: numpy — one call over the whole array; a gate as matrix @ vector ----
+  D["p2-numpy"] = (() => {
+    let b = t(320, 24, "Why NumPy is fast, and what a gate looks like in it", { bold: true, size: 15 });
+    b += t(160, 52, "Plain Python loop", { size: 13, bold: true, fill: C.badT });
+    for (let i = 0; i < 4; i++) {
+      const x = 30 + i * 66;
+      b += box(x, 64, 50, 34, { stroke: C.bad }) + t(x + 25, 86, "x" + i, { size: 13, fill: C.badT });
+      if (i < 3) b += arrR(x + 52, 81, x + 64, { stroke: C.faint });
+    }
+    b += t(160, 120, "each item: look up types, then add", { size: 12, fill: C.dim });
+    b += t(480, 52, "NumPy array", { size: 13, bold: true, fill: C.goodT });
+    b += box(340, 64, 280, 34, { stroke: C.good, fill: C.goodFill }) + t(480, 86, "x0  x1  x2  x3  …  (one block)", { size: 13, fill: C.goodT });
+    b += t(480, 120, "one call; the loop runs in compiled C", { size: 12, fill: C.dim });
+    b += ln(20, 140, 620, 140, { stroke: C.cardEdge });
+    b += t(320, 166, "A gate on a state: X @ psi", { size: 13, bold: true, fill: C.tx });
+    b += box(140, 180, 90, 56, { stroke: C.acc }) + t(185, 203, "0    1", { size: 14, fill: C.accT }) + t(185, 225, "1    0", { size: 14, fill: C.accT });
+    b += t(250, 214, "@", { size: 16, bold: true }) + box(270, 180, 50, 56, { stroke: C.cyan }) + t(295, 203, "1", { size: 14, fill: C.cyanT }) + t(295, 225, "0", { size: 14, fill: C.cyanT });
+    b += t(340, 214, "=", { size: 16, bold: true }) + box(360, 180, 50, 56, { stroke: C.good }) + t(385, 203, "0", { size: 14, fill: C.goodT }) + t(385, 225, "1", { size: 14, fill: C.goodT });
+    b += t(185, 254, "shape (2, 2)", { size: 12, fill: C.dim }) + t(295, 254, "(2,)", { size: 12, fill: C.dim }) + t(385, 254, "(2,)", { size: 12, fill: C.dim });
+    b += t(510, 214, "|0⟩ becomes |1⟩", { size: 13, fill: C.goodT });
+    return svg(268, b, "a Python loop handles items one by one while NumPy processes the whole array in one call; the X matrix times [1, 0] gives [0, 1]");
+  })();
+
   // @@P2-INSERT
   window.DIAGRAMS = Object.assign(window.DIAGRAMS || {}, D);
 })();

@@ -1,5 +1,25 @@
 # Python I: variables, types & control flow
 
+## The simple version
+
+**In plain English.** Python is the language you'll use to write quantum programs. A variable is a name you give to a value, like total = 0. Every value has a type: whole numbers, decimals, text and True/False. An if statement picks which lines run, and a loop runs the same lines again and again. With just these pieces you can already count, add up and make decisions.
+
+**The everyday picture: following a recipe with sticky notes.**
+
+| In the picture | In the real thing |
+|---|---|
+| A sticky note with a name on it | A variable: a name attached to a value |
+| Crossing out a note's number and writing a new one | Reassigning: total = total + k |
+| 'If the oven is hot, put the tray in' | An if statement |
+| 'Stir 4 times' | A for loop: for k in range(1, 5) |
+| Reading the recipe top to bottom | Python running lines in order |
+
+**Where the picture breaks.** A cook can guess what you meant. Python can't: one wrong indent or a missing colon stops the program or, worse, changes which lines are inside the loop. A Python variable is also a label on a value, not a box holding it, which matters later when two names point at the same list.
+
+@@diagram:p2-python-basics|Tracing the loop: k takes the values 1, 2, 3, 4 and total becomes 1, 3, 6, 10. Writing a trace table like this is the fastest way to debug a loop.
+
+## Going deeper
+
 Python is the native language of quantum computing — Qiskit, Cirq, PennyLane, every major framework speaks it. It's also the most beginner‑friendly serious language ever built, which is why we can go from "never coded" to "reading quantum SDK source" in four lessons. Today: your first programs, the data types (including Python's built‑in complex numbers — a gift to our field), decisions, and loops. **Reading code is not learning code — run every cell.**
 
 ## Start here — the intuition
@@ -155,3 +175,7 @@ Answering "when does X exceed Y" by printing a table and looking — before reac
 - ☐ Write a `for` loop over `range` and a `while` loop with a termination guard.
 - ☐ Run the live cell and explain the accumulator pattern in it.
 - ☐ Compare floats safely and choose `/` vs `//` deliberately.
+
+## In one line
+
+Variables name values, if statements choose, and loops repeat, and that is enough to start programming.
