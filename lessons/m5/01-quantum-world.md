@@ -1,5 +1,25 @@
 # The quantum worldview: superposition & measurement
 
+## The simple version
+
+**In plain English.** Very small things, like single atoms and particles of light (photons), follow different rules from everyday objects. Before you measure one, it can be in a superposition: a precise mix of possible results, each with an amplitude. When you measure, you get one ordinary result, picked at random with chances set by those amplitudes. After that, the mix is gone and measuring again gives the same answer. Prepare the same state many times and the random results form a steady pattern you can predict.
+
+**The everyday picture: a spinning coin that you slap flat.**
+
+| In the picture | In the real thing |
+|---|---|
+| The coin spinning in the air | The qubit in a superposition |
+| How the coin was flicked | The amplitudes, set by how you prepared it |
+| Slapping it flat on the table | Measuring |
+| It lands heads or tails, randomly | You get 0 or 1, with chances from the amplitudes |
+| Look again: still heads | Measuring again repeats the result (collapse) |
+
+**Where the picture breaks.** A spinning coin is really heads-or-tails underneath, and a fast camera could predict the landing. A qubit has no hidden answer waiting to be read, and its amplitudes can cancel each other, which spinning coins never do. That cancelling is the whole point: the double-slit stripes in this lesson are amplitudes interfering, something no coin can show.
+
+@@diagram:p2-quantum-world|Ten shots of the same 50/50 state give a random-looking string, but many shots settle near half 0s and half 1s. Measure a second time right away and you get the same answer again.
+
+## Going deeper
+
 Everything before this lesson was tooling. Now the physics begins — and it begins with an experiment so strange that a century of the world's best minds have not made it feel normal, only *precise*. Your goal today is not to feel comfortable (nobody does) but to replace vague mystery with the exact rules of the game: what superposition actually claims, what measurement actually does, and where the boundary of the weirdness sits. Everything in Modules 5–11 is these rules, applied.
 
 ## Start here — the intuition
@@ -157,3 +177,7 @@ Apply $H$, then measure. Superposition: $H\ket+ = \ket0$ → **100% "0"**. Coin:
 - ☐ Run the Mach-Zehnder cell and explain why two 50/50 splitters can yield 100/0.
 - ☐ Explain what measurement does (basis-relative, one bit, random) and why statistics is the permanent interface.
 - ☐ Say the one-sentence definition of superposition, and give the dinner-table explanation without mysticism.
+
+## In one line
+
+Before you look, a quantum system is a precise mix of possibilities; looking gives one random answer and ends the mix.

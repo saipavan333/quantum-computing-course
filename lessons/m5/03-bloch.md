@@ -1,5 +1,27 @@
 # The Bloch sphere: every qubit state on a globe
 
+## The simple version
+
+**In plain English.** Every state of a single qubit can be drawn as an arrow from the center of a ball to its surface. This ball is called the Bloch sphere. The top is |0⟩ and the bottom is |1⟩. Tipping the arrow down from the top by the angle θ (theta) sets the chances: P(0) = cos²(θ/2). Turning it around the middle by the angle φ (phi) sets the phase, which gates can use.
+
+**The everyday picture: a globe with latitude and longitude.**
+
+| In the picture | In the real thing |
+|---|---|
+| North Pole | \|0⟩ |
+| South Pole | \|1⟩ |
+| Latitude: how far south you are | θ, which sets P(0) = cos²(θ/2) |
+| Longitude: how far east you are | φ, the relative phase |
+| Points on the equator | Equal 50/50 states such as \|+⟩ and \|−⟩, differing only in phase |
+
+**Where the picture breaks.** On a real globe, the North and South Poles are 180° apart and also 'opposite' in the everyday sense. On the Bloch sphere, opposite points are orthogonal states, which are at 90° in the underlying math; the sphere doubles every angle. The globe also only works for one qubit. Two or more qubits, especially entangled ones, can't be drawn as one arrow each.
+
+@@diagram:p2-bloch|The state at θ = 60°: the tip's height is z = 0.5, so P(0) = (1 + z)/2 = 0.75. Spinning the arrow around the vertical axis (changing φ) doesn't change these chances.
+
+@@viz:bloch-angles
+
+## Going deeper
+
 Two real parameters describe a qubit state (last lesson's counting). Two parameters also describe a point on a sphere — latitude and longitude. This is not a coincidence: **every single-qubit state is a point on a unit sphere**, every gate is a rotation of that sphere, and every measurement is a projection onto one of its axes. The Bloch sphere is the visualization professionals think in — hardware calibration plots, paper figures, debugging conversations all speak it.
 
 ## Start here — the intuition
@@ -131,3 +153,7 @@ At $t=0$ it's $(1,0,0) = \ket+$. A Z‑measurement reads only $r_z$, which stays
 - ☐ State that $\vec r = (\langle X\rangle,\langle Y\rangle,\langle Z\rangle)$ and that purity is the radius.
 - ☐ Read a decoherence arrow: spiral = detuning, sag inward = $T_2$, drift to a pole = $T_1$.
 - ☐ Explain why the Bloch sphere is single‑qubit only and ignores global phase.
+
+## In one line
+
+A qubit is an arrow on a ball: its height sets the chances of 0 and 1, and its turn around the middle is the phase.

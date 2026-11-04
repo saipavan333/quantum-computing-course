@@ -509,7 +509,7 @@
     b += t(470, 170, "orthogonal =", { fill: C.warnT, size: 12, a: "start" });
     b += t(470, 190, "ANTIPODES", { fill: C.warnT, size: 12, a: "start" });
     b += t(470, 210, "(180°, not 90°)", { fill: C.faint, size: 10, a: "start" });
-    return svg(272, b, "Bloch sphere with poles and equator");
+    return svg(284, b, "Bloch sphere with poles and equator");
   })();
 
   // ---- M5: global-vs-relative ----
@@ -1458,6 +1458,81 @@
     b += t(185, 254, "shape (2, 2)", { size: 12, fill: C.dim }) + t(295, 254, "(2,)", { size: 12, fill: C.dim }) + t(385, 254, "(2,)", { size: 12, fill: C.dim });
     b += t(510, 214, "|0⟩ becomes |1⟩", { size: 13, fill: C.goodT });
     return svg(268, b, "a Python loop handles items one by one while NumPy processes the whole array in one call; the X matrix times [1, 0] gives [0, 1]");
+  })();
+
+  // ---- P2 M5: quantum world — random single results, a steady pattern, and collapse ----
+  D["p2-quantum-world"] = (() => {
+    let b = t(320, 24, "Same preparation, random single results, a steady pattern", { bold: true, size: 15 });
+    b += box(14, 50, 150, 52, { stroke: C.cyan }) + t(89, 72, "prepare the", { size: 12, fill: C.dim }) + t(89, 91, "same state", { size: 14, bold: true, fill: C.cyanT });
+    b += arrR(166, 76, 196) + box(198, 50, 96, 52, { stroke: C.warn }) + t(246, 81, "measure", { size: 14, bold: true, fill: C.warnT });
+    b += arrR(296, 76, 326);
+    const shots = "0 1 1 0 1 0 0 1 1 0".split(" ");
+    shots.forEach((s, i) => { b += box(330 + i * 29, 60, 24, 32, { r: 5, stroke: s === "1" ? C.acc : C.boxS }) + t(342 + i * 29, 82, s, { size: 14, bold: true, fill: s === "1" ? C.accT : C.tx }); });
+    b += t(474, 116, "each shot: one plain 0 or 1, unpredictable", { size: 12, fill: C.dim });
+    b += box(330, 128, 290, 46, { stroke: C.good, fill: C.goodFill }) + t(475, 157, "many shots: about 50% 0s, 50% 1s", { size: 13, bold: true, fill: C.goodT });
+    b += ln(20, 192, 620, 192, { stroke: C.cardEdge });
+    b += t(24, 218, "Measure again straight away:", { size: 13, bold: true, fill: C.tx, a: "start" });
+    b += box(24, 230, 120, 36, { stroke: C.acc }) + t(84, 253, "got 1", { size: 14, fill: C.accT });
+    b += arrR(146, 248, 186) + box(188, 230, 140, 36, { stroke: C.acc }) + t(258, 253, "again: 1, 1, 1 …", { size: 14, fill: C.accT });
+    b += t(350, 244, "The state has collapsed to |1⟩.", { size: 13, fill: C.warnT, a: "start" }) + t(350, 263, "The 50/50 superposition is gone.", { size: 13, fill: C.dim, a: "start" });
+    return svg(284, b, "a superposition measured repeatedly gives random 0s and 1s that average to 50/50; measuring again after a result repeats it");
+  })();
+
+  // ---- P2 M5: qubit — amplitudes, squaring, sampling, collapse ----
+  D["p2-qubit"] = (() => {
+    let b = t(320, 24, "The Born rule: from amplitudes to a result", { bold: true, size: 15 });
+    const st = [["amplitudes", "α = 0.6", "β = 0.8", C.cyan, C.cyanT], ["square sizes", "|α|² = 0.36", "|β|² = 0.64", C.acc, C.accT], ["random pick", "0 w.p. 36%", "1 w.p. 64%", C.warn, C.warnT], ["after: state", "say we got 1", "now |1⟩", C.good, C.goodT]];
+    st.forEach((s, i) => {
+      const x = 14 + i * 157;
+      b += box(x, 48, 140, 92, { stroke: s[3] }) + t(x + 70, 70, s[0], { size: 12, fill: C.dim });
+      b += t(x + 70, 98, s[1], { size: 14, bold: true, fill: s[4] }) + t(x + 70, 124, s[2], { size: 14, bold: true, fill: s[4] });
+      if (i < 3) b += arrR(x + 142, 94, x + 155, { stroke: C.line });
+    });
+    b += t(320, 166, "0.36 + 0.64 = 1, so these two amplitudes make a valid state.", { size: 13, fill: C.tx });
+    b += ln(20, 184, 620, 184, { stroke: C.cardEdge });
+    b += t(320, 210, "Now flip the sign: α = 0.6, β = −0.8", { size: 13, bold: true, fill: C.warnT });
+    b += t(320, 234, "Same chances, 36% and 64%. Measuring in this basis can't tell the two apart,", { size: 12, fill: C.dim });
+    b += t(320, 254, "but a gate before the measurement can make them interfere differently.", { size: 12, fill: C.dim });
+    return svg(272, b, "amplitudes 0.6 and 0.8 square to chances 0.36 and 0.64, a random result is drawn and the state collapses; flipping a sign keeps the chances");
+  })();
+
+  // ---- P2 M5: bloch — the tip's height sets the chances ----
+  D["p2-bloch"] = (() => {
+    const cx = 170, cy = 150, R = 105, th = Math.PI / 3, ph = Math.PI / 2;
+    const P = (x, y, z) => [cx + R * (0.92 * y - 0.42 * x), cy - R * (0.92 * z - 0.28 * x)];
+    let b = t(320, 24, "Bloch sphere: the arrow's height decides the chances", { bold: true, size: 15 });
+    b += circ(cx, cy, R, { fill: "none", stroke: C.faint, sw: 1.4 });
+    let eq = []; for (let k = 0; k <= 48; k++) { const a = k / 48 * 2 * Math.PI; eq.push(P(Math.cos(a), Math.sin(a), 0).map(v => v.toFixed(1)).join(",")); }
+    b += `<polyline points="${eq.join(" ")}" style="fill:none;stroke:${C.boxS};stroke-width:1.2;stroke-dasharray:4 3"/>`;
+    const [zx, zy] = P(0, 0, 1.18), [nx, ny] = P(0, 0, -1.18);
+    b += ln(nx, ny, zx, zy, { stroke: C.boxS }) + t(zx + 12, zy + 8, "|0⟩", { size: 13, fill: C.goodT, a: "start" }) + t(nx + 12, ny + 4, "|1⟩", { size: 13, fill: C.warnT, a: "start" });
+    const [xx, xy] = P(1.25, 0, 0), [yx, yy] = P(0, 1.22, 0);
+    b += ln(cx, cy, xx, xy, { stroke: C.boxS, dash: "3 3" }) + t(xx - 6, xy + 14, "|+⟩", { size: 12, fill: C.dim, a: "end" });
+    b += ln(cx, cy, yx, yy, { stroke: C.boxS, dash: "3 3" }) + t(yx + 4, yy - 6, "|+i⟩", { size: 12, fill: C.dim, a: "start" });
+    const v = [Math.sin(th) * Math.cos(ph), Math.sin(th) * Math.sin(ph), Math.cos(th)], [vx, vy] = P(v[0], v[1], v[2]), [hx, hy] = P(0, 0, v[2]);
+    b += ln(vx, vy, hx, hy, { stroke: C.good, dash: "4 3" }) + circ(hx, hy, 4, { fill: C.good, stroke: C.good });
+    b += arr(cx, cy, vx, vy, { stroke: C.cyan, sw: 2.8 }) + t(vx + 8, vy - 4, "ψ", { size: 15, bold: true, fill: C.cyanT, a: "start" });
+    b += lines(330, 66, ["θ = 60° down from |0⟩, φ = 90° around", "height of the tip: z = cos θ = 0.50"], { size: 13, fill: C.tx, a: "start", lh: 20 });
+    b += lines(330, 124, ["P(0) = (1 + z) / 2 = cos²(θ/2) = 0.75", "P(1) = (1 − z) / 2 = sin²(θ/2) = 0.25"], { size: 13, fill: C.goodT, a: "start", lh: 20 });
+    b += lines(330, 182, ["φ does not change these chances.", "It shows up when a gate turns the", "sphere, or if you measure along x or y."], { size: 13, fill: C.dim, a: "start", lh: 20 });
+    return svg(284, b, "Bloch sphere with a state at theta 60 degrees; the height of its tip, z = 0.5, gives P(0) = 0.75");
+  })();
+
+  // ---- P2 M5: evolution — relative phase changes the outcome, global phase doesn't ----
+  D["p2-evolution"] = (() => {
+    let b = t(320, 24, "Which phase matters? Run each state through H and measure", { bold: true, size: 15 });
+    b += t(110, 52, "state before H", { size: 12, fill: C.dim }) + t(300, 52, "chances before", { size: 12, fill: C.dim }) + t(530, 52, "after H: chances", { size: 12, fill: C.dim });
+    const rows = [["(|0⟩ + |1⟩)/√2", "|0⟩ for sure", C.good, C.goodT, "start"], ["(|0⟩ − |1⟩)/√2", "|1⟩ for sure", C.warn, C.warnT, "relative phase −1"], ["−(|0⟩ + |1⟩)/√2", "|0⟩ for sure", C.good, C.goodT, "global phase −1"]];
+    rows.forEach((r, i) => {
+      const y = 64 + i * 62;
+      b += box(20, y, 180, 44, { stroke: C.cyan }) + t(110, y + 27, r[0], { size: 14, fill: C.cyanT });
+      b += box(230, y, 140, 44, { stroke: C.boxS }) + t(300, y + 27, "50% / 50%", { size: 14, fill: C.tx });
+      b += arrR(372, y + 22, 418, { stroke: C.line }) + t(395, y + 14, "H", { size: 13, bold: true, fill: C.accT });
+      b += box(420, y, 200, 44, { stroke: r[2], fill: C.box }) + t(520, y + 27, r[1], { size: 14, bold: true, fill: r[3] });
+      if (i) b += t(110, y + 56, r[4], { size: 11, fill: r[3] });
+    });
+    b += t(320, 266, "Rows 1 and 2 match before H but end opposite. Rows 1 and 3 are the same physical state.", { size: 12, fill: C.dim });
+    return svg(282, b, "three states with equal chances; after a Hadamard the relative-phase state ends in 1 while the global-phase state behaves like the first");
   })();
 
   // @@P2-INSERT

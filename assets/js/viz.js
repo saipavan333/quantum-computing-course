@@ -255,6 +255,49 @@
     F.on(draw); draw();
   };
 
+  /* =====================================================================
+     M5 Bloch — θ, φ sliders; amplitudes cos(θ/2), e^{iφ} sin(θ/2); P(0) = cos²(θ/2)
+     ===================================================================== */
+  V["bloch-angles"] = function (host) {
+    var F = frame(host, "Steer a qubit with two angles and read its measurement chances", 480, 300,
+      [{ type: "range", id: "th", label: "θ (down from |0⟩) =", min: 0, max: 180, step: 1, value: 60 },
+       { type: "range", id: "ph", label: "φ (around the equator) =", min: 0, max: 360, step: 1, value: 90 }],
+      "Bloch sphere with a state arrow set by two angles, plus bars for P(0) and P(1)");
+    var cx = 130, cy = 150, Rr = 100;
+    function P3(x, y, z) { return [cx + Rr * (0.92 * y - 0.42 * x), cy - Rr * (0.92 * z - 0.28 * x)]; }
+    function draw() {
+      var thd = F.val("th"), phd = F.val("ph"), th = thd * Math.PI / 180, ph = phd * Math.PI / 180;
+      F.out("th", thd + "°"); F.out("ph", phd + "°");
+      var x = Math.sin(th) * Math.cos(ph), y = Math.sin(th) * Math.sin(ph), z = Math.cos(th);
+      var a = Math.cos(th / 2), bm = Math.sin(th / 2), p0 = a * a, p1 = bm * bm;
+      var o = C(cx, cy, Rr, "none", "var(--faint)", 1.3), eq = [], mer = [];
+      for (var k = 0; k <= 48; k++) { var t = k / 48 * 2 * Math.PI; eq.push(P3(Math.cos(t), Math.sin(t), 0)); mer.push(P3(Math.cos(ph) * Math.sin(t), Math.sin(ph) * Math.sin(t), Math.cos(t))); }
+      o += P(eq, "var(--border)", 1.2) + P(mer, "rgba(124,92,255,.35)", 1);
+      var zt = P3(0, 0, 1.16), zb = P3(0, 0, -1.16), xt = P3(1.3, 0, 0), yt = P3(0, 1.25, 0);
+      o += L(zb[0], zb[1], zt[0], zt[1], "var(--border)", 1.2) + T(zt[0], zt[1] - 6, "|0⟩", { s: 13, c: "var(--good)" }) + T(zb[0], zb[1] + 16, "|1⟩", { s: 13, c: "var(--warn)" });
+      o += L(cx, cy, xt[0], xt[1], "var(--border)", 1, "3 3") + T(xt[0] - 4, xt[1] + 12, "x |+⟩", { s: 11, c: "var(--faint)", a: "end" });
+      o += L(cx, cy, yt[0], yt[1], "var(--border)", 1, "3 3") + T(yt[0] + 2, yt[1] - 6, "y", { s: 11, c: "var(--faint)", a: "start" });
+      var tip = P3(x, y, z), h = P3(0, 0, z);
+      o += L(tip[0], tip[1], h[0], h[1], "var(--good)", 1.3, "4 3") + C(h[0], h[1], 3.5, "var(--good)", "none");
+      o += A(cx, cy, tip[0], tip[1], "var(--acc2)", 3) + C(tip[0], tip[1], 4, "var(--acc2)", "none");
+      // right panel: amplitudes + chance bars
+      var re = bm * Math.cos(ph), im = bm * Math.sin(ph);
+      o += T(270, 36, "α = cos(θ/2) = " + f(a, 3), { s: 13, a: "start", c: "var(--text)" });
+      o += T(270, 58, "β = e^(iφ)·sin(θ/2) = " + f(re, 2) + (im < 0 ? " − " : " + ") + f(Math.abs(im), 2) + "i", { s: 13, a: "start", c: "var(--text)" });
+      var base = 240, H = 140;
+      [[p0, "P(0)", "var(--good)"], [p1, "P(1)", "var(--warn)"]].forEach(function (q, i) {
+        var bx = 290 + i * 90, hh = q[0] * H;
+        o += R(bx, base - H, 56, H, "none", "var(--border)", 4) + R(bx, base - hh, 56, hh, q[2], "none", 4);
+        o += T(bx + 28, base + 18, q[1], { s: 13, c: q[2] }) + T(bx + 28, base - hh - 7, f(q[0], 3), { s: 13, b: true });
+      });
+      o += T(375, 290, "Bloch (x, y, z) = (" + f(x, 2) + ", " + f(y, 2) + ", " + f(z, 2) + ")", { s: 12, c: "var(--dim)" });
+      F.draw(o);
+      F.read.innerHTML = "P(0) = cos²(θ/2) = (1 + z)/2 = <b>" + pct(p0) + "</b> and P(1) = <b>" + pct(p1) + "</b>. Move φ: the arrow swings around the vertical axis but the bars don't move, " +
+        "because a 0/1 measurement only sees the height z. φ is the relative phase; it decides what happens after a gate, and what you'd see measuring along x (P(+) = (1 + x)/2 = " + pct((1 + x) / 2) + ").";
+    }
+    F.on(draw); draw();
+  };
+
   /* @@VIZ-INSERT */
 
   /* ---------- mount + simple-section styling ---------- */

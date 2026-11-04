@@ -1,5 +1,25 @@
 # Gates as unitary evolution & the phase that matters
 
+## The simple version
+
+**In plain English.** Between preparing and measuring a qubit, gates change its state. Every gate is a reversible rotation: it can always be undone, and the chances still add to 1 afterwards. Multiplying the whole state by a phase, called a global phase, changes nothing you can ever measure. Changing the phase of one part against another, a relative phase, is invisible at first. But after another gate, that relative phase can flip a sure 0 into a sure 1.
+
+**The everyday picture: two runners on a circular track.**
+
+| In the picture | In the real thing |
+|---|---|
+| Both runners | The \|0⟩ and \|1⟩ parts of the state |
+| Where each runner is on the track | Each part's phase |
+| Both runners move ahead by the same amount | A global phase: nothing measurable changes |
+| One runner gets ahead of the other | A relative phase |
+| A referee who only cares about the gap between them | A later gate such as H, which turns the gap into a different result |
+
+**Where the picture breaks.** Runners have real positions you can see at any moment. Phases are not visible to any single measurement; only interference, after a gate, reveals a relative phase. And gates are perfectly reversible rotations, unlike runners who get tired.
+
+@@diagram:p2-evolution|Three states with the same 50/50 chances. After H, the one with a relative minus sign gives 1 for sure, while the one with an overall minus sign behaves exactly like the first.
+
+## Going deeper
+
 Rule 2 says unobserved quantum states evolve unitarily. This lesson makes that rule *yours*: why unitarity is forced (not chosen), what it permits and forbids, and the definitive treatment of the distinction that runs every algorithm — global phase (meaningless) versus relative phase (everything). By the end you'll compute interference through gate sequences as fluently as arithmetic.
 
 ## Start here — the intuition
@@ -137,3 +157,7 @@ $\gamma = 2\arcsin\sqrt{0.85} \approx 2.346$; the mirror solution is $2\pi - 2.3
 - ☐ Run the live cell and explain why $R_z$ on $\ket0$ does nothing but $R_z$ between two $H$'s does everything.
 - ☐ Say why no gate can reset or copy a qubit.
 - ☐ Describe the three‑beat algorithm template (fan out, write phases, interfere) in one breath.
+
+## In one line
+
+Gates are reversible rotations; a phase on the whole state never matters, but a phase between its parts can change the answer.

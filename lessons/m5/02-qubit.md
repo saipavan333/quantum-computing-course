@@ -1,5 +1,24 @@
 # The qubit: state vectors & the Born rule
 
+## The simple version
+
+**In plain English.** A qubit's state is written as two numbers, α (alpha) and β (beta), called amplitudes. The chance of reading 0 is |α|² and the chance of reading 1 is |β|²; this is the Born rule. The two chances must add to 1. Amplitudes can be negative or complex, so two states can give the same chances and still behave differently later. That hidden sign or angle, called the phase, is where quantum computing gets its power.
+
+**The everyday picture: a pointer that can aim anywhere in 3D.**
+
+| In the picture | In the real thing |
+|---|---|
+| Which way the pointer leans: up or down | How the chances split between 0 and 1 |
+| Which way it leans around the north–south line | The relative phase between α and β |
+| A torch that only reports 'more up' or 'more down' | Measurement in the 0/1 basis |
+| After the report, the pointer snaps straight up or down | Collapse to \|0⟩ or \|1⟩ |
+
+**Where the picture breaks.** A real pointer has a fixed direction you could read with a protractor. You can never read a qubit's α and β from one copy; each measurement gives a single 0 or 1. The pointer picture also hides that amplitudes are complex numbers whose squared sizes, not the numbers themselves, are the chances. The next lesson makes this pointer exact: the Bloch sphere.
+
+@@diagram:p2-qubit|α = 0.6 and β = 0.8 square to 36% and 64%. A random draw picks one result and the state becomes that result. Flip β's sign and the chances stay the same, yet a later gate can tell them apart.
+
+## Going deeper
+
 Time to make Rule 1 and Rule 3 fully precise for the object you'll spend your career manipulating. By the end of this lesson you will take any single-qubit state, compute its complete measurement statistics in any basis by hand and in code, and normalize, compare, and prepare states on demand. This is where six weeks of mathematics cashes out.
 
 ## Start here — the intuition
@@ -141,3 +160,7 @@ At $p_1 = \tfrac12$ the state is $\tfrac{1}{\sqrt2}(\ket0 + e^{i\varphi}\ket1)$,
 - ☐ Run the live cell and explain why $\ket+$ and $\ket-$ look identical in Z but opposite in X.
 - ☐ Prepare a target state from $\ket0$ by choosing $\theta$ and $\varphi$.
 - ☐ Explain why identical Z histograms don't certify identical states.
+
+## In one line
+
+A qubit is two amplitudes; square their sizes to get the chances of 0 and 1, and keep their phase because it matters later.
