@@ -381,3 +381,8 @@ html.loaded #app { opacity: 1; transition: opacity .5s ease; }
 .viz-range select { background: var(--panel2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 6px 10px; font-family: inherit; }
 @media (max-width: 520px) { .simple-panel { padding: 2px 12px 14px; margin-left: -6px; margin-right: -6px; } .simple-panel .diagram-wrap { margin-left: -8px; margin-right: -8px; } .viz { padding: 10px; } .viz-range { min-width: 100%; } }
 .viz .vz { max-width: 640px; margin: 0 auto; }
+
+/* phone legibility (legible.js, pass-2 review): a diagram whose labels cannot grow in place scrolls sideways */
+.qc-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+.qc-scroll > svg { max-width: none !important; width: 100%; display: block; }
+.qc-scrolling::after { content: "swipe sideways to see the whole diagram \2192"; display: block; position: sticky; left: 0; font-size: 12px; color: var(--faint); padding: 4px 0 2px; text-align: left; }

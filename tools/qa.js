@@ -1,7 +1,9 @@
 /* qa.js — living regression suite (playbook §7.1). Run before every push and
    after any global change:  node tools/qa.js
    Scans: JS syntax, quiz/fence lint, diagram bounds + key resolution, per-line
-   math-collision ($ currency vs $…$), locale/British-spelling, broken references.
+   math-collision ($ currency vs $…$), locale/British-spelling, broken references,
+   and (tools/qa-browser.js) every lesson in headless Chrome at 1280/390 px, failing
+   any diagram label under 9 px on a phone. --no-browser skips the Chrome step.
    Standard for "done": 0 issues across the board. Exits non-zero on any failure. */
 "use strict";
 const fs = require("fs");
@@ -105,6 +107,19 @@ COURSE.modules.forEach((mod) => mod.lessons.forEach((l) => {
   if (!CONTENT[l.id]) { fail(`manifest lesson "${l.id}" has no compiled content`); refIssues++; }
 }));
 if (!refIssues) console.log("  ✓ all diagram keys resolve; manifest ↔ content in sync");
+
+/* ---- 6. every lesson in headless Chrome, 1280 + 390 px (skip with --no-browser) ---- */
+section("Browser: 48 lessons x 1280/390 px, console, overflow, interactives, labels >= 9 px on a phone");
+if (process.argv.includes("--no-browser")) console.log("  - skipped (--no-browser)");
+else {
+  const r = cp.spawnSync(process.execPath, [path.join(__dirname, "qa-browser.js"), "all"], { cwd: ROOT, encoding: "utf8", timeout: 1800000 });
+  const lines = (r.stdout || "").split(/\r?\n/);
+  lines.filter((l) => /^FAIL|^     /.test(l)).slice(0, 40).forEach((l) => console.log("  ✗ " + l.trim()));
+  const tot = lines.find((l) => /^TOTAL/.test(l)) || ("qa-browser.js did not finish: " + (r.stderr || "").slice(0, 300));
+  if (/Chrome not found/.test(r.stdout || "")) console.log("  - Chrome not found, browser checks skipped");
+  else if (r.status !== 0) fail("browser checks: " + tot.trim());
+  else console.log("  ✓ " + tot.trim());
+}
 
 /* ---- summary ---- */
 console.log("\n" + (problems ? "❌ " + problems + " issue(s) — fix before shipping." :
