@@ -40,7 +40,7 @@
     return L(x1, y1, bx, by, c, w || 2.2) + (len > 2 ? '<polygon points="' + r1(x2) + "," + r1(y2) + " " + r1(p1[0]) + "," + r1(p1[1]) + " " + r1(p2[0]) + "," + r1(p2[1]) + '" style="fill:' + c + '"/>' : "");
   }
   function r1(v) { return Math.round(v * 10) / 10; }
-  function f(v, d) { return (+v).toFixed(d == null ? 3 : d); }
+  function f(v, d) { var t = (+v).toFixed(d == null ? 3 : d); return /^-0(\.0+)?$/.test(t) ? t.slice(1) : t; } // no "-0.00"
   function pct(v, d) { return (100 * v).toFixed(d == null ? 1 : d) + "%"; }
 
   /* frame: title, svg, controls, readout. controls = array of control specs */

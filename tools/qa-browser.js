@@ -72,12 +72,23 @@ async function run() {
   ids = ids.map((i) => i.split(":")[1]);
   if (SHOTS) fs.mkdirSync(SHOTS, { recursive: true });
   let fail = 0, total = 0, minAll = 99;
+  const shoot = async (id, w, tag) => {
+        const box = await ev("(()=>{const s=document.querySelector('.simple-panel');if(!s)return null;const r=s.getBoundingClientRect();return {y:r.top+scrollY-10,h:r.height+20}})()");
+        if (box) {
+          await send("Emulation.setDeviceMetricsOverride", { width: w, height: Math.min(Math.ceil(box.y + box.h), 7000), deviceScaleFactor: 1, mobile: w < 768 });
+          await sleep(400);
+          const s = await send("Page.captureScreenshot", { format: "jpeg", quality: 60, clip: { x: 0, y: box.y, width: w, height: Math.min(box.h, 6500), scale: w > 800 ? 0.6 : 1 } });
+          fs.writeFileSync(path.join(SHOTS, id + "-" + w + tag + ".jpg"), Buffer.from(s.result.data, "base64"));
+          await send("Emulation.setDeviceMetricsOverride", { width: w, height: 900, deviceScaleFactor: 1, mobile: w < 768 });
+        }
+  };
   for (const w of [1280, 390]) {
     await send("Emulation.setDeviceMetricsOverride", { width: w, height: 900, deviceScaleFactor: 1, mobile: w < 768 });
     for (const id of ids) {
       errs.length = 0;
       await ev("location.hash='#/'"); await sleep(120);
       await ev("location.hash='#/l/" + id + "'"); await sleep(900);
+      if (SHOTS) await shoot(id, w, "-before");
       const r = await ev("(" + pageCheck.toString() + ")(" + JSON.stringify({ id, w, FLOOR }) + ")");
       await sleep(80);
       if (errs.length) r.issues.push("console: " + errs.join(" | ").slice(0, 400));
@@ -85,16 +96,7 @@ async function run() {
       if (w === 390 && r.minPx < minAll) minAll = r.minPx;
       console.log((r.issues.length ? "FAIL " : "ok   ") + w + " " + id + (w === 390 ? " minLabel=" + r.minPx.toFixed(1) + "px swipe=" + r.swipe : "") +
         (r.viz.length ? " viz:" + r.viz.join(",") : "") + (r.issues.length ? "\n     " + r.issues.join("\n     ") : ""));
-      if (SHOTS) {
-        const box = await ev("(()=>{const s=document.querySelector('.simple-panel');if(!s)return null;const r=s.getBoundingClientRect();return {y:r.top+scrollY-10,h:r.height+20}})()");
-        if (box) {
-          await send("Emulation.setDeviceMetricsOverride", { width: w, height: Math.min(Math.ceil(box.y + box.h), 7000), deviceScaleFactor: 1, mobile: w < 768 });
-          await sleep(400);
-          const s = await send("Page.captureScreenshot", { format: "jpeg", quality: 60, clip: { x: 0, y: box.y, width: w, height: Math.min(box.h, 6500), scale: w > 800 ? 0.6 : 1 } });
-          fs.writeFileSync(path.join(SHOTS, id + "-" + w + ".jpg"), Buffer.from(s.result.data, "base64"));
-          await send("Emulation.setDeviceMetricsOverride", { width: w, height: 900, deviceScaleFactor: 1, mobile: w < 768 });
-        }
-      }
+      if (SHOTS) await shoot(id, w, "");
     }
   }
   console.log("TOTAL " + total + " FAIL " + fail + "  smallest label at 390 px: " + minAll.toFixed(1) + " px (floor " + FLOOR + ")");
