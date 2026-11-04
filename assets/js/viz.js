@@ -441,6 +441,143 @@
     F.on(draw); draw();
   };
 
+  var P2 = P;  // polyline helper alias (P is shadowed inside some builders)
+  /* =====================================================================
+     M8 Grover — success chance after k iterations: sin²((2k+1)θ), θ = asin(1/√N)
+     ===================================================================== */
+  V["grover-curve"] = function (host) {
+    var F = frame(host, "Grover's search: chance of finding the one marked item after k rounds", 480, 270,
+      [{ type: "range", id: "nq", label: "Search space N = 2^n, n =", min: 2, max: 20, step: 1, value: 3 },
+       { type: "range", id: "k", label: "Grover rounds k =", min: 0, max: 100, step: 1, value: 2 }],
+      "Curve of success probability against number of Grover iterations, with the optimal round and the current round marked");
+    function draw() {
+      var n = F.val("nq"), N = Math.pow(2, n), th = Math.asin(1 / Math.sqrt(N)), kopt = Math.floor(Math.PI / (4 * th));
+      var kmax = Math.max(3, Math.ceil(2.6 * kopt) + 1), kin = host.querySelector('[data-id="k"]');
+      kin.max = kmax; var k = Math.min(F.val("k"), kmax);
+      F.out("nq", n + " (N = " + N.toLocaleString("en-US") + ")"); F.out("k", k);
+      var P = function (kk) { var s = Math.sin((2 * kk + 1) * th); return s * s; };
+      var x0 = 46, x1 = 460, y0 = 30, y1 = 220, X = function (kk) { return x0 + kk / kmax * (x1 - x0); }, Y = function (p) { return y1 - p * (y1 - y0); };
+      var o = L(x0, y1, x1, y1, "var(--faint)", 1.2) + L(x0, y0, x0, y1, "var(--faint)", 1.2);
+      [0, 0.5, 1].forEach(function (p) { o += T(x0 - 6, Y(p) + 4, Math.round(100 * p) + "%", { s: 11, c: "var(--faint)", a: "end" }); o += L(x0, Y(p), x1, Y(p), "var(--border)", 0.8); });
+      var pts = [], steps = Math.min(400, kmax * 8);
+      for (var i = 0; i <= steps; i++) { var kk = i / steps * kmax; pts.push([X(kk), Y(P(kk))]); }
+      o += P2(pts, "rgba(34,211,238,.35)", 1.4);
+      for (var j = 0; j <= kmax && kmax <= 120; j++) o += C(X(j), Y(P(j)), kmax > 60 ? 1.6 : 3, "var(--acc2)", "none");
+      o += L(X(kopt), y0, X(kopt), y1, "var(--good)", 1.4, "4 3") + T(X(kopt), y1 + 16, "best k = " + kopt, { s: 12, c: "var(--good)" });
+      o += C(X(k), Y(P(k)), 6, "var(--warn)", "#0b0e14", 2) + T(Math.min(X(k) + 10, 410), Math.max(Y(P(k)) - 10, 44), pct(P(k), 1), { s: 14, b: true, c: "var(--warn)", a: "start" });
+      o += T((x0 + x1) / 2, 258, "Grover rounds k (dots are whole rounds)", { s: 12, c: "var(--dim)" });
+      F.draw(o);
+      F.read.innerHTML = "θ = asin(1/√N) = " + f(th, 4) + " rad, and after k rounds P = sin²((2k + 1)θ) = <b>" + pct(P(k), 1) + "</b>. The best round is k = " + kopt +
+        " ≈ (π/4)√N, with P = " + pct(P(kopt), 2) + ". Checking one item at a time would need about N/2 = " + (N / 2).toLocaleString("en-US") + " tries on average. Go past the best round and the chance falls again: Grover overshoots.";
+    }
+    F.on(draw); draw();
+  };
+
+  /* =====================================================================
+     M8 Hamiltonian simulation — the lesson's 3-qubit Ising chain:
+     H = J(Z0Z1 + Z1Z2) + h(X0 + X1 + X2), J = 1, h = 0.8, from |000>.
+     Exact e^{-iHt} via Jacobi eigen-decomposition (H is real symmetric),
+     Trotter circuits built from Rx(2h dt) and exp(-i J dt ZZ), error = ||psi_trot - psi_exact||.
+     ===================================================================== */
+  /* @@HAM-CORE-START */
+  var HAM = (function () {
+    var n = 3, D = 8, J = 1.0, h = 0.8;
+    function bit(i, q) { return (i >> (n - 1 - q)) & 1; }
+    function buildH() {
+      var Hm = []; for (var i = 0; i < D; i++) { Hm.push(new Array(D).fill(0)); }
+      for (var i2 = 0; i2 < D; i2++) {
+        for (var q = 0; q < n - 1; q++) Hm[i2][i2] += J * (bit(i2, q) === bit(i2, q + 1) ? 1 : -1);
+        for (var q2 = 0; q2 < n; q2++) Hm[i2][i2 ^ (1 << (n - 1 - q2))] += h;
+      }
+      return Hm;
+    }
+    function jacobi(A0) {
+      var A = A0.map(function (r) { return r.slice(); }), V = [];
+      for (var i = 0; i < D; i++) { V.push(new Array(D).fill(0)); V[i][i] = 1; }
+      for (var sweep = 0; sweep < 100; sweep++) {
+        var off = 0; for (var p = 0; p < D; p++) for (var q = p + 1; q < D; q++) off += A[p][q] * A[p][q];
+        if (off < 1e-26) break;
+        for (var p2 = 0; p2 < D; p2++) for (var q3 = p2 + 1; q3 < D; q3++) {
+          if (Math.abs(A[p2][q3]) < 1e-300) continue;
+          var th = (A[q3][q3] - A[p2][p2]) / (2 * A[p2][q3]);
+          var tt = (th >= 0 ? 1 : -1) / (Math.abs(th) + Math.sqrt(th * th + 1)), c = 1 / Math.sqrt(tt * tt + 1), s = tt * c;
+          for (var k = 0; k < D; k++) { var akp = A[k][p2], akq = A[k][q3]; A[k][p2] = c * akp - s * akq; A[k][q3] = s * akp + c * akq; }
+          for (var k2 = 0; k2 < D; k2++) { var apk = A[p2][k2], aqk = A[q3][k2]; A[p2][k2] = c * apk - s * aqk; A[q3][k2] = s * apk + c * aqk; }
+          for (var k3 = 0; k3 < D; k3++) { var vkp = V[k3][p2], vkq = V[k3][q3]; V[k3][p2] = c * vkp - s * vkq; V[k3][q3] = s * vkp + c * vkq; }
+        }
+      }
+      return { E: A.map(function (r, i) { return r[i]; }), V: V };
+    }
+    var EIG = jacobi(buildH());
+    function exact(t) {  // V diag(e^{-iEt}) V^T |000>
+      var re = new Array(D).fill(0), im = new Array(D).fill(0);
+      for (var m = 0; m < D; m++) {
+        var c0 = EIG.V[0][m], ph = -EIG.E[m] * t, cr = Math.cos(ph) * c0, ci = Math.sin(ph) * c0;
+        for (var i = 0; i < D; i++) { re[i] += EIG.V[i][m] * cr; im[i] += EIG.V[i][m] * ci; }
+      }
+      return [re, im];
+    }
+    function rx(st, q, theta) {
+      var c = Math.cos(theta / 2), s = Math.sin(theta / 2), m = 1 << (n - 1 - q), re = st[0], im = st[1];
+      for (var i = 0; i < D; i++) {
+        if (i & m) continue; var j = i | m;
+        var ar = re[i], ai = im[i], br = re[j], bi = im[j];
+        re[i] = c * ar + s * bi; im[i] = c * ai - s * br;   // c·a − i s·b
+        re[j] = c * br + s * ai; im[j] = c * bi - s * ar;   // −i s·a + c·b
+      }
+    }
+    function zz(st, a, b, theta) {  // exp(-i theta Z_a Z_b)
+      for (var i = 0; i < D; i++) {
+        var z = bit(i, a) === bit(i, b) ? 1 : -1, ph = -theta * z, c = Math.cos(ph), s = Math.sin(ph), r = st[0][i], m = st[1][i];
+        st[0][i] = c * r - s * m; st[1][i] = c * m + s * r;
+      }
+    }
+    function trotter(r, order, t) {
+      var st = [new Array(D).fill(0), new Array(D).fill(0)], dt = t / r; st[0][0] = 1;
+      for (var step = 0; step < r; step++) {
+        var q;
+        if (order === 1) { for (q = 0; q < n; q++) rx(st, q, 2 * h * dt); for (q = 0; q < n - 1; q++) zz(st, q, q + 1, J * dt); }
+        else { for (q = 0; q < n; q++) rx(st, q, h * dt); for (q = 0; q < n - 1; q++) zz(st, q, q + 1, J * dt); for (q = 0; q < n; q++) rx(st, q, h * dt); }
+      }
+      return st;
+    }
+    function err(r, order, t) {
+      var a = trotter(r, order, t), e = exact(t), s = 0;
+      for (var i = 0; i < D; i++) { var dr = a[0][i] - e[0][i], di = a[1][i] - e[1][i]; s += dr * dr + di * di; }
+      return Math.sqrt(s);
+    }
+    return { err: err, cnots: function (r) { return 2 * (n - 1) * r; } };
+  })();
+  /* @@HAM-CORE-END */
+  V["trotter-error"] = function (host) {
+    var F = frame(host, "Trotter steps: more steps, smaller error, more gates", 480, 280,
+      [{ type: "range", id: "r", label: "Trotter steps r =", min: 1, max: 64, step: 1, value: 4 },
+       { type: "range", id: "t", label: "Evolution time t =", min: 0.25, max: 3, step: 0.25, value: 1 }],
+      "Log-log plot of first- and second-order Trotter error against the number of steps for the lesson's 3-qubit Ising chain");
+    function draw() {
+      var r = F.val("r"), t = F.val("t"); F.out("r", r); F.out("t", f(t, 2));
+      var x0 = 56, x1 = 460, y0 = 24, y1 = 220, lmin = -7, lmax = 1;
+      var X = function (rr) { return x0 + Math.log2(rr) / 6 * (x1 - x0); }, Y = function (e) { var l = Math.log10(Math.max(e, 1e-7)); return y1 - (l - lmin) / (lmax - lmin) * (y1 - y0); };
+      var o = L(x0, y1, x1, y1, "var(--faint)", 1.2) + L(x0, y0, x0, y1, "var(--faint)", 1.2);
+      for (var l = lmin; l <= lmax; l += 2) { o += L(x0, Y(Math.pow(10, l)), x1, Y(Math.pow(10, l)), "var(--border)", 0.8); o += T(x0 - 6, Y(Math.pow(10, l)) + 4, "10" + sup(l), { s: 11, c: "var(--faint)", a: "end" }); }
+      [1, 2, 4, 8, 16, 32, 64].forEach(function (rr) { o += T(X(rr), y1 + 16, String(rr), { s: 11, c: "var(--faint)" }); });
+      var p1 = [], p2 = [];
+      for (var rr = 1; rr <= 64; rr++) { p1.push([X(rr), Y(HAM.err(rr, 1, t))]); p2.push([X(rr), Y(HAM.err(rr, 2, t))]); }
+      o += P2(p1, "var(--warn)", 2.2) + P2(p2, "var(--acc2)", 2.2);
+      var e1 = HAM.err(r, 1, t), e2 = HAM.err(r, 2, t);
+      o += L(X(r), y0, X(r), y1, "var(--good)", 1.2, "4 3") + C(X(r), Y(e1), 5, "var(--warn)", "#0b0e14", 1.5) + C(X(r), Y(e2), 5, "var(--acc2)", "#0b0e14", 1.5);
+      o += T(x1, 40, "1st order", { s: 12, c: "var(--warn)", a: "end" }) + T(x1, 58, "2nd order", { s: 12, c: "var(--acc2)", a: "end" });
+      o += T((x0 + x1) / 2, 254, "Trotter steps r (log scale)   ·   CNOTs = 4r = " + HAM.cnots(r), { s: 12, c: "var(--dim)" });
+      F.draw(o);
+      var d1 = r <= 32 ? HAM.err(r, 1, t) / HAM.err(2 * r, 1, t) : null, d2 = r <= 32 ? HAM.err(r, 2, t) / HAM.err(2 * r, 2, t) : null;
+      F.read.innerHTML = "Exact answer vs Trotter circuit for H = Z0Z1 + Z1Z2 + 0.8(X0 + X1 + X2) from |000⟩. At r = " + r + ": 1st-order error <b>" + e1.toExponential(2) +
+        "</b>, 2nd-order error <b>" + e2.toExponential(2) + "</b>, using " + HAM.cnots(r) + " CNOTs." +
+        (d1 ? " Doubling r shrinks them ×" + f(d1, 2) + " and ×" + f(d2, 2) + " (the 1/r and 1/r² laws)." : "") +
+        " On real hardware every extra CNOT adds noise, so the best r is a trade-off.";
+    }
+    F.on(draw); draw();
+  };
+
   /* @@VIZ-INSERT */
 
   /* ---------- mount + simple-section styling ---------- */

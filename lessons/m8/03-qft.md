@@ -1,5 +1,24 @@
 # The quantum Fourier transform
 
+## The simple version
+
+**In plain English.** The quantum Fourier transform (QFT) is a circuit that finds repeating patterns. If the amplitudes of a state repeat every r steps, the QFT gathers them into sharp peaks spaced N/r apart. Measuring then shows one of those peaks, and the spacing reveals the period r. The circuit uses only H gates and small controlled phase turns, about n² gates for n qubits. It is the engine inside phase estimation and Shor's algorithm.
+
+**The everyday picture: a music app that names the note you hum.**
+
+| In the picture | In the real thing |
+|---|---|
+| The sound wave of your humming | A state whose amplitudes repeat with period r |
+| The app's pitch display | The QFT output |
+| One sharp spike at the right note | Peaks at multiples of N/r |
+| Reading the note's name off the display | Measuring and working out r |
+
+**Where the picture breaks.** The app shows the whole spectrum at once. The QFT output is still quantum, so one measurement gives you just one peak, chosen at random; you may need a few runs and some classical math. And the QFT is not a faster way to Fourier-transform your data: loading the data and reading out all the answers would cost more than a normal FFT.
+
+@@diagram:p2-qft|Amplitude on positions 0, 2, 4 and 6 (period 2 out of 8) becomes two equal peaks at 0 and 4. The spacing, N/r = 4, gives away the period.
+
+## Going deeper
+
 The QFT is the engine block of quantum computing's most famous results: phase estimation runs on it, Shor's algorithm is essentially one giant QFT sandwich, and quantum arithmetic borrows it constantly. It performs the same transform as the classical FFT — converting between "values" and "frequencies" — but on $2^n$ amplitudes using only $O(n^2)$ gates. That's an exponential circuit-size advantage with one enormous asterisk you must be able to explain: the output lives in amplitudes you cannot simply read.
 
 ## Start here — the intuition
@@ -210,3 +229,7 @@ Total infidelity ≈ approximation² + accumulated gate noise; minimizing the su
 - ☐ Explain the two I/O debts, and judge whether a proposed "quantum FFT" application is real or a pitch.
 - ☐ Say why AQFT can beat the exact QFT on real hardware, in one sentence about the noise floor.
 - ☐ Name the three convention traps (bit‑reversal, endianness, CP‑vs‑CRz) and the test that catches each.
+
+## In one line
+
+The QFT turns 'repeats every r steps' into peaks you can measure, and that is how quantum computers find periods.

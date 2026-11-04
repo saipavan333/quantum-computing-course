@@ -1,5 +1,27 @@
 # Hamiltonian simulation & Trotterization
 
+## The simple version
+
+**In plain English.** Hamiltonian simulation means using a quantum computer to imitate how a physical system, like a molecule or a magnet, changes over time. The rule for that change is called the Hamiltonian, H. You can't build e^(−iHt) as one gate, but you can build its simple pieces. Trotterization slices the time into r thin steps and alternates the pieces in each step. More steps mean a smaller error but more gates, and on real hardware more gates mean more noise.
+
+**The everyday picture: walking diagonally across a city grid.**
+
+| In the picture | In the real thing |
+|---|---|
+| The straight diagonal line you want | The exact evolution e^(−iHt) |
+| Streets that only go east or north | The pieces you can build: e^(−iA·dt) and e^(−iB·dt) |
+| Zig-zagging one block east, one block north | One Trotter step |
+| Smaller blocks hug the diagonal better | More steps r: smaller error |
+| More corners to turn | More gates, so more hardware noise |
+
+**Where the picture breaks.** On a grid, east-then-north lands at the same corner as north-then-east. Quantum pieces that don't commute land in slightly different places depending on the order, and that mismatch is exactly the Trotter error. The second-order trick (half a step of A, a full step of B, half a step of A) cancels the biggest part of it, which a zig-zag walk can't do.
+
+@@diagram:p2-hamsim|The exact evolution compared with 1, 4 and 8 rounds of alternating slices. Doubling the slices halves the first-order error and quarters the second-order error.
+
+@@viz:trotter-error
+
+## Going deeper
+
 Simulating how a quantum system changes over time is the job quantum computers were first proposed for, and it is still the application most experts expect to pay off first. Chemistry, materials and magnets all come down to one operation: apply $e^{-iHt}$ to a state, where $H$ is the system's Hamiltonian (its energy operator). This lesson shows how to turn that one smooth evolution into a circuit of ordinary gates (Trotterization), how big the error is, what it costs in CNOTs, and why noise sets a hard limit on how far you can push it today. It also places the task in complexity terms (BQP) and introduces the language for noise you need at the same time (quantum channels).
 
 ## Start here — the intuition
@@ -251,3 +273,7 @@ $\frac{d}{dr}\left(\frac{c}{r^2} + kpr\right) = -\frac{2c}{r^3} + kp = 0 \Righta
 - ☐ Say what "in BQP" means and what it does not prove.
 - ☐ Write a channel in Kraus form and explain why noise creates an optimal step count.
 - ☐ Critique a utility or advantage claim using the 2023 IBM case.
+
+## In one line
+
+To simulate nature, slice time into small steps of buildable pieces; more slices are more accurate but cost more gates.

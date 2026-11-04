@@ -1,5 +1,27 @@
 # Grover's search: find a needle in a haystack of a million
 
+## The simple version
+
+**In plain English.** Grover's algorithm searches N unsorted items for one marked item. A normal computer checks items one at a time, about N/2 checks on average. Grover starts with every item equally likely, then repeats a two-step round. First the oracle flips the sign of the marked item, then a 'diffuser' reflects every amplitude about the average, which grows the marked one. After about (π/4)√N rounds the marked item is very likely; for a million items that is about 785 rounds.
+
+**The everyday picture: pushing a swing.**
+
+| In the picture | In the real thing |
+|---|---|
+| The swing at rest | All items equally likely at the start |
+| Each push, timed with the swing | One Grover round: oracle, then diffuser |
+| The swing climbs a little higher each push | The marked item's chance grows each round |
+| Pushing at the wrong moment slows it down | Too many rounds: the chance falls again (overshoot) |
+| Pushes needed grow slowly with the swing's size | Rounds grow like √N, not N |
+
+**Where the picture breaks.** A swing keeps its height if you stop pushing at the top; Grover's chance keeps rotating, so stopping too late is as bad as too early. The speedup is also only quadratic: √N instead of N. That helps for huge searches, but each round on hardware is costly, so it doesn't make everyday search engines obsolete.
+
+@@diagram:p2-grover|8 items, item 3 marked. The oracle flips its sign; reflecting every bar about the mean (dashed line) raises it to 0.884, a 78.1% chance after one round.
+
+@@viz:grover-curve
+
+## Going deeper
+
 Grover's algorithm finds a marked item among $N$ possibilities in about $\tfrac{\pi}{4}\sqrt N$ tries, where classical search needs about $N/2$ on average. A million items: ~804 tries instead of ~500,000. It is the most broadly useful quantum algorithm you will meet — its core move, **amplitude amplification**, is a reusable part that boosts many other algorithms — and it is provably the best any quantum computer can do on unstructured search. We will build it from the picture up, then hand you the professional-grade version.
 
 ## Start here — the intuition
@@ -243,3 +265,7 @@ Why uncomputation is mandatory: after `predicate`, the scratch qubit is *entangl
 - ☐ Build the oracle + diffuser for a 3-qubit winner in code and reach ~95%.
 - ☐ Explain to a skeptic why Grover does not speed up ordinary database search.
 - ☐ Recognize amplitude amplification as the reusable, general form of the trick.
+
+## In one line
+
+Grover repeats 'flip the marked sign, reflect about the average' about √N times to make the marked item the likely result.

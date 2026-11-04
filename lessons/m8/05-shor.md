@@ -1,5 +1,24 @@
 # Shor's algorithm & why RSA cares
 
+## The simple version
+
+**In plain English.** RSA encryption is safe because nobody knows a fast way to split a huge number into its two prime factors. Shor showed that factoring comes down to finding the period of a repeating sequence. Quantum phase estimation finds periods fast. For N = 15, the sequence 7ˣ mod 15 repeats every 4, and two gcd steps then give 3 and 5. For RSA-2048, the best 2025 estimate is about 1,500 error-corrected qubits and under a million physical ones. Today's machines are about 1,000 times too small, so the threat is real but not here yet.
+
+**The everyday picture: finding the beat of a song to crack a lock.**
+
+| In the picture | In the real thing |
+|---|---|
+| A lock whose combination is the two factors of N | RSA: N = p × q |
+| The song made by repeatedly multiplying by 7 (mod N) | The sequence aˣ mod N |
+| Finding how often the song repeats | The quantum step: period finding with QPE |
+| Using the beat to work out the combination | gcd(a^(r/2) ± 1, N) gives the factors |
+
+**Where the picture breaks.** In the story anyone could hum along and find the beat. For a 2,048-bit number the sequence is far too long to list, which is why only the quantum period finder makes it practical. And the 'quantum computer' needed is a large fault-tolerant machine that does not exist yet; the small factoring demos so far used shortcuts.
+
+@@diagram:p2-shor|N = 15, a = 7: the sequence 1, 7, 4, 13 repeats every 4, so r = 4. Then gcd(48, 15) = 3 and gcd(50, 15) = 5. RSA-2048 needs about 1,500 logical and under 1 million physical qubits (Gidney 2025).
+
+## Going deeper
+
 This is the algorithm that created the field's urgency. In 1994 Peter Shor showed a quantum computer can factor an $n$-digit number in time polynomial in $n$ — exponentially faster than any known classical method — which means a large enough quantum computer breaks RSA, the encryption securing most of the internet. It's the reason governments fund quantum research and NIST standardized post-quantum cryptography. It's also, mechanically, a victory lap for this whole module: **Shor = clever number theory + QPE on modular multiplication + a classical cleanup.** You've built every piece; today you see the assembly, then compute the sober resource estimates that separate the threat's reality from its timeline.
 
 ## Start here — the intuition
@@ -204,3 +223,7 @@ Checked 3 November 2026. Roadmap items are company *targets*, not results.
 - ☐ Recover a period from a measured phase with continued fractions, and know when to retry.
 - ☐ Quote the RSA-2048 resource estimate and the logical-vs-physical distinction without conflating them.
 - ☐ Give the CISO briefing: not-soon and migrate-now, Shor vs Grover, and the post-quantum standards.
+
+## In one line
+
+Shor turns factoring into finding a repeat, a quantum computer finds the repeat, and a big enough machine would break RSA.

@@ -1707,6 +1707,109 @@
     return svg(276, b, "three layers of tests: exact statevector unit tests, statistical shot tests with a 3 sigma tolerance, and rare hardware smoke tests");
   })();
 
+  // ---- P2 M8: Deutsch–Jozsa — signs stamped by the oracle, averaged by H ----
+  D["p2-deutsch-jozsa"] = (() => {
+    let b = t(320, 24, "One oracle call: stamp signs, then let H average them", { bold: true, size: 15 });
+    const rows = [["constant f (all 0)", [1, 1, 1, 1], "average = +1", "reads 00: constant", C.good, C.goodT], ["balanced f (f = first bit)", [1, 1, -1, -1], "average = 0", "not 00: balanced", C.warn, C.warnT]];
+    rows.forEach((r, i) => {
+      const y = 60 + i * 104, mid = y + 38;
+      b += t(24, y, r[0], { size: 13, bold: true, fill: r[5], a: "start" });
+      b += ln(24, mid, 300, mid, { stroke: C.boxS });
+      r[1].forEach((s, j) => { const x = 40 + j * 64, h = 30; b += box(x, s > 0 ? mid - h : mid, 40, h, { r: 3, fill: s > 0 ? C.cyanFill : C.badFill, stroke: s > 0 ? C.cyan : C.bad }); b += t(x + 20, mid + (s > 0 ? 18 : -36), ["00", "01", "10", "11"][j], { size: 11, fill: C.dim }); });
+      b += arrR(310, mid, 360, { stroke: C.line }) + t(335, mid - 8, "H⊗H", { size: 12, fill: C.accT });
+      b += box(366, mid - 22, 120, 44, { stroke: r[4] }) + t(426, mid - 2, r[2], { size: 13, bold: true, fill: r[5] }) + t(426, mid + 15, "= amp. of 00", { size: 11, fill: C.dim });
+      b += arrR(488, mid, 506, { stroke: C.line }) + t(512, mid + 5, r[3], { size: 12, fill: r[5], a: "start" });
+    });
+    b += t(320, 272, "Bars are amplitudes of the 4 inputs after the oracle: + for f(x) = 0, − for f(x) = 1.", { size: 12, fill: C.dim });
+    return svg(286, b, "constant function leaves all four signs positive so the average is 1; a balanced one makes two negative so the average is 0");
+  })();
+
+  // ---- P2 M8: Grover — one round: oracle flips, diffuser reflects about the mean ----
+  D["p2-grover"] = (() => {
+    let b = t(320, 24, "One Grover round on 8 items (marked item: 3)", { bold: true, size: 15 });
+    const s8 = 1 / Math.sqrt(8), panels = [["start: all equal", Array(8).fill(s8), "each 0.354, P = 12.5%"],
+      ["oracle flips the marked sign", [s8, s8, s8, -s8, s8, s8, s8, s8], "mean = 0.265"],
+      ["reflect about the mean", [0.177, 0.177, 0.177, 0.884, 0.177, 0.177, 0.177, 0.177], "marked 0.884, P = 78.1%"]];
+    panels.forEach((p, i) => {
+      const x0 = 18 + i * 208, mid = 150, sc = 100;
+      b += t(x0 + 96, 52, p[0], { size: 12, bold: true, fill: i === 2 ? C.goodT : C.tx });
+      b += ln(x0, mid, x0 + 192, mid, { stroke: C.boxS });
+      p[1].forEach((a, j) => { const h = Math.abs(a) * sc, x = x0 + 4 + j * 23.5; b += box(x, a >= 0 ? mid - h : mid, 17, h, { r: 2, fill: j === 3 ? C.warnFill : C.cyanFill, stroke: j === 3 ? C.warn : C.cyan }); });
+      if (i === 1) b += ln(x0, mid - 0.265 * sc, x0 + 192, mid - 0.265 * sc, { stroke: C.good, dash: "4 3" });
+      b += t(x0 + 96, 214, p[2], { size: 12, fill: i === 2 ? C.goodT : C.dim });
+      if (i < 2) b += arrR(x0 + 194, 100, x0 + 206, { stroke: C.faint });
+    });
+    b += t(320, 248, "Repeat about (π/4)√N times: 2 rounds give 94.5%, a 3rd overshoots to 33.0%.", { size: 13, fill: C.tx });
+    b += t(320, 270, "For a million items that is about 785 rounds instead of about 500,000 checks.", { size: 12, fill: C.dim });
+    return svg(284, b, "three bar charts: equal amplitudes, the marked one flipped negative, then reflection about the mean makes the marked amplitude 0.884");
+  })();
+
+  // ---- P2 M8: QFT — a repeating pattern in, sharp peaks out ----
+  D["p2-qft"] = (() => {
+    let b = t(320, 24, "The QFT turns a repeating pattern into sharp peaks", { bold: true, size: 15 });
+    const inp = [1, 0, 1, 0, 1, 0, 1, 0].map(v => v * 0.5), out = [0.707, 0, 0, 0, 0.707, 0, 0, 0];
+    const row = (vals, y, col, colF, lab, sc) => {
+      let s = t(24, y - 46, lab, { size: 13, bold: true, fill: C.tx, a: "start" }) + ln(60, y, 600, y, { stroke: C.boxS });
+      vals.forEach((v, j) => { const x = 74 + j * 66, h = v * sc; if (h > 0) s += box(x, y - h, 36, h, { r: 3, fill: colF, stroke: col }); s += t(x + 18, y + 16, String(j), { size: 12, fill: C.dim }); });
+      return s;
+    };
+    b += row(inp, 112, C.acc, C.accFill, "Input: amplitude on 0, 2, 4, 6 (period r = 2, N = 8)", 80);
+    b += arrD(320, 136, 160, { stroke: C.line }) + t(334, 153, "QFT", { size: 13, bold: true, fill: C.accT, a: "start" });
+    b += row(out, 232, C.good, C.goodFill, "Output: peaks at 0 and 4, the multiples of N/r = 4", 80);
+    b += t(320, 270, "Measure, read the peak spacing, and the period r falls out. Shor relies on this.", { size: 12, fill: C.dim });
+    return svg(284, b, "input amplitudes on every second position become two output peaks at 0 and 4 after the quantum Fourier transform");
+  })();
+
+  // ---- P2 M8: QPE — phase kickback winds each counting qubit; QFT† reads the binary ----
+  D["p2-qpe"] = (() => {
+    let b = t(320, 24, "Phase estimation: each counting qubit picks up the phase × 1, 2, 4 …", { bold: true, size: 15 });
+    b += t(320, 48, "Hidden phase φ = 0.625 of a full turn (binary 0.101)", { size: 13, fill: C.warnT });
+    const q = [["U¹", 0.625, "0.625 turn"], ["U²", 0.25, "1.25 → 0.25 turn"], ["U⁴", 0.5, "2.5 → 0.5 turn"]];
+    q.forEach((d, i) => {
+      const cx = 100 + i * 150, cy = 130, R = 40, a = 2 * Math.PI * d[1];
+      b += circ(cx, cy, R, { fill: "none", stroke: C.boxS });
+      b += arr(cx, cy, cx + R * Math.cos(a), cy - R * Math.sin(a), { stroke: C.cyan, sw: 2.4 });
+      b += t(cx, 78, "qubit " + (i + 1) + ": " + d[0], { size: 12, bold: true, fill: C.accT }) + t(cx, 192, d[2], { size: 12, fill: C.dim });
+    });
+    b += arrR(468, 130, 500, { stroke: C.line }) + box(502, 104, 120, 52, { stroke: C.good, fill: C.goodFill }) + t(562, 126, "QFT† reads", { size: 12, fill: C.dim }) + t(562, 146, "101 → 5/8", { size: 14, bold: true, fill: C.goodT });
+    b += t(320, 228, "Each doubling of U shifts the binary point one place, so qubit k holds one bit of φ.", { size: 12, fill: C.tx });
+    b += t(320, 250, "If φ needs more bits, you get one of the two nearest 3-bit values at least 81% of the time.", { size: 11, fill: C.dim });
+    return svg(266, b, "three dials showing phases 0.625, 0.25 and 0.5 turns for U, U squared and U to the fourth; the inverse QFT reads 101 meaning 5/8");
+  })();
+
+  // ---- P2 M8: Shor — period finding for 15, then the 2025 scale ----
+  D["p2-shor"] = (() => {
+    let b = t(320, 24, "Shor's algorithm on N = 15: the quantum part finds one period", { bold: true, size: 15 });
+    const seq = [1, 7, 4, 13, 1, 7, 4, 13];
+    b += t(24, 58, "7ˣ mod 15 for x = 0 … 7:", { size: 13, fill: C.tx, a: "start" });
+    seq.forEach((v, i) => { const x = 210 + i * 50; b += box(x, 40, 42, 30, { r: 5, stroke: i < 4 ? C.cyan : C.boxS, fill: i < 4 ? C.cyanFill : C.box }) + t(x + 21, 60, String(v), { size: 14, bold: true, fill: i < 4 ? C.cyanT : C.dim }); });
+    b += t(373, 88, "repeats every 4: period r = 4 (found by QPE + QFT)", { size: 12, fill: C.cyanT });
+    const st = [["7^(r/2) = 7² = 49", C.acc, C.accT], ["gcd(49 − 1, 15) = 3", C.good, C.goodT], ["gcd(49 + 1, 15) = 5", C.good, C.goodT]];
+    st.forEach((s, i) => { const x = 20 + i * 205; b += box(x, 104, 190, 38, { stroke: s[1] }) + t(x + 95, 128, s[0], { size: 13, bold: true, fill: s[2] }); if (i < 2) b += arrR(x + 192, 123, x + 203, { stroke: C.faint }); });
+    b += t(320, 166, "15 = 3 × 5. Only the period-finding step needs a quantum computer.", { size: 13, fill: C.tx });
+    b += ln(20, 182, 620, 182, { stroke: C.cardEdge });
+    b += t(320, 206, "RSA-2048, best published estimate (Gidney 2025):", { size: 13, bold: true, fill: C.warnT });
+    b += t(320, 228, "about 1,500 error-corrected (logical) qubits, under 1 million physical qubits, under a week", { size: 12, fill: C.tx });
+    b += t(320, 250, "Today's largest machines have hundreds to a few thousand noisy qubits: about a 1,000× gap.", { size: 12, fill: C.dim });
+    return svg(266, b, "the sequence 7 to the x mod 15 repeats with period 4; gcd steps give factors 3 and 5; RSA-2048 needs about 1500 logical and under a million physical qubits");
+  })();
+
+  // ---- P2 M8: hamsim — slice the evolution into alternating steps ----
+  D["p2-hamsim"] = (() => {
+    let b = t(320, 24, "Trotterization: approximate e^(−iHt) with many thin alternating slices", { bold: true, size: 15 });
+    b += t(24, 56, "H = A + B   (A: the X terms, B: the ZZ terms; they don't commute)", { size: 13, fill: C.tx, a: "start" });
+    b += box(24, 70, 592, 34, { stroke: C.good, fill: C.goodFill }) + t(320, 92, "exact: e^(−iHt), one smooth evolution (hard to build as gates)", { size: 13, fill: C.goodT });
+    const rr = [[1, 82], [4, 130], [8, 178]];
+    rr.forEach(([r, y]) => {
+      const w = 592 / (2 * r);
+      b += t(24, y + 42, "r = " + r, { size: 12, fill: C.dim, a: "start" });
+      for (let k = 0; k < 2 * r; k++) b += box(70 + k * (546 / (2 * r)), y + 30, 546 / (2 * r) - 2, 24, { r: 3, fill: k % 2 ? C.warnFill : C.cyanFill, stroke: k % 2 ? C.warn : C.cyan });
+    });
+    b += t(110, 252, "cyan: e^(−iA·dt)", { size: 12, fill: C.cyanT }) + t(260, 252, "gold: e^(−iB·dt)", { size: 12, fill: C.warnT }) + t(470, 252, "dt = t / r", { size: 12, fill: C.dim });
+    b += t(320, 274, "Double r: 1st-order error halves, 2nd-order error quarters, CNOT count doubles.", { size: 12, fill: C.tx });
+    return svg(286, b, "the exact evolution bar compared with 1, 4 and 8 rounds of alternating A and B slices");
+  })();
+
   // @@P2-INSERT
   window.DIAGRAMS = Object.assign(window.DIAGRAMS || {}, D);
 })();

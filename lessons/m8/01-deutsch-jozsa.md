@@ -1,5 +1,25 @@
 # Oracles, Deutsch–Jozsa & Bernstein–Vazirani
 
+## The simple version
+
+**In plain English.** An oracle is a black box that computes some yes/no function f(x) and that you're only allowed to query. Deutsch–Jozsa asks: is f the same for every input (constant), or 0 for exactly half (balanced)? A normal computer may need to check more than half the inputs to be sure. The quantum version feeds in every input at once as a superposition. The oracle stamps a minus sign wherever f(x) = 1, and H gates add those signs up. One query is enough to tell the two cases apart.
+
+**The everyday picture: a choir singing one note.**
+
+| In the picture | In the real thing |
+|---|---|
+| Every singer holds the same note | The uniform superposition over all inputs |
+| Some singers are told to sing upside down (inverted) | The oracle puts a minus sign where f(x) = 1 |
+| Listening to the total sound at the front | The final H gates add all the signed amplitudes |
+| Loud when no one flipped | Constant f: you always read all zeros |
+| Silence when exactly half flipped | Balanced f: you never read all zeros |
+
+**Where the picture breaks.** A choir's sound is there even if no one listens. The quantum 'total' only becomes a result when you measure, and it gives one bit string per run. Also, this is a toy promise problem: a classical computer that may guess with a small chance of error needs only a few queries, so the speedup is real but not useful in practice. It teaches the trick that later algorithms use.
+
+@@diagram:p2-deutsch-jozsa|After the oracle, each of the 4 inputs carries a + or − sign. H⊗H turns the average sign into the amplitude of 00: 1 for constant, 0 for balanced.
+
+## Going deeper
+
 This is where quantum computing first *proved*, mathematically, that it can beat classical computing at something. The something is admittedly artificial — but the mechanism (superposition query → phase kickback → interference readout) is the exact skeleton of Grover, Shor, and phase estimation. Learn Deutsch–Jozsa and Bernstein–Vazirani properly and the rest of Module 8 becomes variations on a theme you already play.
 
 ## Start here — the intuition
@@ -225,3 +245,7 @@ Honest ledger: classical needs exactly $7$ oracle calls and gets $s$ with certai
 - ☐ Build and run a DJ or BV oracle in the live cell, and recover $s$ for a hidden string you pick.
 - ☐ State honestly where DJ's advantage holds (deterministic classical) and where it does not (randomized).
 - ☐ Name the shared skeleton — superpose, query into phase, interfere to read — that Grover, QPE, and Shor all reuse.
+
+## In one line
+
+Deutsch–Jozsa asks the oracle once with every input at the same time and lets the signs add up or cancel to reveal the answer.
