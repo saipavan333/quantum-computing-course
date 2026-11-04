@@ -4,17 +4,18 @@
 
 **In plain English.** Grover's algorithm searches N unsorted items for one marked item. A normal computer checks items one at a time, about N/2 checks on average. Grover starts with every item equally likely, then repeats a two-step round. First the oracle flips the sign of the marked item, then a 'diffuser' reflects every amplitude about the average, which grows the marked one. After about (π/4)√N rounds the marked item is very likely; for a million items that is about 785 rounds.
 
-**The everyday picture: pushing a swing.**
+**The everyday picture: turning a clock hand up toward 12.**
 
 | In the picture | In the real thing |
 |---|---|
-| The swing at rest | All items equally likely at the start |
-| Each push, timed with the swing | One Grover round: oracle, then diffuser |
-| The swing climbs a little higher each push | The marked item's chance grows each round |
-| Pushing at the wrong moment slows it down | Too many rounds: the chance falls again (overshoot) |
-| Pushes needed grow slowly with the swing's size | Rounds grow like √N, not N |
+| 12 o'clock | The marked item |
+| The hand starts just above 3 o'clock | The start: all items equally likely, so the state points almost entirely at 'not marked' |
+| Each round turns the hand the same small step toward 12 | One Grover round (oracle, then diffuser) is a fixed rotation by the angle 2θ |
+| How high the hand points | The marked item's chance: sin² of the hand's angle |
+| Keep turning past 12 and the hand heads down again | Too many rounds: the same correct round now carries the state past the target, and the chance falls (overshoot) |
+| More items: the hand starts nearer 3 and each step is smaller | θ is about 1/√N, so about (π/4)√N rounds reach the top |
 
-**Where the picture breaks.** A swing keeps its height if you stop pushing at the top; Grover's chance keeps rotating, so stopping too late is as bad as too early. The speedup is also only quadratic: √N instead of N. That helps for huge searches, but each round on hardware is costly, so it doesn't make everyday search engines obsolete.
+**Where the picture breaks.** The hand turns in an abstract two-direction picture, 'marked' versus 'everything else', not in the room, and you can't watch it move: measuring gives one item and ends the run. So you must work out the number of rounds in advance, which needs N and the number of marked items. The speedup is also only quadratic: √N instead of N. That helps for huge searches, but each round on hardware is costly, so it doesn't make everyday search engines obsolete.
 
 @@diagram:p2-grover|8 items, item 3 marked. The oracle flips its sign; reflecting every bar about the mean (dashed line) raises it to 0.884, a 78.1% chance after one round.
 

@@ -2,7 +2,7 @@
 
 ## The simple version
 
-**In plain English.** An oracle is a black box that computes some yes/no function f(x) and that you're only allowed to query. Deutsch–Jozsa asks: is f the same for every input (constant), or 0 for exactly half (balanced)? A normal computer may need to check more than half the inputs to be sure. The quantum version feeds in every input at once as a superposition. The oracle stamps a minus sign wherever f(x) = 1, and H gates add those signs up. One query is enough to tell the two cases apart.
+**In plain English.** An oracle is a black box that computes some yes/no function f(x) and that you're only allowed to query. Deutsch–Jozsa asks: is f the same for every input (constant), or 0 for exactly half (balanced)? A normal computer may need to check more than half the inputs to be sure. The quantum version prepares one state with an equal amplitude on every input (a superposition). The oracle stamps a minus sign wherever f(x) = 1, and H gates add those signs up. One query is enough to tell the two cases apart.
 
 **The everyday picture: a choir singing one note.**
 
@@ -248,4 +248,4 @@ Honest ledger: classical needs exactly $7$ oracle calls and gets $s$ with certai
 
 ## In one line
 
-Deutsch–Jozsa asks the oracle once with every input at the same time and lets the signs add up or cancel to reveal the answer.
+Deutsch–Jozsa makes one oracle call on an even mix of all inputs, then lets the signs add up or cancel so one reading reveals the answer.

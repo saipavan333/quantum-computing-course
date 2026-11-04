@@ -2,7 +2,7 @@
 
 ## The simple version
 
-**In plain English.** Very small things, like single atoms and particles of light (photons), follow different rules from everyday objects. Before you measure one, it can be in a superposition: a precise mix of possible results, each with an amplitude. When you measure, you get one ordinary result, picked at random with chances set by those amplitudes. After that, the mix is gone and measuring again gives the same answer. Prepare the same state many times and the random results form a steady pattern you can predict.
+**In plain English.** Very small things, like single atoms and particles of light (photons), follow different rules from everyday objects. Before you measure one, it can be in a superposition: a precise mix of possible results, each with an amplitude. When you measure, you get one ordinary result, picked at random with chances set by those amplitudes. After that, the mix is gone and measuring again the same way gives the same answer. Prepare the same state many times and the random results form a steady pattern you can predict.
 
 **The everyday picture: a spinning coin that you slap flat.**
 
@@ -12,9 +12,9 @@
 | How the coin was flicked | The amplitudes, set by how you prepared it |
 | Slapping it flat on the table | Measuring |
 | It lands heads or tails, randomly | You get 0 or 1, with chances from the amplitudes |
-| Look again: still heads | Measuring again repeats the result (collapse) |
+| Look again: still heads | Measuring again the same way repeats the result (collapse) |
 
-**Where the picture breaks.** A spinning coin is really heads-or-tails underneath, and a fast camera could predict the landing. A qubit has no hidden answer waiting to be read, and its amplitudes can cancel each other, which spinning coins never do. That cancelling is the whole point: the double-slit stripes in this lesson are amplitudes interfering, something no coin can show.
+**Where the picture breaks.** A spinning coin's landing is already settled by how it was flicked, so a fast camera could predict it. A qubit has no hidden answer waiting to be read, and its amplitudes can cancel each other, which spinning coins never do. That cancelling is the whole point: the double-slit stripes in this lesson are amplitudes interfering, something no coin can show.
 
 @@diagram:p2-quantum-world|Ten shots of the same 50/50 state give a random-looking string, but many shots settle near half 0s and half 1s. Measure a second time right away and you get the same answer again.
 

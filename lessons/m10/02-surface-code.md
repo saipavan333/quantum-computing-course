@@ -2,7 +2,7 @@
 
 ## The simple version
 
-**In plain English.** The surface code is the error-correcting code most quantum companies plan to use. It places data qubits on a square grid with check qubits between them. Each check measures the parity of just four neighbors, which suits chips where qubits only talk to neighbors. A decoder program reads which checks lit up and works out the most likely errors. A bigger grid (larger distance d) makes logical errors much rarer, but only if physical errors are below about 1%.
+**In plain English.** The surface code is the most studied quantum error-correcting code, and the one Google's chips use. It places data qubits on a square grid with check qubits between them. Each check measures the parity of just four neighbors, which suits chips where qubits only talk to neighbors. A decoder program reads which checks lit up and works out the most likely errors. A bigger grid (larger distance d) makes logical errors much rarer, but only if physical errors are below about 1%.
 
 **The everyday picture: a checkerboard of smoke detectors.**
 
@@ -20,7 +20,7 @@
 
 ## Going deeper
 
-The surface code is the error‑correcting code the entire industry is betting on — IBM, Google, and most superconducting roadmaps build toward it. It's the reason "millions of physical qubits" appears in Shor resource estimates (Module 8), the code Google's Willow chip demonstrated below‑threshold (Module 0), and the practical realization of last lesson's stabilizer theory. Understanding its structure — the qubit lattice, code distance, threshold, and the physical‑to‑logical overhead arithmetic — lets you read hardware roadmaps critically and speak credibly about the timeline to fault tolerance. This is core knowledge for QEC and hardware‑adjacent roles.
+The surface code is the most studied error‑correcting code and the baseline every newer code is measured against — Google's Willow chips use it, and most superconducting roadmaps started from it. (IBM's Starling plan instead uses bivariate bicycle qLDPC codes, which IBM says correct errors as well with about 10× fewer qubits.) It's the reason "millions of physical qubits" appears in Shor resource estimates (Module 8), the code Google's Willow chip demonstrated below‑threshold (Module 0), and the practical realization of last lesson's stabilizer theory. Understanding its structure — the qubit lattice, code distance, threshold, and the physical‑to‑logical overhead arithmetic — lets you read hardware roadmaps critically and speak credibly about the timeline to fault tolerance. This is core knowledge for QEC and hardware‑adjacent roles.
 
 ## Start here — the intuition
 
@@ -170,6 +170,7 @@ Checked 3 November 2026. Roadmap items are company *targets*, not results.
 - C. Gidney, "How to factor 2048 bit RSA integers with less than a million noisy qubits", arXiv:2505.15917 (May 2025): under 1M qubits, under a week, 0.1% gate error, 1 μs cycle
 - C. Gidney and M. Ekerå, "How to factor 2048 bit RSA integers in 8 hours using 20 million noisy qubits", *Quantum* 5, 433 (2021), arXiv:1905.09749
 - IBM Quantum roadmap, 2026 milestones (Nighthawk, Loon, Kookaburra), page updated March 2026: https://www.ibm.com/roadmaps/quantum/2026
+- IBM Quantum blog, "How IBM will build the world's first large-scale, fault-tolerant quantum computer" (June 2025): Starling is "based on the bivariate bicycle codes"; the gross code needs about 10× fewer qubits than the surface code: https://www.ibm.com/quantum/blog/large-scale-ftqc
 - IBM Quantum roadmap overview, Starling "planned for 2029" to "run 100 million quantum gates on 200 logical qubits" (announced June 2025): https://www.ibm.com/quantum-computing/roadmap
 
 ## Mastery checklist — you are ready to move on when you can

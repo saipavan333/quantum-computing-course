@@ -13,7 +13,7 @@
 | Wiring that only acts when both are on | CZ: a minus sign on \|11⟩ only |
 | Swapping the two switches' positions | SWAP |
 
-**Where the picture breaks.** Wired switches only ever see 'on' or 'off', one case at a time. A control qubit in superposition is both cases' amplitudes at once, so CNOT acts on both and creates entanglement. And the 'control' isn't always untouched: with the target in the right state, the gate's phase lands on the control instead (phase kickback), which wiring can never do.
+**Where the picture breaks.** Wired switches only ever see 'on' or 'off', one case at a time. A control qubit in superposition is one state with an amplitude for each case, and CNOT acts on both parts together, which creates entanglement. And the 'control' isn't always untouched: with the target in the right state, the gate's phase lands on the control instead (phase kickback), which wiring can never do.
 
 @@diagram:p2-two-qubit-gates|What each gate does to the four basis states. Highlighted rows are the ones that change. On superpositions these rules apply to every part at once.
 

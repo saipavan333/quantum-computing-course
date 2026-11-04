@@ -14,7 +14,7 @@
 | Misreading which way it fell | Readout error |
 | Correcting your notes for a known misreading habit | Readout-error mitigation |
 
-**Where the picture breaks.** A top falls in one direction you can watch. A qubit's decay is random: each run, at an unknown moment, it may or may not relax, and the T1 curve only describes the average. Also, losing phase (T2) has no everyday picture; on the Bloch sphere it shrinks the arrow toward the center, which means the state becomes partly random, not just tilted.
+**Where the picture breaks.** A top falls in one direction you can watch. A qubit's decay is random: each run, at an unknown moment, it may or may not relax, and the T1 curve only describes the average. Also, losing phase (T2) has no everyday picture; on the Bloch sphere it shrinks the arrow's sideways part toward the vertical axis, which means the state becomes partly random, not just tilted.
 
 @@diagram:p2-noise|Leave |+⟩ alone with T1 = 100 µs and T2 = 80 µs: the arrow shrinks sideways (x = e^(−t/T2)) and sags toward |0⟩ (z = 1 − e^(−t/T1)). After 200 µs little quantum information is left.
 
