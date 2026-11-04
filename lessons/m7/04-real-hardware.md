@@ -1,5 +1,27 @@
 # Running on real hardware: primitives & Runtime
 
+## The simple version
+
+**In plain English.** To use a real quantum computer you send your circuit over the internet to IBM's cloud. Qiskit Runtime gives you two main tools, called primitives. The Sampler returns counts of bit strings, and the Estimator returns averages of measured quantities. Your job waits in a queue, runs for seconds, and the results stay saved for you to fetch later. Real chips make errors, so every extra gate lowers your chance of a clean answer.
+
+**The everyday picture: sending film to a photo lab.**
+
+| In the picture | In the real thing |
+|---|---|
+| Dropping off your roll of film | Submitting a job of transpiled circuits |
+| The line of other customers' orders | The queue, minutes to hours |
+| Prints vs a light-meter report | Sampler (counts) vs Estimator (averages) |
+| Collecting prints later with your ticket | Fetching results by job ID |
+| Dust and scratches on each print | Gate and readout errors |
+
+**Where the picture breaks.** Dust on a print spoils a small spot; a single gate error can corrupt the whole answer. And errors pile up multiplicatively: with 0.2% error per two-qubit gate, 500 gates leave roughly a 37% chance of an error-free run, which no photo lab would accept.
+
+@@diagram:p2-real-hardware|With 0.2% error per two-qubit gate, a rough estimate of an error-free run is 0.998^G: 98% at 10 gates, 82% at 100, 37% at 500, 13.5% at 1,000.
+
+@@viz:fidelity-budget
+
+## Going deeper
+
 Today your code leaves the simulator and executes on a physical quantum processor — 156 superconducting qubits at 15 millikelvin, controlled by microwave pulses, queued behind researchers worldwide. The interface is **Qiskit Runtime's V2 primitives**: `SamplerV2` (get bit-string samples) and `EstimatorV2` (get expectation values). Master their input format (PUBs), the execution modes, and the budget discipline of the free Open Plan, and you have the exact workflow used on paid enterprise plans — just with more zeros on the invoice.
 
 ## Start here — the intuition
@@ -315,3 +337,7 @@ Extrapolation: the signature decays roughly geometrically per added qubit (each 
 - ☐ Read a result: `result[k].data.<register>.get_counts()`.
 - ☐ Budget QPU‑seconds and apply filter → batch → broadcast → budget → log.
 - ☐ Report a hardware result's forbidden‑outcome rate with $\pm2\text{SE}$.
+
+## In one line
+
+Real hardware runs your circuits through a queue in the cloud, and every gate takes a small bite out of your result.

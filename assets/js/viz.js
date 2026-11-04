@@ -410,6 +410,37 @@
     F.on(draw); draw();
   };
 
+  /* =====================================================================
+     M7 real hardware — rough success budget: (1−e2)^G2 · (1−e1)^G1 · (1−er)^n
+     ===================================================================== */
+  V["fidelity-budget"] = function (host) {
+    var F = frame(host, "Error budget: how deep can a circuit go before the answer drowns?", 480, 270,
+      [{ type: "range", id: "e2", label: "Two-qubit gate error =", min: 0.0005, max: 0.02, step: 0.0005, value: 0.002 },
+       { type: "range", id: "g2", label: "Two-qubit gates G =", min: 0, max: 3000, step: 10, value: 300 },
+       { type: "range", id: "er", label: "Readout error per qubit =", min: 0, max: 0.05, step: 0.0025, value: 0.01 },
+       { type: "range", id: "n", label: "Qubits measured n =", min: 1, max: 100, step: 1, value: 20 }],
+      "Curve of estimated circuit success against number of two-qubit gates, with the current point marked");
+    function draw() {
+      var e2 = F.val("e2"), g2 = F.val("g2"), er = F.val("er"), n = F.val("n");
+      F.out("e2", f(100 * e2, 2) + "%"); F.out("g2", g2.toLocaleString("en-US")); F.out("er", f(100 * er, 2) + "%"); F.out("n", n);
+      var ro = Math.pow(1 - er, n), succ = function (g) { return Math.pow(1 - e2, g) * ro; }, s = succ(g2);
+      var x0 = 50, x1 = 460, y0 = 30, y1 = 220, X = function (g) { return x0 + g / 3000 * (x1 - x0); }, Y = function (p) { return y1 - p * (y1 - y0); };
+      var o = L(x0, y1, x1, y1, "var(--faint)", 1.2) + L(x0, y0, x0, y1, "var(--faint)", 1.2);
+      [0, 0.25, 0.5, 0.75, 1].forEach(function (p) { o += T(x0 - 6, Y(p) + 4, Math.round(100 * p) + "%", { s: 11, c: "var(--faint)", a: "end" }); o += L(x0, Y(p), x1, Y(p), "var(--border)", 0.8); });
+      [0, 1000, 2000, 3000].forEach(function (g) { o += T(X(g), y1 + 16, g.toLocaleString("en-US"), { s: 11, c: "var(--faint)" }); });
+      o += T((x0 + x1) / 2, 256, "two-qubit gates in the circuit", { s: 12, c: "var(--dim)" });
+      var pts = []; for (var g = 0; g <= 3000; g += 30) pts.push([X(g), Y(succ(g))]);
+      o += P(pts, "var(--acc2)", 2.4);
+      var g50 = Math.log(0.5 / ro) / Math.log(1 - e2);
+      if (g50 > 0 && g50 <= 3000) o += L(X(g50), Y(0.5), X(g50), y1, "var(--warn)", 1.2, "4 3") + T(X(g50) + 4, y1 - 8, "50% at " + Math.round(g50).toLocaleString("en-US"), { s: 11, c: "var(--warn)", a: X(g50) > 360 ? "end" : "start" });
+      o += C(X(g2), Y(s), 6, "var(--good)", "#0b0e14", 2) + T(Math.min(X(g2) + 10, 400), Math.max(Y(s) - 10, 44), pct(s, 1), { s: 14, b: true, c: "var(--good)", a: "start" });
+      F.draw(o);
+      F.read.innerHTML = "Estimated chance the whole run is error-free: (1 − " + f(e2, 4) + ")<sup>" + g2 + "</sup> × (1 − " + f(er, 4) + ")<sup>" + n + "</sup> = <b>" + pct(s, 1) + "</b>. " +
+        "This is a rough model: it ignores single-qubit gates, idle time and crosstalk, and errors are not always fatal to the answer. Mitigation can stretch it a little; error correction (Module 10) is the real fix.";
+    }
+    F.on(draw); draw();
+  };
+
   /* @@VIZ-INSERT */
 
   /* ---------- mount + simple-section styling ---------- */

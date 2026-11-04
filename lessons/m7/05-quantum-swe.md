@@ -1,5 +1,25 @@
 # Quantum software engineering: projects, tests, Git
 
+## The simple version
+
+**In plain English.** Quantum programs are still software, so they need the same habits: folders, version control with Git, and tests. The twist is that results are random. For small circuits you test the exact statevector. For sampled results you test that counts land within a tolerance set by the number of shots. Real hardware is slow and costly, so you test on it rarely, with small checks.
+
+**The everyday picture: a bakery's quality checks.**
+
+| In the picture | In the real thing |
+|---|---|
+| Weighing the flour exactly | Exact unit tests on statevectors |
+| Tasting a few cookies from each batch | Statistical tests on shots with a 3σ tolerance |
+| Sending a box to a real customer | A hardware smoke test |
+| The recipe book with dated changes | Git history |
+| Checks run every morning before opening | CI running tests on every commit |
+
+**Where the picture breaks.** A cookie that tastes wrong is wrong. A shot test can fail by pure chance even when the code is right (about 0.3% of the time at 3σ), so you fix the random seed in simulators and set tolerances on purpose. Bakery batches also don't drift overnight, while real quantum devices do.
+
+@@diagram:p2-quantum-swe|Three layers of tests: many exact statevector checks, some statistical checks on shots (σ ≈ 0.008 at 4,000 shots), and a few slow hardware smoke tests.
+
+## Going deeper
+
 Here is an open secret about quantum hiring: candidates who know quantum mechanics are common; candidates who can *ship maintainable quantum software* are rare — and teams pay for the second kind. This lesson converts your accumulated habits (referee checks, preflight ladders, metadata logging) into the formal structure employers recognize: project layout, automated tests, version control, and reproducible environments. It's the least glamorous lesson in the course and possibly the highest-paying one.
 
 ## Start here — the intuition
@@ -305,3 +325,7 @@ Why TDD specifically here: the register-naming trap is *remembered pain* (real-h
 - ☐ Use the daily Git loop and never commit credentials.
 - ☐ Attach six‑line provenance (commit, versions, seeds, backend, shots) to a result.
 - ☐ Run the promotion ritual: notebook → module + tests + benchmark + README + commit.
+
+## In one line
+
+Treat quantum code like real software: version it, test exactly where you can, and test statistically where results are random.

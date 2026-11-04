@@ -1623,6 +1623,90 @@
     return svg(276, b, "teleportation steps: Bell measurement on Alice's side gives two bits, sent by phone, and Bob's correction recreates the state");
   })();
 
+  // ---- P2 M7: qiskit circuits — four lines of code become a circuit and a counts dict ----
+  D["p2-qiskit-circuits"] = (() => {
+    let b = t(320, 24, "Four lines of Qiskit, the circuit they build, and what comes back", { bold: true, size: 15 });
+    b += box(14, 44, 236, 140, { stroke: C.acc, fill: C.card });
+    ["qc = QuantumCircuit(2)", "qc.h(0)", "qc.cx(0, 1)", "qc.measure_all()"].forEach((s, i) => { b += t(28, 74 + i * 30, s, { size: 14, fill: C.accT, a: "start" }); });
+    b += arrR(252, 114, 282, { stroke: C.line });
+    b += t(300, 74, "q0", { size: 13, fill: C.dim }) + t(300, 134, "q1", { size: 13, fill: C.dim });
+    b += ln(316, 70, 560, 70, { stroke: C.line }) + ln(316, 130, 560, 130, { stroke: C.line });
+    b += box(340, 54, 34, 32, { stroke: C.acc, fill: C.accFill }) + t(357, 75, "H", { size: 14, bold: true, fill: C.accT });
+    b += circ(410, 70, 5, { fill: C.cyan, stroke: C.cyan }) + ln(410, 70, 410, 130, { stroke: C.cyan }) + circ(410, 130, 11, { fill: "none", stroke: C.cyan }) + ln(399, 130, 421, 130, { stroke: C.cyan }) + ln(410, 119, 410, 141, { stroke: C.cyan });
+    [70, 130].forEach(y => { b += box(470, y - 16, 40, 32, { stroke: C.warn }) + `<path d="M478,${y + 6} A12,12 0 0,1 502,${y + 6}" style="fill:none;stroke:${C.warn};stroke-width:1.6"/>` + ln(490, y + 6, 500, y - 8, { stroke: C.warn }); });
+    b += t(357, 164, "superpose", { size: 11, fill: C.dim }) + t(410, 164, "entangle", { size: 11, fill: C.dim }) + t(490, 164, "measure", { size: 11, fill: C.dim });
+    b += ln(20, 200, 620, 200, { stroke: C.cardEdge });
+    b += t(24, 228, "Run 1,024 shots and you get a counts dict, roughly:", { size: 13, fill: C.tx, a: "start" });
+    b += box(380, 210, 240, 30, { stroke: C.good, fill: C.goodFill }) + t(500, 230, "{'00': ~512, '11': ~512}", { size: 14, bold: true, fill: C.goodT });
+    b += t(320, 264, "Never '01' or '10' on an ideal simulator. Qiskit reads bit strings right to left (q0 last).", { size: 11, fill: C.dim });
+    return svg(278, b, "Qiskit code for a Bell circuit, the drawn circuit with H, CNOT and two measurements, and a counts dictionary of about 512 00s and 512 11s");
+  })();
+
+  // ---- P2 M7: simulation — exact statevector vs sampled shots, and the memory bill ----
+  D["p2-simulation"] = (() => {
+    let b = t(320, 24, "Two ways to simulate the same Bell circuit", { bold: true, size: 15 });
+    const vals = [0.707, 0, 0, 0.707], lab = ["00", "01", "10", "11"];
+    b += box(14, 44, 296, 168, { stroke: C.cyan, fill: C.card }) + t(162, 66, "Statevector: exact amplitudes", { size: 13, bold: true, fill: C.cyanT });
+    vals.forEach((v, i) => { const h = v * 100, x = 40 + i * 66; b += box(x, 180 - h, 40, h, { r: 3, fill: C.cyanFill, stroke: C.cyan }); b += t(x + 20, 198, lab[i], { size: 12, fill: C.dim }) + t(x + 20, 172 - h, v ? "0.707" : "0", { size: 11, fill: C.tx }); });
+    b += box(330, 44, 296, 168, { stroke: C.warn, fill: C.card }) + t(478, 66, "Sampler: 1,024 shots, counts", { size: 13, bold: true, fill: C.warnT });
+    [0.49, 0, 0, 0.51].forEach((v, i) => { const h = v * 180, x = 356 + i * 66; b += box(x, 180 - h, 40, h, { r: 3, fill: C.warnFill, stroke: C.warn }); b += t(x + 20, 198, lab[i], { size: 12, fill: C.dim }); });
+    b += t(478, 86, "close to 50/50, but never exactly", { size: 11, fill: C.dim });
+    b += t(162, 86, "squares give exactly 0.5 and 0.5", { size: 11, fill: C.dim });
+    b += t(320, 240, "Statevector memory: 2ⁿ amplitudes × 16 bytes. 30 qubits ≈ 17.2 GB; 40 qubits ≈ 17.6 TB.", { size: 12, fill: C.tx });
+    b += t(320, 262, "Use statevector to debug small circuits; use shots to see what hardware will show you.", { size: 12, fill: C.dim });
+    return svg(276, b, "statevector simulation shows exact amplitudes 0.707 on 00 and 11; sampling shows counts near half and half");
+  })();
+
+  // ---- P2 M7: transpilation — route a gate between unconnected qubits ----
+  D["p2-transpilation"] = (() => {
+    let b = t(320, 24, "Transpiling: rewrite your circuit for the real chip's wiring and gates", { bold: true, size: 15 });
+    b += t(24, 56, "Chip wiring (a line):", { size: 13, bold: true, fill: C.tx, a: "start" });
+    [0, 1, 2].forEach(i => { const x = 220 + i * 110; b += circ(x, 52, 16, { fill: C.box, stroke: C.cyan }) + t(x, 57, "Q" + i, { size: 12, bold: true, fill: C.cyanT }); if (i < 2) b += ln(x + 16, 52, x + 94, 52, { stroke: C.cyan, sw: 2.5 }); });
+    b += t(540, 57, "no Q0–Q2 link", { size: 12, fill: C.badT, a: "start" });
+    const steps = [["1. You wrote", "CX(Q0, Q2)", "but Q0 and Q2 aren't wired", C.acc, C.accT],
+      ["2. Routing", "SWAP(Q1, Q2), CX(Q0, Q1)", "a SWAP costs 3 two-qubit gates", C.warn, C.warnT],
+      ["3. Translation", "H → RZ · SX · RZ", "only native gates: rz, sx, x, ecr or cz", C.cyan, C.cyanT],
+      ["4. Optimization", "merge and cancel gates", "fewer gates = less error", C.good, C.goodT]];
+    steps.forEach((s, i) => {
+      const y = 82 + i * 44;
+      b += box(20, y, 600, 38, { stroke: s[3] }) + t(34, y + 24, s[0], { size: 13, bold: true, fill: s[4], a: "start" });
+      b += t(170, y + 24, s[1], { size: 13, fill: C.tx, a: "start" }) + t(606, y + 24, s[2], { size: 12, fill: C.dim, a: "end" });
+      if (i < 3) b += arrD(320, y + 39, y + 43, { stroke: C.faint });
+    });
+    b += t(320, 274, "Layout and routing usually decide most of the final error budget.", { size: 12, fill: C.dim });
+    return svg(286, b, "a chip with qubits in a line; a CX between unconnected qubits is routed with a SWAP, translated to native gates and optimized");
+  })();
+
+  // ---- P2 M7: real hardware — every gate takes a small bite out of success ----
+  D["p2-real-hardware"] = (() => {
+    let b = t(320, 24, "On real chips, every two-qubit gate takes a bite out of your result", { bold: true, size: 15 });
+    b += t(320, 50, "If each two-qubit gate fails 0.2% of the time (error 2×10⁻³), success ≈ 0.998^G", { size: 13, fill: C.tx });
+    const rows = [[10, 0.998 ** 10], [100, 0.998 ** 100], [500, 0.998 ** 500], [1000, 0.998 ** 1000], [3000, 0.998 ** 3000]];
+    rows.forEach(([g, p], i) => {
+      const y = 72 + i * 36, w = p * 400;
+      b += t(120, y + 19, "G = " + g.toLocaleString("en-US") + " gates", { size: 13, fill: C.tx, a: "end" });
+      b += box(134, y, 400, 26, { r: 4, fill: C.box, stroke: C.boxS }) + box(134, y, Math.max(2, w), 26, { r: 4, fill: p > 0.5 ? C.goodFill : p > 0.1 ? C.warnFill : C.badFill, stroke: p > 0.5 ? C.good : p > 0.1 ? C.warn : C.bad });
+      b += t(544, y + 19, (100 * p).toFixed(1) + "%", { size: 13, bold: true, fill: p > 0.5 ? C.goodT : p > 0.1 ? C.warnT : C.badT, a: "start" });
+    });
+    b += t(320, 264, "A rough rule (ignores 1-qubit gates, readout and idle time), but it shows why depth matters.", { size: 11, fill: C.dim });
+    return svg(278, b, "bars showing estimated success of 98 percent at 10 gates down to 0.2 percent at 3000 gates for 0.2 percent error per gate");
+  })();
+
+  // ---- P2 M7: quantum SWE — three kinds of tests ----
+  D["p2-quantum-swe"] = (() => {
+    let b = t(320, 24, "Testing quantum code: exact, statistical, and on hardware", { bold: true, size: 15 });
+    const lv = [["Unit tests on statevectors", "exact: assert amplitudes match, to 1e-9", "many, fast, every commit", C.good, C.goodT, 560],
+      ["Statistical tests on shots", "assert |p̂ − 0.5| < 3σ, σ = √(0.25/4000) ≈ 0.008", "some, seconds, every commit", C.warn, C.warnT, 460],
+      ["Hardware smoke tests", "one small circuit, loose tolerance", "few, minutes to hours of queue, weekly", C.bad, C.badT, 360]];
+    lv.forEach((l, i) => {
+      const w = l[5], x = 320 - w / 2, y = 48 + i * 66;
+      b += box(x, y, w, 56, { stroke: l[3] }) + t(320, y + 20, l[0], { size: 14, bold: true, fill: l[4] });
+      b += t(320, y + 37, l[1], { size: 12, fill: C.tx }) + t(320, y + 51, l[2], { size: 11, fill: C.dim });
+    });
+    b += t(320, 260, "Seed simulators so tests repeat, keep circuits in Git, and run the cheap layers in CI.", { size: 12, fill: C.dim });
+    return svg(276, b, "three layers of tests: exact statevector unit tests, statistical shot tests with a 3 sigma tolerance, and rare hardware smoke tests");
+  })();
+
   // @@P2-INSERT
   window.DIAGRAMS = Object.assign(window.DIAGRAMS || {}, D);
 })();
