@@ -1,5 +1,25 @@
 # Capstone portfolio: three projects that get interviews
 
+## The simple version
+
+**In plain English.** A capstone is a finished project that shows an employer what you can do. This lesson gives you three: a hardware benchmarking suite, a VQE chemistry study, and an error-correction threshold study. Each matches a different kind of quantum job. Every one should ship working code, tests, a clear README with a results plot, and a short story you can tell in an interview. One finished project is worth more than three half-built ones.
+
+**The everyday picture: an artist's portfolio.**
+
+| In the picture | In the real thing |
+|---|---|
+| Three finished paintings in different styles | Three projects for three job tracks |
+| The paintings themselves | Working code |
+| Proof the paint won't crack | Tests |
+| The gallery card next to each painting | The README with a results plot |
+| Explaining your choices to a buyer | The 2-minute interview story |
+
+**Where the picture breaks.** A painting only has to look good. A quantum project also has to be honest: it should compare against exact or classical answers, show error bars, and say what didn't work. Reviewers check that, and an over-claimed result hurts more than a modest, correct one.
+
+@@diagram:p2-capstones|The three capstones and the four things each one ships: code, tests, a README with a plot, and a short story for interviews.
+
+## Going deeper
+
 Knowledge gets you past a resume screen; a portfolio gets you the job. In a field where most applicants have watched the same lectures, *demonstrated ability* — real code, real results, honest analysis — is the differentiator. This lesson specifies three portfolio projects, each exercising a different competency band, each producing a public artifact (GitHub repo + README + plots) that concretely proves you can do the work. Build these to the standard described and you'll have more to show than most bootcamp graduates and many degree holders. They also double as the answer to the inevitable interview question: "tell me about a quantum project you built."
 
 ## Start here — the intuition
@@ -145,7 +165,7 @@ README-driven development (writing the README before the code) is a real profess
 
 *This project computes the H₂ molecule's dissociation curve using the Variational Quantum Eigensolver, comparing ansätze and optimizers across noiseless simulation and real IBM hardware with error mitigation. It reproduces the equilibrium bond length (0.735 Å) and benchmarks every result against exact classical diagonalization. Built with Qiskit 2.x; runs on free simulators and the IBM Open Plan.*
 
-*![dissociation curve](results/dissociation.png)*
+*Image line in the README:* `![dissociation curve](results/dissociation.png)`
 *Figure: H₂ ground-state energy vs bond length — exact (line), noiseless VQE (circles), mitigated hardware VQE (squares, ±2σ). Hardware reaches within 1.5% of exact after readout + ZNE mitigation. Note: H₂ is classically trivial; this demonstrates method fluency, not quantum advantage.*
 
 *## Reproduce*
@@ -190,3 +210,7 @@ Reviewed against "would a hiring manager keep reading?": the first sentence stat
 - ☐ Describe a "money shot" figure and write an honest, error‑barred caption for it.
 - ☐ Say why volunteering limitations strengthens a project.
 - ☐ Scope one capstone to Milestone 1 at professional standard in your growing repo.
+
+## In one line
+
+Finish one strong project with code, tests, a plot and an honest write-up, and it will open more doors than any certificate.

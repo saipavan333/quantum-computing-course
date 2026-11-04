@@ -1871,6 +1871,84 @@
     return svg(276, b, "pipeline from data through a feature map and quantum part to a classical model and label, with a summary of the evidence");
   })();
 
+  // ---- P2 M10: QEC — 3-bit repetition code: parity checks find the flip ----
+  D["p2-qec"] = (() => {
+    let b = t(320, 24, "Repetition code: store a bit 3 times, find a flip without reading it", { bold: true, size: 15 });
+    const q = [["0", C.cyan, C.cyanT], ["1", C.bad, C.badT], ["0", C.cyan, C.cyanT]];
+    b += t(24, 70, "logical 0 = 000", { size: 13, fill: C.dim, a: "start" }) + t(24, 90, "noise flips q1:", { size: 13, fill: C.badT, a: "start" });
+    q.forEach((d, i) => { const x = 200 + i * 120; b += circ(x, 80, 22, { fill: C.box, stroke: d[1], sw: 2.4 }) + t(x, 86, d[0], { size: 16, bold: true, fill: d[2] }) + t(x, 120, "q" + i, { size: 12, fill: C.dim }); });
+    [["Z0·Z1 check", 260, "1 (differ)"], ["Z1·Z2 check", 380, "1 (differ)"]].forEach(([n, x, v]) => { b += box(x - 50, 136, 100, 46, { stroke: C.warn, fill: C.warnFill }) + t(x, 155, n, { size: 12, fill: C.warnT }) + t(x, 173, v, { size: 13, bold: true, fill: C.warnT }); b += ln(x - 30, 136, x - 50, 104, { stroke: C.warn }) + ln(x + 30, 136, x + 50, 104, { stroke: C.warn }); });
+    b += arrR(432, 159, 470, { stroke: C.line }) + box(472, 136, 150, 46, { stroke: C.good, fill: C.goodFill }) + t(547, 155, "syndrome 1,1", { size: 12, fill: C.goodT }) + t(547, 173, "→ flip q1 back", { size: 13, bold: true, fill: C.goodT });
+    b += t(320, 210, "Logical error = 3p² − 2p³ (two or more of the three flip):", { size: 13, fill: C.tx });
+    b += t(320, 232, "p = 1% → 0.03%     p = 10% → 2.8%     it helps only while p < 50%", { size: 13, bold: true, fill: C.accT });
+    b += t(320, 258, "Checks compare neighbors, never the value itself, so the encoded state survives the check.", { size: 12, fill: C.dim });
+    return svg(272, b, "three data qubits 0 1 0 with two parity checks both reading 1, which points to the middle qubit; logical error 3p squared minus 2p cubed");
+  })();
+
+  // ---- P2 M10: surface code — a grid of local checks; bigger grid, fewer logical errors ----
+  D["p2-surface-code"] = (() => {
+    let b = t(320, 24, "Surface code: a grid of data qubits watched by local checks", { bold: true, size: 15 });
+    const ox = 60, oy = 60, s = 60;
+    for (let i = 0; i < 2; i++) for (let j = 0; j < 2; j++) { const x = ox + 30 + j * s, y = oy + 30 + i * s, hot = (i === 0 && j === 1) || (i === 1 && j === 1); b += box(x - 14, y - 14, 28, 28, { r: 4, stroke: hot ? C.bad : C.acc, fill: hot ? C.badFill : C.box }); }
+    for (let i = 0; i < 3; i++) for (let j = 0; j < 3; j++) { const x = ox + j * s, y = oy + i * s, err = i === 1 && j === 2; b += circ(x, y, 10, { fill: err ? C.badFill : C.box, stroke: err ? C.bad : C.cyan, sw: 2 }); }
+    b += t(ox + 60, oy + 150, "d = 3: 9 data qubits (dots)", { size: 12, fill: C.cyanT }) + t(ox + 60, oy + 168, "+ inner checks (squares)", { size: 12, fill: C.dim });
+    b += t(ox + 60, oy + 190, "an error flips checks that touch it", { size: 12, fill: C.badT });
+    b += t(440, 60, "Model: p_L ≈ 0.1 × (p / 1%)^((d+1)/2)", { size: 13, bold: true, fill: C.tx });
+    b += t(440, 80, "at physical error p = 0.1%:", { size: 12, fill: C.dim });
+    [[3, "0.001", 18], [5, "0.0001", 50], [7, "0.00001", 98]].forEach(([d, pl, n], i) => {
+      const y = 100 + i * 40;
+      b += box(290, y, 300, 32, { stroke: C.good }) + t(306, y + 21, "d = " + d, { size: 13, bold: true, fill: C.goodT, a: "start" }) + t(380, y + 21, "p_L ≈ " + pl, { size: 13, fill: C.tx, a: "start" }) + t(580, y + 21, "~" + n + " qubits", { size: 12, fill: C.dim, a: "end" });
+    });
+    b += t(440, 242, "Each step in d: 10× fewer errors, ~2d² qubits each.", { size: 12, fill: C.dim });
+    b += t(440, 262, "Above the ~1% threshold, bigger codes make things worse.", { size: 12, fill: C.warnT });
+    return svg(276, b, "a 3 by 3 grid of data qubits with checks in between, one error lighting two checks; a table of logical error falling as distance grows");
+  })();
+
+  // ---- P2 M10: FTQC — the fault-tolerant stack and the T-gate factory ----
+  D["p2-ftqc"] = (() => {
+    let b = t(320, 24, "A fault-tolerant computer, layer by layer", { bold: true, size: 15 });
+    const L = [["your algorithm (e.g. Shor, chemistry)", C.good, C.goodT, 52], ["logical gates: Clifford gates are cheap", C.acc, C.accT, 106], ["logical qubits: surface-code patches", C.cyan, C.cyanT, 160], ["physical qubits: noisy, ~0.1% error per gate", C.boxS, C.tx, 214]];
+    L.forEach(([s, c, ct, y], i) => { b += box(20, y, 400, 42, { stroke: c }) + t(220, y + 26, s, { size: 13, bold: true, fill: ct }); if (i < 3) b += arrU(220, y + 52, y + 44, { stroke: C.faint }); });
+    b += box(450, 96, 170, 110, { stroke: C.warn, fill: C.warnFill }) + t(535, 120, "magic-state", { size: 13, bold: true, fill: C.warnT }) + t(535, 138, "factory", { size: 13, bold: true, fill: C.warnT });
+    b += t(535, 160, "makes the T gates", { size: 12, fill: C.tx }) + t(535, 178, "that can't be built", { size: 12, fill: C.dim }) + t(535, 194, "from the safe parts", { size: 12, fill: C.dim });
+    b += arrL(448, 127, 424, { stroke: C.warn });
+    b += t(320, 272, "Most of the machine's qubits and time go to the T-gate factories, so T count is the cost that matters.", { size: 11, fill: C.dim });
+    return svg(284, b, "stack from physical qubits to logical qubits to logical gates to the algorithm, with a magic-state factory feeding T gates");
+  })();
+
+  // ---- P2 M11: landscape — how to read a hardware headline ----
+  D["p2-landscape"] = (() => {
+    let b = t(320, 24, "Reading a hardware headline: ask these questions in order", { bold: true, size: 15 });
+    const q = [["\"1,000 qubits!\"", "the headline", C.boxS, C.tx], ["2-qubit error?", "0.1% means ~1,000 gates before a likely error", C.warn, C.warnT], ["connectivity and speed?", "who can talk to whom, and how fast", C.cyan, C.cyanT], ["logical qubits?", "error-corrected, and at what overhead", C.acc, C.accT], ["checked by others?", "peer review, open data, a classical rebuttal", C.good, C.goodT]];
+    q.forEach(([h, d, c, ct], i) => { const y = 44 + i * 44, w = 600 - i * 50, x = 320 - w / 2; b += box(x, y, w, 36, { stroke: c }) + t(x + 14, y + 23, h, { size: 13, bold: true, fill: ct, a: "start" }) + t(x + w - 14, y + 23, d, { size: 12, fill: C.dim, a: "end" }); });
+    b += t(320, 272, "Superconducting, trapped-ion, neutral-atom and photonic machines each win on different rows.", { size: 12, fill: C.tx });
+    return svg(286, b, "a funnel of five questions for judging a quantum hardware announcement, from qubit count to independent verification");
+  })();
+
+  // ---- P2 M11: capstones — three projects, three tracks ----
+  D["p2-capstones"] = (() => {
+    let b = t(320, 24, "Three portfolio projects, each proving a different skill", { bold: true, size: 15 });
+    const P = [["Hardware benchmarking", "systems / software", "runs real devices, tracks drift", C.cyan, C.cyanT], ["VQE chemistry study", "applications / research", "honest comparison to exact answers", C.acc, C.accT], ["QEC threshold study", "theory / error correction", "simulates codes, finds the threshold", C.good, C.goodT]];
+    P.forEach(([n, tr, d, c, ct], i) => { const x = 14 + i * 210; b += box(x, 46, 194, 92, { stroke: c }) + t(x + 97, 70, n, { size: 13, bold: true, fill: ct }) + t(x + 97, 92, tr, { size: 12, fill: C.dim }) + t(x + 97, 116, d, { size: 11, fill: C.tx }); });
+    const S = ["working code", "tests", "README + plot", "a 2-minute story"];
+    S.forEach((s, i) => { const x = 40 + i * 150; b += box(x, 176, 130, 38, { stroke: C.boxS }) + t(x + 65, 200, s, { size: 13, fill: C.tx }); if (i < 3) b += arrR(x + 132, 195, x + 148, { stroke: C.faint }); });
+    b += t(320, 160, "every project ships the same four things:", { size: 12, fill: C.dim });
+    b += t(320, 248, "One finished project beats three half-built ones. Start with the job you want.", { size: 12, fill: C.warnT });
+    return svg(266, b, "three capstone projects for systems, applications and theory tracks, each delivering code, tests, a README with a plot, and a short story");
+  })();
+
+  // ---- P2 M11: career — from course to offer ----
+  D["p2-career"] = (() => {
+    let b = t(320, 24, "From this course to a quantum job offer", { bold: true, size: 15 });
+    const S = [["skills", "Modules 0–10", C.acc, C.accT], ["proof", "capstone portfolio", C.cyan, C.cyanT], ["story", "resume + GitHub", C.warn, C.warnT], ["practice", "interview bank", C.good, C.goodT], ["offer", "", C.good, C.goodT]];
+    S.forEach(([h, d, c, ct], i) => { const x = 14 + i * 126; b += box(x, 48, 110, 56, { stroke: c }) + t(x + 55, 72, h, { size: 14, bold: true, fill: ct }) + (d ? t(x + 55, 92, d, { size: 11, fill: C.dim }) : ""); if (i < 4) b += arrR(x + 112, 76, x + 124, { stroke: C.faint }); });
+    b += t(320, 140, "The main job families:", { size: 13, bold: true, fill: C.tx });
+    const J = [["quantum software engineer", "SDKs, compilers, tooling"], ["algorithms / research scientist", "new methods, papers"], ["applications / solutions", "industry problems, clients"], ["hardware / experimental", "labs, control, calibration"]];
+    J.forEach(([h, d], i) => { const x = 20 + (i % 2) * 305, y = 156 + Math.floor(i / 2) * 50; b += box(x, y, 295, 42, { stroke: C.boxS }) + t(x + 14, y + 18, h, { size: 13, bold: true, fill: C.accT, a: "start" }) + t(x + 14, y + 34, d, { size: 11, fill: C.dim, a: "start" }); });
+    b += t(320, 274, "A data or software engineer usually enters through the software and applications doors.", { size: 12, fill: C.dim });
+    return svg(286, b, "a path from skills to proof to story to practice to an offer, and four quantum job families");
+  })();
+
   // @@P2-INSERT
   window.DIAGRAMS = Object.assign(window.DIAGRAMS || {}, D);
 })();

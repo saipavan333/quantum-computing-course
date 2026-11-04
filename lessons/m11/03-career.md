@@ -1,5 +1,25 @@
 # Getting hired: interviews, resume, community
 
+## The simple version
+
+**In plain English.** Quantum companies hire for a few kinds of roles: software engineers, algorithm researchers, applications specialists and hardware experimentalists. Most need solid programming and linear algebra more than a physics PhD, though research roles often want one. To get hired you need skills, proof of them (your portfolio), a clear story on your resume, and interview practice. The community is open, so join it: forums, Qiskit events and open-source projects. If you come from software or data engineering, the software and applications roles are the natural way in.
+
+**The everyday picture: getting onto a sports team.**
+
+| In the picture | In the real thing |
+|---|---|
+| Training | Working through the course modules |
+| Game footage of you playing | Your capstone portfolio |
+| Your player profile | Resume and GitHub |
+| Practice matches | The interview bank |
+| Different positions on the team | Software, algorithms, applications, hardware roles |
+
+**Where the picture breaks.** Sports teams pick from tryouts on one day. Quantum hiring is slower and more about whether people already know your work, which is why open-source contributions and public write-ups matter so much. The field is also small and changes fast, so job titles and requirements shift from year to year.
+
+@@diagram:p2-career|The path from skills to proof to story to practice to an offer, and the four main job families. Software and data engineers usually enter through software or applications roles.
+
+## Going deeper
+
 This is the last lesson, and it's the most practical: how to convert everything you've built into an actual job. The quantum job market in 2026 is real, growing, and — contrary to the PhD-gatekeeping myth — increasingly open to strong self-taught and bachelor's-level candidates for software and applications roles. This lesson covers the job map, a resume strategy for career-changers, a 40-question interview bank with answers, and where the community actually lives. You've done the hard part (the twelve modules); this is the map for the last mile.
 
 ## Start here — the intuition
@@ -213,3 +233,7 @@ Reviewed against "would this get a first-round interview?": Does the resume lead
 - ☐ Handle an unknown question with reasoning instead of bluffing.
 - ☐ Name where the community lives and how contributing there creates opportunity.
 - ☐ Assemble a complete application package and start applying while still building.
+
+## In one line
+
+Build the skills, prove them with a portfolio, tell the story clearly, practice interviews, and join the community.

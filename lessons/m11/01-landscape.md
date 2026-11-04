@@ -1,5 +1,25 @@
 # The 2026 hardware & industry landscape
 
+## The simple version
+
+**In plain English.** Several kinds of quantum computers are being built, and none has clearly won. Superconducting chips (IBM, Google) are fast but need fridges colder than outer space. Trapped ions (Quantinuum, IonQ) have very accurate gates and connect every qubit, but run slower. Neutral atoms reach large qubit counts, and photonic machines use light. When you read a hardware headline, ask about error rates and verification, not just qubit count.
+
+**The everyday picture: comparing cars by more than top speed.**
+
+| In the picture | In the real thing |
+|---|---|
+| Number of seats | Number of qubits |
+| How often the car breaks down | Two-qubit gate error rate |
+| Which seats can talk to which | Connectivity: neighbors only, or all-to-all |
+| Top speed | Gate speed |
+| An independent road test | Peer review and independent checks of a claim |
+
+**Where the picture breaks.** You can test-drive a car today and buy the best one. Quantum hardware is still a moving research field: the 'best' changes with each paper, many claims are hard to check, and the real prize, a large fault-tolerant machine, doesn't exist yet. The figures in this lesson are dated; check them again when you read this.
+
+@@diagram:p2-landscape|Five questions to ask of any hardware headline, from qubit count down to independent checks. 0.1% two-qubit error means roughly 1,000 gates before an error is likely.
+
+## Going deeper
+
 You've learned to program quantum computers and reason about their future. Now the map of the actual industry: the competing hardware technologies (with real 2026 numbers), the major players, and how to evaluate the claims you'll encounter daily. This isn't trivia — quantum roles expect you to know the landscape, discuss trade-offs between modalities, and assess vendor claims. This lesson makes you conversant in the industry you're joining, which matters in interviews as much as your Qiskit skills.
 
 ## Start here — the intuition
@@ -177,3 +197,7 @@ Checked 3 November 2026. Roadmap items are company *targets*, not results.
 - ☐ Run a headline through the claim filter (physical/logical, demonstrated/projected, advantage/demonstration, metric, I/O).
 - ☐ Invert a hype ranking and justify why below‑threshold outranks a qubit‑count record.
 - ☐ Connect modality trade‑offs to fault‑tolerance economics (fidelity vs speed vs count).
+
+## In one line
+
+Several quantum hardware types are racing, and the honest way to compare them is by error rates and verified results, not qubit count.
